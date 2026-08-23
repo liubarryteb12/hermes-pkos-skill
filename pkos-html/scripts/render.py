@@ -120,16 +120,17 @@ def main(argv=None) -> int:
         md_text = md_text[end + 4:] if end != -1 else md_text
 
     title, body = md_to_body(md_text)
-    subtitle = f"{tj['name']} · route={args.route_id} · source={args.source_id}"
+    # 出处信息只藏进注释与 meta（用户裁定：读者不可见，制作人查源码可知）
+    provenance = f"route={args.route_id} source={args.source_id} theme={tj['id']}"
     doc = (
         "<!doctype html>\n"
         f'<!-- pkos-output source={args.source_id} route={args.route_id} theme={tj["id"]} -->\n'
         '<html lang="zh-CN" data-style="' + tj["id"] + '">\n<head>\n<meta charset="utf-8">\n'
         f"<title>{html.escape(title)}</title>\n"
+        f'<meta name="generator" content="PKOS render.py ({provenance})">\n'
         "<style>\n" + css + "\n</style>\n</head>\n<body>\n"
         '<main class="pk-article">\n'
         + body + "\n"
-        + f'<p class="pk-meta">PKOS · {tj["id"]} · route={args.route_id} · source={args.source_id}</p>\n'
         "</main>\n</body>\n</html>\n"
     )
     out = Path(args.out)

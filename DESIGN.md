@@ -245,6 +245,7 @@ workspace/skills/personal-knowledge-os/
   - 一切派生文档由脚本 `--check` 再生成，排版器/文档/skill 永远同源；lint 作新主题注册门禁；同一规则只允许一个权威来源（防双轨）。
   - **三个词分开治理**：版式稳定 = 组件层（槽位×⭐变体）+ 模板骨架；风格一致 = token 层 + reference.html 金标准；气质稳定 = 配方表 + 视觉层级频率上限（锚点全文 ≤5 处、每段标记 1–3 处、点缀组件 ≤3 种）。
 - **装配方式**：LLM 只产结构化中间表示（选槽位、填内容），`render.py` 做 MD + theme.json → HTML 的确定性装配——HTML 一律从组件库取，禁止凭记忆手写（gzh/xhs 共同铁律）；一篇文章只用一套主题，不跨主题混用。
+- **出处隐藏策略（用户裁定 2026-08-24）**：出口产物一律无可见出处页脚；route/source/theme 只写入文件头注释与 `<meta name="generator">`——读者不可见，制作人查源码可知。pk-meta 样式仅保留在主题组件库供手写场景。
 - **组件协议**：槽位 × 命名变体（如 xhs 的 `h2_consoleHash`），每槽位标 ⭐选用 + 备选黑名单（「未用变体勿混入以免破坏气质」，可机械校验）；语义组件优先，Raw 自由层受主题约束（beautiful-article reacticle 原则）。
 - **风格契约提取法**（html-anything）：新主题入库必须提取「8 项不变量 + what must be absent」，不许只抄表面样式；根元素打 data-style 标记、≥N 个主题专属 class 作为可 grep 的忠实度锚点。
 - **流程**：编辑部式 harness 精简为 source → 规划（单文件 plan.md：Brief/Outline/Theme/Assets）→ 首屏抽样确认 → 全量生成 → 终审 → 修复（beautiful-article）。
