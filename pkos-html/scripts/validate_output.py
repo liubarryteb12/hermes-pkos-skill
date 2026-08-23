@@ -29,7 +29,29 @@ def check_web_single_file(text: str) -> list[tuple[bool, str]]:
     return checks
 
 
-CHECKSETS = {"web-single-file": check_web_single_file}
+def check_web_combined(text: str) -> list[tuple[bool, str]]:
+    # 继承单文件检查，但两处按合并版语义调整：
+    # ① 内联 runtime 脚本是功能本体——只禁外链脚本；② 头注释含 kind= 前缀，放宽为前缀匹配
+    adjusted = []
+    for ok, name in check_web_single_file(text):
+        if name == "无脚本（离线零依赖）":
+            adjusted.append((not re.search(r'<script\b[^>]*\bsrc=', text), "脚本全部内联（无外链 script src）"))
+        elif name == "文件头注释含 pkos-output source 标记":
+            head = text.split("-->")[0] if "<!--" in text else ""
+            adjusted.append(("<!-- pkos-output " in head and "source=" in head,
+                             "头注释含 pkos-output 与 source"))
+        else:
+            adjusted.append((ok, name))
+    extra = [
+        ('id="readview"' in text and 'id="deckview"' in text, "阅读/放映双容器齐备"),
+        ('class="notes"' in text, "讲稿 .notes 物理分离在场"),
+        ('id="mode-toggle"' in text, "模式切换控件在场"),
+        ("kind=combined" in text, "头注释标记 kind=combined"),
+    ]
+    return adjusted + extra
+
+
+CHECKSETS = {"web-single-file": check_web_single_file, "web-combined": check_web_combined}
 
 
 def main(argv=None) -> int:
