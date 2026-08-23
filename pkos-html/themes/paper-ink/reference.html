@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN" data-style="paper-ink">
+<head>
+<meta charset="utf-8">
+<title>金标准：纸墨 · 学习路径样张</title>
+<style>
+/* 金标准视觉合同：与 theme.css 同源的完整样式。构建时 build_themes --check 校验
+   本文件包含 theme.json recipes 的全部槽位类名。 */
+:root{--bg:#faf7f2;--ink:#2b2723;--ink-soft:#6b6257;--accent:#a4443b;--line:#e4dcd0;--card:#f3ede4;--font-body:'Noto Serif SC','Source Han Serif SC','SimSun',serif;--font-head:'Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'Cascadia Code',monospace}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.95}
+.pk-article{max-width:42rem;margin:0 auto;padding:56px 26px 80px}
+.pk-title{font-family:var(--font-head);font-size:1.9em;font-weight:700;text-align:center;letter-spacing:.04em;margin:0 0 .4em}
+.pk-subtitle{text-align:center;color:var(--ink-soft);font-family:var(--font-head);font-size:.92em;margin:0 0 3em}
+.pk-h2{font-family:var(--font-head);font-size:1.28em;margin:2.8em 0 1em;padding-bottom:.45em;border-bottom:1px solid var(--line)}
+.pk-h2 .pk-no{color:var(--accent);font-weight:700;margin-right:.55em}
+.pk-h3{font-family:var(--font-head);font-size:1.06em;margin:1.8em 0 .6em}
+p{margin:1em 0;text-align:left}
+.pk-callout{background:var(--card);border-left:3px solid var(--line);margin:1.4em 0;padding:.9em 1.25em}
+.pk-callout p{margin:.2em 0}
+ol.pk-steps{padding-left:1.5em}
+ol.pk-steps li{margin:.7em 0}
+ol.pk-steps li::marker{color:var(--accent);font-weight:700}
+ul.pk-dash{list-style:none;padding-left:1.2em}
+ul.pk-dash li::before{content:"–";color:var(--ink-soft);margin-right:.6em}
+table.pk-zebra{border-collapse:collapse;width:100%;font-size:.93em;margin:1.4em 0}
+table.pk-zebra th{font-family:var(--font-head);background:var(--card);text-align:left;padding:.55em .8em;border-bottom:2px solid var(--line)}
+table.pk-zebra td{padding:.55em .8em;border-bottom:1px solid var(--line)}
+table.pk-zebra tr:nth-child(even) td{background:var(--card)}
+a{color:inherit;text-decoration:underline;text-decoration-color:var(--line)}
+a:hover{text-decoration-color:var(--accent)}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--card);padding:.1em .35em;border-radius:3px}
+.pk-meta{margin-top:4.5em;padding-top:1em;border-top:1px solid var(--line);color:var(--ink-soft);font-family:var(--font-mono);font-size:.78em}
+</style>
+</head>
+<body>
+<main class="pk-article">
+  <h1 class="pk-title">从卡片盒到双链笔记</h1>
+  <p class="pk-subtitle">Zettelkasten 入门路径 · PKOS · paper-ink 金标准样张</p>
+
+  <h2 class="pk-h2"><span class="pk-no">01</span>它解决什么问题</h2>
+  <p>知识攒了一堆用不起来，是因为只存不联。卡片盒的答案：小卡片、编号、互相引用。</p>
+  <blockquote class="pk-callout"><p>卢曼做了 9 万张卡，写出约 50 本书。</p></blockquote>
+
+  <h2 class="pk-h2"><span class="pk-no">02</span>三条历史证据</h2>
+  <ol class="pk-steps">
+    <li>Gessner 把散页从装订册里解放出来（16 世纪）</li>
+    <li>Harrison 做出带主题挂钩的卡片柜（17 世纪）</li>
+    <li>卢曼用分支编号把卡片连成网络（20 世纪）</li>
+  </ol>
+
+  <h2 class="pk-h2"><span class="pk-no">03</span>对照表</h2>
+  <table class="pk-zebra">
+    <tr><th>做法</th><th>结果</th></tr>
+    <tr><td>归类归档</td><td>存得下，想不起</td></tr>
+    <tr><td>链接生长</td><td>旧卡组合出新想法</td></tr>
+  </table>
+
+  <h2 class="pk-h2"><span class="pk-no">04</span>今天怎么开始</h2>
+  <ul class="pk-dash">
+    <li>一张卡一个想法，写完立刻找一张旧卡链上</li>
+    <li>编号只为插入定位，不为分类完美</li>
+  </ul>
+
+  <p class="pk-meta">PKOS · paper-ink · route=RT-… · source=…</p>
+</main>
+</body>
+</html>

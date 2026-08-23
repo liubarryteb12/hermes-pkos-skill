@@ -1,0 +1,88 @@
+/* paper-ink · 纸墨 —— 单一 CSS 权威源；render.py 直接内联本文件 */
+:root {
+  --bg: #faf7f2;
+  --ink: #2b2723;
+  --ink-soft: #6b6257;
+  --accent: #a4443b;
+  --line: #e4dcd0;
+  --card: #f3ede4;
+  --font-body: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+  --font-head: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'Cascadia Code', 'Consolas', monospace;
+  --max-width: 42rem;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.95;
+}
+.pk-article { max-width: var(--max-width); margin: 0 auto; padding: 56px 26px 80px; }
+.pk-title {
+  font-family: var(--font-head);
+  font-size: 1.9em;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: .04em;
+  margin: 0 0 .4em;
+}
+.pk-subtitle {
+  text-align: center;
+  color: var(--ink-soft);
+  font-family: var(--font-head);
+  font-size: .92em;
+  margin: 0 0 3em;
+}
+.pk-h2 {
+  font-family: var(--font-head);
+  font-size: 1.28em;
+  margin: 2.8em 0 1em;
+  padding-bottom: .45em;
+  border-bottom: 1px solid var(--line);
+}
+.pk-h2 .pk-no { color: var(--accent); font-weight: 700; margin-right: .55em; }
+.pk-h3 { font-family: var(--font-head); font-size: 1.06em; margin: 1.8em 0 .6em; }
+p { margin: 1em 0; text-align: left; }
+.pk-callout {
+  background: var(--card);
+  border-left: 3px solid var(--line);
+  margin: 1.4em 0;
+  padding: .9em 1.25em;
+  color: var(--ink);
+}
+.pk-callout p { margin: .2em 0; }
+ol.pk-steps { padding-left: 1.5em; }
+ol.pk-steps li { margin: .7em 0; }
+ol.pk-steps li::marker { color: var(--accent); font-weight: 700; }
+ul.pk-dash { list-style: none; padding-left: 1.2em; }
+ul.pk-dash li::before { content: "–"; color: var(--ink-soft); margin-right: .6em; }
+table.pk-zebra { border-collapse: collapse; width: 100%; font-size: .93em; margin: 1.4em 0; }
+table.pk-zebra th {
+  font-family: var(--font-head);
+  background: var(--card);
+  text-align: left;
+  padding: .55em .8em;
+  border-bottom: 2px solid var(--line);
+}
+table.pk-zebra td { padding: .55em .8em; border-bottom: 1px solid var(--line); }
+table.pk-zebra tr:nth-child(even) td { background: var(--card); }
+a { color: inherit; text-decoration: underline; text-decoration-color: var(--line); }
+a:hover { text-decoration-color: var(--accent); }
+code {
+  font-family: var(--font-mono);
+  font-size: .88em;
+  background: var(--card);
+  padding: .1em .35em;
+  border-radius: 3px;
+}
+.pk-meta {
+  margin-top: 4.5em;
+  padding-top: 1em;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: .78em;
+}

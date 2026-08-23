@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN" data-style="paper-ink">
+<head>
+<meta charset="utf-8">
+<title>paper-ink preview</title>
+<style>
+/* 预览页内联同一份 theme.css 的产物样式（构建时由 build_themes 校验与 theme.css 一致） */
+:root{--bg:#faf7f2;--ink:#2b2723;--ink-soft:#6b6257;--accent:#a4443b;--line:#e4dcd0;--card:#f3ede4;--font-body:'Noto Serif SC','SimSun',serif;--font-head:'Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:monospace}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.95}
+.pk-article{max-width:42rem;margin:0 auto;padding:48px 26px}
+.pk-title{font-family:var(--font-head);font-size:1.9em;text-align:center;margin:0 0 .4em}
+.pk-subtitle{text-align:center;color:var(--ink-soft);font-family:var(--font-head);font-size:.92em;margin:0 0 3em}
+.pk-h2{font-family:var(--font-head);border-bottom:1px solid var(--line);padding-bottom:.45em;margin:2.8em 0 1em}
+.pk-h2 .pk-no{color:var(--accent);margin-right:.55em}
+.pk-callout{background:var(--card);border-left:3px solid var(--line);padding:.9em 1.25em;margin:1.4em 0}
+ol.pk-steps li::marker{color:var(--accent);font-weight:700}
+table.pk-zebra{border-collapse:collapse;width:100%}
+table.pk-zebra th{background:var(--card);text-align:left;padding:.55em .8em}
+table.pk-zebra tr:nth-child(even) td{background:var(--card)}
+.pk-meta{color:var(--ink-soft);font-family:var(--font-mono);font-size:.78em;border-top:1px solid var(--line);padding-top:1em;margin-top:4.5em}
+</style>
+</head>
+<body>
+<main class="pk-article">
+  <h1 class="pk-title" data-block="h1_title_center">区块预览：纸墨</h1>
+  <p class="pk-subtitle" data-block="subtitle">副标题槽位 · 来源与路由信息也渲染在此行</p>
+
+  <h2 class="pk-h2" data-block="h2_section_rule"><span class="pk-no">01</span>章节标题（规则线）</h2>
+  <p data-block="p_body">正文段落：衬线、左对齐、1.95 行高。朱砂色只出现在章节编号、步骤序号与链接悬停，全文视觉锚点不超过五处。</p>
+
+  <blockquote class="pk-callout" data-block="blockquote_callout_card">
+    <p>引用块：卡片底色 + 左侧细线。只放原文引用或关键命题。</p>
+  </blockquote>
+
+  <h2 class="pk-h2" data-block="h2_second"><span class="pk-no">02</span>有序路径（学习路径专用）</h2>
+  <ol class="pk-steps" data-block="ol_path_steps">
+    <li>第一步：序号是朱砂锚点之一</li>
+    <li>第二步：全文 ol 至多两个</li>
+    <li>第三步：每条以动词开头</li>
+  </ol>
+
+  <table class="pk-zebra" data-block="table_zebra">
+    <tr><th>对照列 A</th><th>对照列 B</th></tr>
+    <tr><td>斑马纹表格</td><td>偶数行卡片底色</td></tr>
+    <tr><td>用于对照信息</td><td>不用于叙事</td></tr>
+  </table>
+
+  <ul class="pk-dash" data-block="ul_dash_list">
+    <li>无序列表：短横引导</li>
+    <li>用于零散要点</li>
+  </ul>
+
+  <p class="pk-meta" data-block="meta_footer">PKOS · paper-ink · route=RT-… · source=…</p>
+</main>
+</body>
+</html>

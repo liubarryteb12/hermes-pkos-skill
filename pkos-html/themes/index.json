@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "generated_by": "build_themes.py",
+  "themes": [
+    {
+      "id": "paper-ink",
+      "name": "纸墨",
+      "path": "paper-ink/",
+      "sinks": ["web-single-file"],
+      "conversion_types": ["学习路径", "wiki百科条目"],
+      "status": "registered",
+      "description": "中文长文阅读版式：纸面底色、墨色正文、朱砂锚点。安静的图书馆气质。"
+    }
+  ]
+}

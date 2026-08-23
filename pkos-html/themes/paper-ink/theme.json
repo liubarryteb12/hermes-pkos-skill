@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "id": "paper-ink",
+  "name": "纸墨",
+  "sinks": ["web-single-file"],
+  "description": "中文长文阅读版式：纸面底色、墨色正文、朱砂锚点。气质=安静的图书馆，不是科技发布会。",
+  "tokens": {
+    "--bg": "#faf7f2",
+    "--ink": "#2b2723",
+    "--ink-soft": "#6b6257",
+    "--accent": "#a4443b",
+    "--line": "#e4dcd0",
+    "--card": "#f3ede4",
+    "--font-body": "'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif",
+    "--font-head": "'Noto Sans SC', 'Microsoft YaHei', sans-serif",
+    "--font-mono": "'Cascadia Code', 'Consolas', monospace",
+    "--max-width": "42rem"
+  },
+  "recipes": {
+    "h1": ["title_center"],
+    "h2": ["section_rule"],
+    "h3": ["subsection_plain"],
+    "p": ["body"],
+    "blockquote": ["callout_card"],
+    "table": ["zebra_table"],
+    "ul": ["dash_list"],
+    "ol": ["path_steps"]
+  },
+  "skeleton": {
+    "doctype": "<!doctype html>",
+    "root_open": "<html lang=\"zh-CN\" data-style=\"paper-ink\">",
+    "style_wrap": "<style>\n{{css}}\n</style>",
+    "main_open": "<main class=\"pk-article\">",
+    "main_close": "</main>"
+  },
+  "avoid": [
+    "渐变背景与霓虹色",
+    "emoji 装饰标题",
+    "居中对齐的正文段落",
+    "纯黑 #000 与纯白 #fff",
+    "sans-serif 正文长段落"
+  ],
+  "invariants": [
+    "根元素带 data-style=\"paper-ink\"",
+    "正文一律衬线字体、左对齐",
+    "朱砂 accent 只用于：章节编号、链接 hover、路径步骤序号——全文 ≤5 处视觉锚点",
+    "卡片底色只用于引用块与表格斑马纹"
+  ]
+}
