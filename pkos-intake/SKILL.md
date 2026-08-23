@@ -34,6 +34,9 @@ description: 入口分拣：扫描 _PKOS/INBOX/ 与现有落点，识别每件�
 
 # 扫描守门（脚本层硬编码，见 intake_tools.py）
 
+0. **收件通道**（用户 2026-08-23 指定）：`D:\obsidian知识库\obsidian知识库\obsidian知识库\`
+   为正式文档输入口——intake 扫描范围 = `_PKOS/INBOX/` + 该通道；用户手工放入的文件
+   视同投放，照常分拣；Zettelkasten 条目即经此通道由用户归位；
 1. 敏感目录（`账户密码`/`passwords`/`credentials`）**永不进入清单**；
 2. 单件 >100MB 标 `ask` 先问再动；
 3. 加密 PDF `/Encrypt` 直接 `reject`——不破解；
