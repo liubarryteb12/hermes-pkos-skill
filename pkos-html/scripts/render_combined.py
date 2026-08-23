@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""render_combined —— 合并版出口：阅读排版 + 放映模式，单文件双模式 HTML。
+""
+
+DEPRECATED (2026-08-23): 用户裁定 PPT 出口改为直接出图（见 DESIGN §4.6 v0.2），本渲染器仅保留回溯。render_combined —— 合并版出口：阅读排版 + 放映模式，单文件双模式 HTML。
 
 用法：
   python render_combined.py --article article.md --slides slides.md \
@@ -8,7 +10,9 @@
 
 模式切换：R 键或右下角按钮；放映态 ←→/空格翻页、O 总览、Esc 回阅读。
 确定性契约：同输入两次渲染逐字节一致（无时间戳、无随机序）。
-"""
+""
+
+DEPRECATED (2026-08-23): 用户裁定 PPT 出口改为直接出图（见 DESIGN §4.6 v0.2），本渲染器仅保留回溯。
 from __future__ import annotations
 
 import argparse
@@ -23,7 +27,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "pkos-ppt" / "scrip
 from render import md_to_body  # noqa: E402
 from render_deck import RUNTIME_JS, parse_slides, render_slide_body  # noqa: E402
 
-TOGGLE_JS = """
+TOGGLE_JS = ""
+
+DEPRECATED (2026-08-23): 用户裁定 PPT 出口改为直接出图（见 DESIGN §4.6 v0.2），本渲染器仅保留回溯。
 document.addEventListener('DOMContentLoaded', function () {
   var readV = document.getElementById('readview');
   var deckV = document.getElementById('deckview');
@@ -55,7 +61,9 @@ document.addEventListener('DOMContentLoaded', function () {
     else if (e.key === 'Escape') setMode(false);
   });
 });
-"""
+""
+
+DEPRECATED (2026-08-23): 用户裁定 PPT 出口改为直接出图（见 DESIGN §4.6 v0.2），本渲染器仅保留回溯。
 
 
 def main(argv=None) -> int:
@@ -120,3 +128,4 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

@@ -256,13 +256,17 @@ workspace/skills/personal-knowledge-os/
 - 产物：单文件离线 HTML，文件头注释记录 source 条目 id（引用闭环）。
 - ⚠️ 落地前置：本机 beautiful-article 缺 references/theme-profiles、html-anything 缺 catalog.json，动工前先从上游补齐作参照（见 §7-7）。
 
-### 4.6 pkos-ppt
+### 4.6 pkos-ppt（v0.2，按用户裁定修正）
 
-- 核心要求：模板驱动 + 图像经 shared/image-api 可配置生成（图表、示意图）。
-- **三轴模板体系**（吸收 html-ppt，分层锁死）：theme = CSS token 覆盖（**Use tokens, not literal colors**，禁裸色值）/ layout = 可复制 section 块 / anim = data-attr 声明式动画——版式稳定来自三轴彼此独立、互不下毒。
-- **画面与讲稿物理分离**：逐字稿进 `.notes`（display:none），150–300 字/页口语化；键盘 runtime（翻页/总览/跳转）为标准交互。
-- **预览协议**：presenter-mode 以 iframe `?preview=N` 无 chrome 渲染做像素级预览 + postMessage/BroadcastChannel 同步（吸收 html-ppt）。
-- **克制的生成前确认**：强制三问一次问完——内容受众、主题映射建议、起点模板（「默认优先、给选项」）。
+- **出口定义（用户 2026-08-23 裁定）**：PPT 出口 = **直接出图**——每页幻灯片一张图，
+  经 shared/image-api 调用 gptimage2 生成；HTML 出口保持中规中矩的网页阅读页。
+  两出口形态不混装：html 不做放映模式，ppt 不做网页 deck。
+- **提示词即版式**：theme/layout/anim 三轴收敛为「画面提示词模板」——统一美学 token
+  写进每条 prompt（纸色/朱砂/留白/扁平插画），文字量极简防渲染乱码；
+- 每张图记 manifest（prompt 原文 + provider + size + 文件路径），可复现；
+- 图像 API 不可用时 data-fx 兜底改为：交付提示词清单 + 占位说明（不再产 HTML deck）；
+- 前代 HTML deck 渲染器（render_deck/render_combined）标记 **deprecated**，保留文件供回溯；
+- 键盘 runtime / iframe 预览协议随 HTML deck 一并废弃。
 - **图像兜底**：data-fx 类声明式示意图作为图像 API 不可用时的降级路径。
 - **裁剪项**：html-ppt 的 36×31×15 全量模板矩阵按需子集化起步；render.sh 的 macOS Chrome 硬编码改为跨平台探测；npx 安装方式弃用。
 - 产物：单文件 HTML 幻灯片 + 图片资产清单，每张图记录 prompt 原文与所用 provider（可复现）。

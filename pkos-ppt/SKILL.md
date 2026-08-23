@@ -1,53 +1,43 @@
 ---
 name: pkos-ppt
-description: PPT 出口层：消费路由单，按 theme/layout/anim 三轴装配静态 HTML 幻灯片；把材料做成可放映的页面，用于投屏演讲与演示；画面与讲稿物理分离；图像经 shared/image-api 可配置生成，不可用时 data-fx 兜底。触发语：「做成幻灯片」「出个 deck」「演示版」。
+description: PPT 出口层（v0.2 出图制）：消费路由单，把每页幻灯片用 gptimage2 直接生成投屏演示图片——提示词即版式，统一美学 token，文字极简。图像经 shared/image-api 可配置；不可用时交付提示词清单兜底。触发语：「做成幻灯片」「出个 deck」「演示版」「出图版 PPT」。
 ---
 
 # 前置契约
 
-与 pkos-html 相同：必须持有合法路由单（`exit: ppt`），`style_theme` 非空或词表越界即拒绝执行。
-双出口 = 两张路由单（html 一张、ppt 一张），互不冒充。
+与 pkos-html 相同：必须持有合法路由单（`exit: ppt`）。**两出口形态不混装**
+（用户 2026-08-23 裁定）：html=中规中矩的阅读网页；ppt=直接出图。
+前代 HTML deck 渲染器已 deprecated。
 
-# 三轴分层（互不下毒）
+## 职责边界
 
-| 轴 | 职权 | 位置 | 铁律 |
-|---|---|---|---|
-| **theme** | CSS token 覆盖：颜色/字体/密度 | `themes/<id>/tokens.css` | Use tokens, not literal colors——禁裸色值 |
-| **layout** | 页面结构：可复制 section 块 | slides.md 的结构约定 | 布局不写颜色，主题不管结构 |
-| **anim** | data-attr 声明式动画（fade 等） | tokens.css 内 `[data-anim]` | 动画只认 data 属性，不绑具体页 |
+只做：按路由单把已有内容转成图像提示词并出图、记 manifest。
 
-# 画面与讲稿物理分离
+1. 不做：不改写原意、不新增观点（文案以 polished 素材为准）；
+2. 不做：不出网页版 deck、不做放映模式页面（那是被裁定的废弃形态）；
+3. 不做：不擅自更换模型或网关配置（铁律：provider 走 manifest 声明）。
 
-- 逐字稿进每页 `.notes`（`display:none`），**150–300 字/页，口语化**——render_deck 输出
-  notes_report 自动核长，超界即 `notes_all_ok:false` 不许交付；
-- 观众看到的画面只有要点；讲稿是给演讲者自己看的第二音轨。
+# 工序
 
-# 键盘 runtime（标准交互）
+1. 读路由单 → 从 polished/AN 素材提炼每页「一句话标题 + 画面构思」；
+2. 写图像提示词：统一美学 token 写进每条 prompt（如纸墨系=暖纸底色/朱砂点缀/
+   大量留白/扁平插画），每图文字 ≤2 处短句防乱码，尺寸横版 1536x1024；
+3. 调 shared/image-api（本机实例：`~/.dsh/skills/567-image-generation`，
+   `scripts/generate.py --prompt … --size 1536x1024`）逐张生成；
+4. 每张记 manifest：`{slide, prompt 原文, provider, size, file}`——可复现；
+5. 图片归档 `_PKOS/outputs/<route-id>-deck-images/slide-N-*.png`。
 
-←→/PgUp/PgDn/空格 翻页 · Home/End 跳转 · O 总览网格 · Esc 退出总览。
-预览协议：iframe `?preview=N` 无 chrome 渲染单页做像素级预览。
+# 兜底
 
-# 图像通道（shared/image-api）
+API 不可用时不再产网页替代品：交付完整提示词清单 + 占位说明，网关恢复后按单重放。
+宁要无图的完整方案，不要临场编造的替代品。
 
-1. 读 `shared/image-api/config.json`（schema 见 CONFIG-SPEC.md）：**密钥只存环境变量名**，
-   发现明文密钥立即停工报告；
-2. 每张生成的图记 manifest：`{slot, prompt 原文, provider, size, status}`——prompt 与
-   provider 必须原文可复现；
-3. 失败矩阵语义固定：401 fail-no-retry / 429 retry-backoff / 5xx retry-once /
-   timeout → 兜底；
-4. **data-fx 兜底**：API 不可用时以 `!fx(name|glyph=X|text=Y)` 占位产出纯 CSS 装饰块，
-   deck 照常完整交付，manifest 记 `status: fallback-data-fx`。
-   宁要无图的完整 deck，不要有图的残缺 deck。
+# 生成前三问（一次问完）
 
-# 生成前三问（一次问完，禁止挤牙膏）
+受众 / 风格映射（继承 html 出口主题美学）/ 张数与节奏。
+自主轮次走逃生口：答案取自路由单并在 manifest 留痕。
 
-内容受众？→ 主题映射建议？→ 起点模板（默认优先、给选项）？
-自主轮次走逃生口：三问答案取自路由单字段并在 deck meta 行留痕决策依据。
+### 实录（2026-08-23，RT-20260823-002）
 
-### 演练记录（2026-08-23）
-
-RT-20260823-002 执行时处自主轮次：受众=路由单 audience 字段（朋友当面讲解）；
-主题映射=ppt-paper-ink（与 html 出口 paper-ink 同色系，品牌一致）；起点=默认 layout。
-图像 API 本轮未配置真实网关 → 全部图像槽走 data-fx 兜底完成同一产出（实测通过），
-manifest 记录 fallback 状态。换网关回归用例 RG1–RG4 成文于 CONFIG-SPEC.md，
-待真实网关接入后执行。
+7 页全经 gptimage2 出图成功（横版），成品见
+`_PKOS/outputs/RT-20260823-002-deck-images/`；prompt 原文存于该批调用记录。
