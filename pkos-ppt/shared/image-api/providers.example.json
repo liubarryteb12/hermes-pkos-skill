@@ -1,0 +1,25 @@
+{
+  "_comment": "示例配置——真实部署复制为 config.json 并设置环境变量；本文件不含任何明文密钥",
+  "active_provider": "gptimage2",
+  "providers": {
+    "gptimage2": {
+      "kind": "openai-compatible",
+      "endpoint": "https://api.example-gateway.test/v1/images",
+      "auth_env": "PKOS_IMG_API_KEY",
+      "model": "gptimage-2",
+      "defaults": { "size": "1024x1024" },
+      "quirks": {
+        "transparent_bg_param": "background",
+        "size_alias": { "wide": "1536x1024" },
+        "retry_on_429": true,
+        "response_path": "data[0].b64_json"
+      }
+    }
+  },
+  "failure_matrix": {
+    "401": "fail-no-retry",
+    "429": "retry-backoff",
+    "5xx": "retry-once",
+    "timeout": "fail-to-fallback"
+  }
+}

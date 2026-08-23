@@ -1,6 +1,6 @@
 # 个人知识操作系统（PKOS）总体设计方案
 
-> 版本 v0.1-draft · 状态：待评审
+> 版本 v0.1-draft · 状态：暂缓（2026-08-23 决策更新，见 §7 各条「已裁决/已确认」标注）
 > 目标：不是单纯的知识库，而是一套稳定、可演化的个人知识操作系统——先锁死输入格式保证稳定，再逐步开放扩展。
 
 ---
@@ -328,9 +328,9 @@ workspace/skills/personal-knowledge-os/
 ## 7. 风险与开放问题（评审重点）
 
 1. **收件区位置（已定型）**：URL 新链接在对话里直给 ①；本地物件与 Clipper 已落地的剪藏都算「物件」，由 ⓪ pkos-intake 扫描 `_PKOS/INBOX/` 与现有落点后分拣归位——两渠道路径是否在目标态合并，用 M1-M2 实际使用数据再定。
-2. **新 skill 的安装位置（已查明，待确认）**：DSH 只扫描 4 个 skill 根（项目级 `<root>/.dsh/skills`、`<root>/.agents/skills`；用户级 `~/.dsh/skills`、`~/.agents/skills`），项目级优先，原生支持符号链接并带热更新监听。会话工作区 `workspace/skills/` 本身不在扫描范围。**拟定策略**：各模块在 `workspace/skills/personal-knowledge-os/` 下开发，安装时把每个 `pkos-*` 目录以 junction 链接进 `~/.dsh/skills/`（一次性批准），改完即热生效，无需复制。
-3. **vault 写权限**：`D:\obsidian知识库` 在会话沙箱工作区之外，流水线运行时会逐次请求写权限批准——接受交互式批准，还是调整沙箱策略？
-4. **OpenViking 记忆库**：是否作为跨会话检索索引层并入（文件树仍是唯一事实源）？
+2. **新 skill 的安装位置（已查明，已确认）**：DSH 只扫描 4 个 skill 根（项目级 `<root>/.dsh/skills`、`<root>/.agents/skills`；用户级 `~/.dsh/skills`、`~/.agents/skills`），项目级优先，原生支持符号链接并带热更新监听。会话工作区 `workspace/skills/` 本身不在扫描范围。**拟定策略**：各模块在 `workspace/skills/personal-knowledge-os/` 下开发，安装时把每个 `pkos-*` 目录以 junction 链接进 `~/.dsh/skills/`（一次性批准），改完即热生效，无需复制。**已确认（2026-08-23）**：junction 方案经实战验证——dsh-memory-plugin 的安装与移除均走 junction + 热刷新，即时生效且卸载干净；动工时照此执行。
+3. **vault 写权限**：`D:\obsidian知识库` 在会话沙箱工作区之外，流水线运行时会逐次请求写权限批准——接受交互式批准，还是调整沙箱策略？（2026-08-23 更新：当前环境文件策略已是全量访问、无逐次批准，此问题在当下已消解；若策略回调需重议。）
+4. **OpenViking 记忆库：已裁决（2026-08-23）不并入**。OpenViking server 与 dsh 记忆插件已从本机整体移除（轻薄本轻量优先）；跨会话检索以文件树为唯一事实源，未来如确需索引层，另评估本地优先方案。
 5. **触发方式**：各环节用手动触发起步，还是 M2 直接做一条「一键跑完」的主命令？
 6. **凭证安全（立即行动项，不等评审）**：`~/.dsh/skills/567-image-generation/config.json` 中存有明文真实 API key——建议尽快在服务商侧轮换该 key，并按 §4.7 迁移为环境变量/凭证引用。
-7. **落地前置材料**：本机 beautiful-article 只装了 SKILL.md（references/theme-profiles 目录缺失）、html-anything 工作区副本无 prompts/catalog.json——统一主题注册库动工前需先从上游补齐这两份作参照。
+7. **落地前置材料（已过时，2026-08-23）**：beautiful-article 已退役、其长文方法论并入 html-anything（合并版已上线生效）。本项参照材料改为 html-anything 现行正文，无需再从上游补齐。

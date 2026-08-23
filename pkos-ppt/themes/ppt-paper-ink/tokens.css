@@ -1,0 +1,66 @@
+/* ppt-paper-ink · 幻灯片主题 tokens —— Use tokens, not literal colors */
+:root {
+  --bg: #faf7f2;
+  --ink: #2b2723;
+  --ink-soft: #6b6257;
+  --accent: #a4443b;
+  --line: #e4dcd0;
+  --card: #f3ede4;
+  --font-head: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  --font-body: 'Noto Serif SC', 'SimSun', serif;
+  --slide-max: 960px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); }
+body { font-family: var(--font-body); overflow: hidden; }
+
+.deck-slide {
+  display: none;
+  height: 100vh;
+  padding: 7vh 8vw;
+  flex-direction: column;
+  justify-content: center;
+}
+.deck-slide.active { display: flex; }
+.deck-slide h1 { font-family: var(--font-head); font-size: 2.6em; letter-spacing: .04em; margin: 0 0 .5em; }
+.deck-slide h2 { font-family: var(--font-head); font-size: 1.7em; border-bottom: 1px solid var(--line); padding-bottom: .35em; margin: 0 0 .8em; }
+.deck-slide h2 .pk-no { color: var(--accent); margin-right: .5em; }
+.deck-slide p, .deck-slide li { font-size: 1.22em; line-height: 1.85; }
+.deck-slide ul { padding-left: 1.4em; }
+.deck-slide li { margin: .45em 0; }
+.deck-slide li::marker { color: var(--accent); }
+.deck-slide strong { color: var(--accent); }
+
+.fx-ornament {
+  background: var(--card);
+  border-left: 4px solid var(--line);
+  padding: 2.2em 2.5em;
+  margin: 1.2em 0;
+  font-family: var(--font-head);
+  font-size: 1.05em;
+  color: var(--ink-soft);
+}
+.fx-ornament::before {
+  content: attr(data-glyph);
+  display: block;
+  font-family: var(--font-body);
+  font-size: 2.4em;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.notes { display: none; }
+
+.deck-meta {
+  position: fixed;
+  right: 2vw; bottom: 3vh;
+  font-family: var(--font-mono, monospace);
+  font-size: .75em;
+  color: var(--ink-soft);
+}
+body.overview .deck-slide { display: flex; height: auto; min-height: 24vh; padding: 2vh 3vw; outline: 1px solid var(--line); }
+body.overview { overflow: auto; }
+body.overview .notes { display: none; }
+
+[data-anim="fade"] { opacity: 0; transition: opacity .5s ease; }
+.deck-slide.active [data-anim="fade"] { opacity: 1; }
