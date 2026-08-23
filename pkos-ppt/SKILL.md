@@ -1,6 +1,6 @@
 ---
 name: pkos-ppt
-description: PPT 出口层（v0.2 出图制）：消费路由单，把每页幻灯片用 gptimage2 直接生成投屏演示图片——提示词即版式，统一美学 token，文字极简。图像经 shared/image-api 可配置；不可用时交付提示词清单兜底。触发语：「做成幻灯片」「出个 deck」「演示版」「出图版 PPT」。
+description: PPT 出口层（v0.2 出图制）：消费路由单，把每页幻灯片与材料用 gptimage2 直接生成投屏演示图片——提示词即版式，统一美学 token，文字极简。图像经 shared/image-api 可配置；不可用时交付提示词清单兜底。触发语：「做成幻灯片」「出个 deck」「演示版」「出图版 PPT」。
 ---
 
 # 前置契约
