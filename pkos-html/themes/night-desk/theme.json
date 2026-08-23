@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "id": "night-desk",
+  "name": "夜案",
+  "sinks": ["web-single-file"],
+  "description": "深夜书桌：低亮度暗色长文版式。琥珀光标、冷灰正文，适合夜间阅读与代码并重的技术笔记。",
+  "tokens": {
+    "--bg": "#15171c",
+    "--ink": "#c9ccd3",
+    "--ink-soft": "#7d828e",
+    "--accent": "#d9a05b",
+    "--line": "#2b2f38",
+    "--card": "#1d2026",
+    "--font-body": "'Noto Serif SC', 'SimSun', serif",
+    "--font-head": "'Noto Sans SC', 'Microsoft YaHei', sans-serif",
+    "--font-mono": "'Cascadia Code', monospace"
+  },
+  "recipes": {
+    "h1": ["title_center"],
+    "h2": ["section_rule"],
+    "h3": ["subsection_plain"],
+    "p": ["body"],
+    "blockquote": ["callout_card"],
+    "table": ["zebra_table"],
+    "ul": ["dash_list"],
+    "ol": ["path_steps"]
+  },
+  "skeleton": {
+    "doctype": "<!doctype html>",
+    "root_open": "<html lang=\"zh-CN\" data-style=\"night-desk\">",
+    "style_wrap": "<style>\n{{css}}\n</style>",
+    "main_open": "<main class=\"pk-article\">",
+    "main_close": "</main>"
+  },
+  "avoid": [
+    "纯白背景与刺眼高对比",
+    "渐变横幅",
+    "emoji 图标",
+    "蓝色默认链接色",
+    "居中正文段落"
+  ],
+  "invariants": [
+    "根元素 data-style=\"night-desk\"",
+    "琥珀 accent 只用于步骤序号、链接 hover、章节编号——每篇 ≤5 处锚点",
+    "卡片底色仅用于引用块、表格斑马纹、行内代码"
+  ]
+}

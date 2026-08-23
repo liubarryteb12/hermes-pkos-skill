@@ -10,6 +10,15 @@
       "conversion_types": ["学习路径", "wiki百科条目"],
       "status": "registered",
       "description": "中文长文阅读版式：纸面底色、墨色正文、朱砂锚点。安静的图书馆气质。"
+    },
+    {
+      "id": "night-desk",
+      "name": "夜案",
+      "path": "night-desk/",
+      "sinks": ["web-single-file"],
+      "conversion_types": ["实战操作指南", "wiki百科条目"],
+      "status": "registered",
+      "description": "深夜书桌：低亮度暗色长文版式，琥珀锚点。夜间阅读与技术笔记。外部接入试点（工单 11）。"
     }
   ]
 }

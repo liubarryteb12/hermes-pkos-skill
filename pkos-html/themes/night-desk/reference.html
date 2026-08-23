@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN" data-style="night-desk">
+<head><meta charset="utf-8"><title>金标准：夜案 · 实战指南样张</title>
+<style>
+:root{--bg:#15171c;--ink:#c9ccd3;--ink-soft:#7d828e;--accent:#d9a05b;--line:#2b2f38;--card:#1d2026}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16.5px;line-height:1.9}
+.pk-article{max-width:40rem;margin:0 auto;padding:56px 26px 80px}
+.pk-title{font-family:'Noto Sans SC',sans-serif;font-size:1.8em;text-align:center;margin:0 0 .4em}
+.pk-subtitle{text-align:center;color:var(--ink-soft);font-size:.9em;margin:0 0 3em}
+.pk-h2{font-family:'Noto Sans SC',sans-serif;font-size:1.22em;border-bottom:1px solid var(--line);padding-bottom:.4em;margin:2.6em 0 1em}
+.pk-h2 .pk-no{color:var(--accent);margin-right:.55em}
+.pk-h3{font-family:'Noto Sans SC',sans-serif;margin:1.7em 0 .6em}
+.pk-callout{background:var(--card);border-left:3px solid var(--accent);padding:.85em 1.2em;margin:1.4em 0}
+ol.pk-steps{padding-left:1.5em}ol.pk-steps li{margin:.65em 0}
+ol.pk-steps li::marker{color:var(--accent);font-weight:700}
+ul.pk-dash{list-style:none;padding-left:1.2em}ul.pk-dash li::before{content:"·";color:var(--ink-soft);margin-right:.6em}
+table.pk-zebra{border-collapse:collapse;width:100%}table.pk-zebra th{background:var(--card);text-align:left;padding:.5em .8em}
+table.pk-zebra td{padding:.5em .8em;border-bottom:1px solid var(--line)}
+table.pk-zebra tr:nth-child(even) td{background:var(--card)}
+code{background:var(--card);padding:.1em .35em;border-radius:3px}
+.pk-meta{color:var(--ink-soft);font-size:.76em;border-top:1px solid var(--line);padding-top:1em;margin-top:4.5em}
+</style></head>
+<body>
+<main class="pk-article">
+  <h1 class="pk-title">给知识库做一次体检</h1>
+  <p class="pk-subtitle">night-desk 金标准样张 · 实战操作指南</p>
+
+  <h2 class="pk-h2"><span class="pk-no">01</span>目标</h2>
+  <p>跑一遍全库审计，拿到孤岛数与悬空双链基线。</p>
+  <blockquote class="pk-callout"><p>先测量，再修复——没有基线的优化是猜。</p></blockquote>
+
+  <h2 class="pk-h2"><span class="pk-no">02</span>步骤</h2>
+  <ol class="pk-steps">
+    <li>运行 <code>audit.py --vault 库路径 --outdir 报告目录</code></li>
+    <li>打开 JSON 报告核对 orphan_list</li>
+    <li>把新发现追加进 blindspots.md</li>
+  </ol>
+
+  <h2 class="pk-h2"><span class="pk-no">03</span>参数对照</h2>
+  <table class="pk-zebra">
+    <tr><th>参数</th><th>作用</th></tr>
+    <tr><td>--vault</td><td>库根目录</td></tr>
+    <tr><td>--outdir</td><td>报告输出目录</td></tr>
+    <tr><td>--blindspot</td><td>本轮增量备注</td></tr>
+  </table>
+
+  <p class="pk-meta">PKOS · night-desk · route=… · source=…</p>
+</main>
+</body>
+</html>

@@ -320,6 +320,13 @@ workspace/skills/personal-knowledge-os/
   keyword-overlap-v0 打分器；上下文预算 SKILL.md ≤8KB、description ≤400 字——
   当前最大 4210B，全部免裁剪达标。
 
+## 4.10 外部接入登记（工单 11，SOP 见 pkos-meta/ONBOARDING-SOP.md）
+
+| 接入项 | 类型 | 版本 | 风险档 | 日期 | 回归证据 |
+|---|---|---|---|---|---|
+| night-desk（夜案） | 主题 | 0.1.0 | — | 2026-08-23 | lint 0 ERROR；自验页 web-single-file 十项 PASS |
+| pkos-timeline | skill | 0.1.0 | L2 | 2026-08-23 | v1 负准入拒绝 2 项→v2 meta_gate all PASS（holdout 无回退） |
+
 ---
 
 ## 5. 元数据驱动的演化机制（横切层）
