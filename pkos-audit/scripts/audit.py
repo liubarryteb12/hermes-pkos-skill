@@ -61,16 +61,17 @@ def excluded(parts: tuple[str, ...]) -> bool:
 
 
 def split_fm(text: str):
-    """返回 (fm|None, fm_broken, body)。"""
+    """返回 (fm|None, fm_broken, body, head)。head=front matter 段原文，供链接解析。"""
     try:
         fm, reason = ve.load_front_matter(text)
     except ve.FMParseError:
-        return None, True, text
+        return None, True, text, ""
     if fm is None:
-        return None, False, text
+        return None, False, text, ""
     end = text.find("\n---", 3)
+    head = text[: end + 4] if end != -1 else ""
     body = text[end + 4:] if end != -1 else ""
-    return fm, False, body
+    return fm, False, body, head
 
 
 
@@ -155,25 +156,26 @@ def audit(vault: Path):
             text = p.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        fm, broken, body = split_fm(text)
-        notes.append((p, fm, broken, body))
+        fm, broken, body, head = split_fm(text)
+        notes.append((p, fm, broken, body, head))
 
     total = len(notes)
-    fm_ok = sum(1 for _, fm, _, _ in notes if fm is not None)
-    fm_broken = sum(1 for _, _, b, _ in notes if b)
+    fm_ok = sum(1 for _, fm, _, _, _ in notes if fm is not None)
+    fm_broken = sum(1 for _, _, b, _, _ in notes if b)
 
     # 分布
-    status_dist = Counter((fm or {}).get("status") or "(缺)" for _, fm, _, _ in notes if fm)
-    type_dist = Counter((fm or {}).get("type") or "(缺)" for _, fm, _, _ in notes if fm)
+    status_dist = Counter((fm or {}).get("status") or "(缺)" for _, fm, _, _, _ in notes if fm)
+    type_dist = Counter((fm or {}).get("type") or "(缺)" for _, fm, _, _, _ in notes if fm)
 
-    # 链接解析（键 = 库内相对路径）
+    # 链接解析（键 = 库内相对路径）；front matter 内 wikilink 与正文同等入图（Obsidian 语义）
     inbound = Counter()
     dangling = []       # (src_rel, target)
     dangling_imgs = []
     edges = set()
-    for p, _, _, body in notes:
+    for p, _, _, body, head in notes:
         src_rel = str(p.relative_to(vault))
-        for embed, raw in LINK_RE.findall(strip_code(body)):
+        linktext = head + "\n" + strip_code(body)
+        for embed, raw in LINK_RE.findall(linktext):
             target = raw.split("|")[0].split("#")[0].strip()
             if not target:
                 continue
@@ -189,15 +191,15 @@ def audit(vault: Path):
                 edges.add((src_rel, dest))
 
     orphan_notes = sorted(
-        str(p.relative_to(vault)) for p, _, _, _ in notes if inbound.get(str(p.relative_to(vault)), 0) == 0
+        str(p.relative_to(vault)) for p, _, _, _, _ in notes if inbound.get(str(p.relative_to(vault)), 0) == 0
     )
     # 完全孤岛：零入链且零出链
-    zero_out = {str(p.relative_to(vault)) for p, _, _, b in notes if not LINK_RE.search(strip_code(b))}
+    zero_out = {str(p.relative_to(vault)) for p, _, _, b, _ in notes if not LINK_RE.search(strip_code(b))}
     true_islands = sorted(set(orphan_notes) & zero_out)
 
     hollow = []
     shorts = []
-    for p, _, _, body in notes:
+    for p, _, _, body, _ in notes:
         bs = body.strip()
         rel = str(p.relative_to(vault))
         if len(bs) < HOLLOW_BODY:
@@ -207,7 +209,7 @@ def audit(vault: Path):
 
     # 重复检测：正文内容哈希相同且非空
     by_hash = {}
-    for p, _, _, body in notes:
+    for p, _, _, body, _ in notes:
         bs = body.strip()
         if len(bs) < HOLLOW_BODY:
             continue
@@ -229,7 +231,7 @@ def audit(vault: Path):
             score += 1.0
         return score
 
-    scores = [readability(fm, b) for _, fm, _, b in notes]
+    scores = [readability(fm, b) for _, fm, _, b, _ in notes]
     readability_avg = round(sum(scores) / len(scores), 2) if scores else 0.0
 
     return {
