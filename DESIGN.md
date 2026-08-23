@@ -307,6 +307,21 @@ workspace/skills/personal-knowledge-os/
 
 ---
 
+## 4.9 安装登记（工单 10 产物，版本号随变更维护）
+
+- **版本**：pkos v0.1.0（2026-08-23）
+- **安装方式**：每模块以 NTFS junction 链接至 `~/.dsh/skills/<模块名>`，源在仓库内；
+  改仓库即改线上，无拷贝漂移。
+- **清单**：pkos-intake / pkos-ingest / pkos-analysis / pkos-polish / pkos-router /
+  pkos-html / pkos-ppt / pkos-audit —— 8/8 新会话目录可见且热生效（audit 曾因缺
+  SKILL.md 未注册，补齐后即时出现，实证热更新）。
+- **元层质量门**：`pkos-meta/scripts/meta_gate.py`（validate/boundary_check/trigger_eval/
+  optimize 最小版）；触发基线 `pkos-meta/triggers.json` 每模块 ≥4 正例 + ≥2 近失负例，
+  keyword-overlap-v0 打分器；上下文预算 SKILL.md ≤8KB、description ≤400 字——
+  当前最大 4210B，全部免裁剪达标。
+
+---
+
 ## 5. 元数据驱动的演化机制（横切层）
 
 1. **反馈回路**：产物被使用后回填 `pkos-feedback.rating/note` → M3 提供月度复盘报告（高分条目的 domain/type 是内容采购方向；低分暴露 polish 或主题问题）。

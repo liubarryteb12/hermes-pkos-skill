@@ -1,6 +1,6 @@
 ---
 name: pkos-ppt
-description: PPT 出口层：消费路由单，按 theme/layout/anim 三轴装配静态 HTML 幻灯片；画面与讲稿物理分离；图像经 shared/image-api 可配置生成，不可用时 data-fx 兜底。触发语：「做成幻灯片」「出个 deck」「演示版」。
+description: PPT 出口层：消费路由单，按 theme/layout/anim 三轴装配静态 HTML 幻灯片；把材料做成可放映的页面，用于投屏演讲与演示；画面与讲稿物理分离；图像经 shared/image-api 可配置生成，不可用时 data-fx 兜底。触发语：「做成幻灯片」「出个 deck」「演示版」。
 ---
 
 # 前置契约
