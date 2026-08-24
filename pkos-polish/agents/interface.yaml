@@ -1,0 +1,26 @@
+interface:
+  display_name: "文本净化"
+  short_description: "按发现表驱动去 AI 味净化，改动可追溯并出五维评分"
+  default_prompt: "Use $pkos-polish when the user says 润色这段 / 去掉 AI 味."
+compatibility:
+  canonical_format: "agent-skills"
+  adapter_targets:
+    - "openai"
+    - "claude"
+    - "generic"
+    - "vscode"
+  activation:
+    mode: "manual"
+    paths: []
+  execution:
+    context: "inline"
+    shell: "bash"
+  trust:
+    source_tier: "local"
+    remote_inline_execution: "forbid"
+    remote_metadata_policy: "allow-metadata-only"
+  degradation:
+    openai: "metadata-adapter"
+    claude: "neutral-source-plus-adapter"
+    generic: "neutral-source"
+    vscode: "agent-skills-source-with-vscode-notes"

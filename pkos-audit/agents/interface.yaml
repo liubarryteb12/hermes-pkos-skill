@@ -1,0 +1,26 @@
+interface:
+  display_name: "全库体检"
+  short_description: "测量覆盖率、孤岛、悬空双链与空壳笔记并出报告"
+  default_prompt: "Use $pkos-audit when the user says 体检一下知识库 / 审计全库."
+compatibility:
+  canonical_format: "agent-skills"
+  adapter_targets:
+    - "openai"
+    - "claude"
+    - "generic"
+    - "vscode"
+  activation:
+    mode: "manual"
+    paths: []
+  execution:
+    context: "inline"
+    shell: "bash"
+  trust:
+    source_tier: "local"
+    remote_inline_execution: "forbid"
+    remote_metadata_policy: "allow-metadata-only"
+  degradation:
+    openai: "metadata-adapter"
+    claude: "neutral-source-plus-adapter"
+    generic: "neutral-source"
+    vscode: "agent-skills-source-with-vscode-notes"

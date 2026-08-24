@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-""
+"""
+DEPRECATED (2026-08-23): 用户裁定 PPT 出口改为直接出图（见 DESIGN §4.6 v0.2），本渲染器仅保留回溯。
 
-DEPRECATED (2026-08-23): 用户裁定 PPT 出口改为直接出图（见 DESIGN §4.6 v0.2），本渲染器仅保留回溯。render_deck —— 确定性幻灯片装配：slides.md + tokens.css → 单文件 HTML deck。
+render_deck —— 确定性幻灯片装配：slides.md + tokens.css → 单文件 HTML deck。
 
 slides.md 约定：
   # Deck 大标题            （首个 --- 之前为封面块，可有副题行）
@@ -14,9 +15,9 @@ slides.md 约定：
   讲稿（150–300 字口语化，物理分离进 .notes）
   ---
 确定性契约：无时间戳、无随机序；同输入两次渲染逐字节一致。
-""
+"""
 
-DEPRECATED (2026-08-23): 用户裁定 PPT 出口改为直接出图（见 DESIGN §4.6 v0.2），本渲染器仅保留回溯。
+# DEPRECATED (2026-08-23): 用户裁定 PPT 出口改为直接出图（见 DESIGN §4.6 v0.2），本渲染器仅保留回溯。
 from __future__ import annotations
 
 import argparse
@@ -27,9 +28,7 @@ import re
 import sys
 from pathlib import Path
 
-RUNTIME_JS = ""
-
-DEPRECATED (2026-08-23): 用户裁定 PPT 出口改为直接出图（见 DESIGN §4.6 v0.2），本渲染器仅保留回溯。
+RUNTIME_JS = """
 document.addEventListener('DOMContentLoaded', function () {
   var slides = [].slice.call(document.querySelectorAll('.deck-slide'));
   var i = 0;
@@ -49,9 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   show(0);
 });
-""
-
-DEPRECATED (2026-08-23): 用户裁定 PPT 出口改为直接出图（见 DESIGN §4.6 v0.2），本渲染器仅保留回溯。
+"""
 
 
 def parse_slides(md_text: str):
@@ -96,7 +93,7 @@ def render_slide_body(slide: dict) -> str:
             out.append(f"<li>{inline(ln[2:])}")
             continue
         if re.match(r"^\d+\.\s+", ln):
-            out.append(f"<li>{inline(re.sub(r'^\\d+\\.\\s+', '', ln))}")
+            out.append(f"<li>{inline(re.sub(r'^\d+\.\s+', '', ln))}")
             continue
         out.append(f"<p>{inline(ln)}</p>")
     # 包裹相邻 li 为 ul
@@ -174,4 +171,3 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

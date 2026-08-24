@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "id": "guang-shu",
+  "name": "光栅",
+  "sinks": ["web-single-file"],
+  "description": "视觉化图文混排版式：白底+大字号无衬线标题+色块分隔，适合配图类/数据可视化/图文穿插内容。",
+  "tokens": {
+    "--bg": "#ffffff",
+    "--ink": "#111111",
+    "--ink-soft": "#555555",
+    "--accent": "#0066ff",
+    "--line": "#e5e5e5",
+    "--card": "#f5f7fa",
+    "--accent-2": "#ff6b35",
+    "--font-body": "'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+    "--font-head": "'Noto Sans SC', 'PingFang SC', sans-serif",
+    "--font-mono": "'Cascadia Code', 'Consolas', monospace",
+    "--max-width": "52rem"
+  },
+  "recipes": {
+    "h1": ["title_left_bold_accent"],
+    "h2": ["section_rule_accent"],
+    "h3": ["subsection_plain"],
+    "p": ["body"],
+    "blockquote": ["callout_card"],
+    "table": ["zebra_table"],
+    "ul": ["dot_list"],
+    "ol": ["path_steps"]
+  },
+  "skeleton": {
+    "doctype": "<!doctype html>",
+    "root_open": "<html lang=\"zh-CN\" data-style=\"guang-shu\">",
+    "style_wrap": "<style>\n{{css}}\n</style>",
+    "main_open": "<main class=\"pk-article\">",
+    "main_close": "</main>"
+  },
+  "avoid": [
+    "衬线正文（本主题正文必须无衬线）",
+    "居中正文段落",
+    "渐变背景",
+    "纯黑 #000 背景",
+    "等宽字体正文"
+  ],
+  "invariants": [
+    "根元素带 data-style=\"guang-shu\"",
+    "蓝色 accent 用于章节编号与链接 hover；橙色 accent-2 用于无序列表圆点——全文两色锚点",
+    "色块分隔带（--accent 背景 + 白色文字）最多 1 处，用于强视觉分隔",
+    "引用块用左侧蓝色竖线+浅灰底色，不放红色"
+  ]
+}

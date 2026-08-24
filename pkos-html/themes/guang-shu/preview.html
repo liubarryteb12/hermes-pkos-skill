@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN" data-style="guang-shu">
+<head>
+<meta charset="utf-8">
+<title>guang-shu preview</title>
+<style>
+:root{--bg:#fff;--ink:#111;--ink-soft:#555;--accent:#0066ff;--line:#e5e5e5;--card:#f5f7fa;--accent-2:#ff6b35;--font-body:'Noto Sans SC','PingFang SC',sans-serif;--font-head:'Noto Sans SC','PingFang SC',sans-serif;--font-mono:monospace}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.8}
+.pk-article{max-width:52rem;margin:0 auto;padding:44px 28px}
+.pk-title{font-family:var(--font-head);font-size:2.2em;font-weight:900;text-align:left;letter-spacing:-.02em;line-height:1.15;margin:0 0 .3em}
+.pk-subtitle{color:var(--ink-soft);font-size:.9em;margin:0 0 2.6em;padding-bottom:1.2em;border-bottom:2px solid var(--line)}
+.pk-h2{font-family:var(--font-head);font-size:1.25em;font-weight:800;padding-left:.7em;border-left:4px solid var(--accent);margin:2.5em 0 .85em}
+.pk-h2 .pk-no{color:var(--accent);font-weight:900;margin-right:.45em}
+.pk-callout{background:var(--card);border-left:3px solid var(--accent);padding:.9em 1.2em;margin:1.3em 0}
+ol.pk-steps li::marker{color:var(--accent);font-weight:800}
+table.pk-zebra{border-collapse:collapse;width:100%}
+table.pk-zebra th{background:var(--card);text-align:left;padding:.6em .9em;border-bottom:2px solid var(--accent);color:var(--accent);font-weight:700}
+table.pk-zebra tr:nth-child(even) td{background:var(--card)}
+ul.pk-dash{list-style:none;padding-left:1em}
+ul.pk-dash li::before{content:"●";color:var(--accent-2);margin-right:.5em;font-size:.65em;vertical-align:middle}
+code{background:var(--card);padding:.1em .3em;border-radius:3px}
+.pk-meta{color:var(--ink-soft);font-family:var(--font-mono);font-size:.75em;border-top:1px solid var(--line);padding-top:.9em;margin-top:4em}
+</style>
+</head>
+<body>
+<main class="pk-article">
+  <h1 class="pk-title" data-block="h1_title_left_bold_accent">区块预览：光栅</h1>
+  <p class="pk-subtitle" data-block="subtitle">白底无衬线 · 图文混排版式</p>
+
+  <h2 class="pk-h2" data-block="h2_section_rule_accent"><span class="pk-no">01</span>章节标题（蓝色左边线）</h2>
+  <p data-block="p_body">正文段落：无衬线、17px、1.8 行高。蓝色 accent 用于章节编号，橙色圆点用于无序列表。</p>
+
+  <blockquote class="pk-callout" data-block="blockquote_callout_card">
+    <p>引用块：浅灰底色 + 蓝色左边线。不放红色。</p>
+  </blockquote>
+
+  <h2 class="pk-h2" data-block="h2_second"><span class="pk-no">02</span>操作步骤</h2>
+  <ol class="pk-steps" data-block="ol_path_steps">
+    <li>第一步：蓝色序号是锚点</li>
+    <li>第二步：每篇 ol 至多两个</li>
+    <li>第三步：强制自己找旧卡链上</li>
+  </ol>
+
+  <h2 class="pk-h2" data-block="h2_third"><span class="pk-no">03</span>对照表格</h2>
+  <table class="pk-zebra" data-block="table_zebra">
+    <tr><th>方案</th><th>说明</th></tr>
+    <tr><td>卢曼原典</td><td>分支编号</td></tr>
+    <tr><td>Roam Research</td><td>双向自动链接</td></tr>
+  </table>
+
+  <h2 class="pk-h2" data-block="h2_fourth"><span class="pk-no">04</span>零散要点</h2>
+  <ul class="pk-dash" data-block="ul_dash_list">
+    <li>无序列表：橙色 ● 圆点引导</li>
+    <li>视觉节奏明快，信息密度适中</li>
+  </ul>
+
+  <p class="pk-meta" data-block="meta_footer">PKOS · guang-shu · route=… · source=…</p>
+</main>
+</body>
+</html>

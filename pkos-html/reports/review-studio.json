@@ -1,0 +1,2399 @@
+{
+  "schema_version": "2.0",
+  "ok": true,
+  "skill_dir": ".",
+  "summary": {
+    "decision": "blocked",
+    "world_class_score": 61,
+    "gate_count": 16,
+    "gate_contract_ok": true,
+    "blocker_count": 1,
+    "warning_count": 13,
+    "action_count": 14,
+    "annotation_count": 0,
+    "open_annotation_count": 0,
+    "open_annotation_blocker_count": 0,
+    "open_annotation_warning_count": 0
+  },
+  "gates": [
+    {
+      "key": "intent-canvas",
+      "label": "意图画布",
+      "status": "warn",
+      "detail": "intent confidence 0/100; clarification legacy; assumptions 0; stop n/a; review current intent frame",
+      "evidence": "reports/intent-confidence.json",
+      "link": "intent-confidence.md",
+      "review_action_id": "review-action-intent-canvas",
+      "review_action_status": "warn",
+      "review_action_title": "意图画布",
+      "review_action_next_step": "收紧真实任务、输入、输出、排除项和成功标准。",
+      "review_action_reason": "低 intent confidence 会让后续 Skill IR、输出评测和 Review Studio 结论建立在模糊意图上。",
+      "review_action_source_ref_count": 2,
+      "review_action_verification_command": "python3 scripts/yao.py intent-confidence . --self"
+    },
+    {
+      "key": "trigger-lab",
+      "label": "触发实验",
+      "status": "warn",
+      "detail": "route scorecard is missing; run route-scorecard before release review",
+      "evidence": "reports/route_scorecard.json",
+      "link": "route_scorecard.md",
+      "review_action_id": "review-action-trigger-lab",
+      "review_action_status": "warn",
+      "review_action_title": "触发实验",
+      "review_action_next_step": "修正 route scorecard 中的误触发、漏触发或 ambiguous case。",
+      "review_action_reason": "触发错误会让正确 Skill 失活，或让相邻 Skill 被错误调用。",
+      "review_action_source_ref_count": 3,
+      "review_action_verification_command": "python3 scripts/build_confusion_matrix.py"
+    },
+    {
+      "key": "output-lab",
+      "label": "输出实验",
+      "status": "warn",
+      "detail": "output eval scorecard is missing; generate it before production review",
+      "evidence": "reports/output_quality_scorecard.json",
+      "link": "output_quality_scorecard.md",
+      "review_action_id": "review-action-output-lab",
+      "review_action_status": "warn",
+      "review_action_title": "输出实验",
+      "review_action_next_step": "补足 output eval 覆盖、execution evidence、blind A/B 和 reviewer adjudication。同步补足盲审声明。",
+      "review_action_reason": "没有输出质量和人工盲评证据时，Skill 只能证明会触发，不能证明输出真的更好且经得起审查。",
+      "review_action_source_ref_count": 6,
+      "review_action_verification_command": "python3 scripts/adjudicate_output_review.py --write-template && python3 scripts/yao.py output-review --self"
+    },
+    {
+      "key": "context-budget",
+      "label": "上下文",
+      "status": "warn",
+      "detail": "initial load n/a/n/a; deferred n/a/n/a; top deferred none; resource governance unknown; quality density n/a",
+      "evidence": "reports/context_budget.json",
+      "link": "context_budget.md",
+      "review_action_id": "review-action-context-budget",
+      "review_action_status": "warn",
+      "review_action_title": "上下文",
+      "review_action_next_step": "压缩或拆分高成本 deferred resources，保留最小可路由上下文。",
+      "review_action_reason": "初始加载可以安全，但后续 references、scripts、evals 体量过大时，reviewer 仍需要看到维护和读取成本。",
+      "review_action_source_ref_count": 4,
+      "review_action_verification_command": "python3 scripts/render_context_reports.py"
+    },
+    {
+      "key": "runtime-matrix",
+      "label": "运行矩阵",
+      "status": "warn",
+      "detail": "runtime conformance matrix is missing",
+      "evidence": "reports/conformance_matrix.json",
+      "link": "conformance_matrix.md",
+      "review_action_id": "review-action-runtime-matrix",
+      "review_action_status": "warn",
+      "review_action_title": "运行矩阵",
+      "review_action_next_step": "修复目标端结构、metadata、相对路径、fallback 或 adapter target 声明。",
+      "review_action_reason": "runtime conformance 失败意味着包可能被目标客户端错误加载或静默降级。",
+      "review_action_source_ref_count": 2,
+      "review_action_verification_command": "python3 scripts/run_conformance_suite.py ."
+    },
+    {
+      "key": "trust-report",
+      "label": "信任报告",
+      "status": "warn",
+      "detail": "0 secrets; 5 scripts; 0 network-capable scripts; 0 help smoke failures",
+      "evidence": "reports/security_trust_report.json",
+      "link": "security_trust_report.md",
+      "review_action_id": "review-action-trust-report",
+      "review_action_status": "warn",
+      "review_action_title": "信任报告",
+      "review_action_next_step": "处理脚本 help surface、依赖 pin、network policy、secret 和权限声明。",
+      "review_action_reason": "团队分发时，脚本和依赖是主要供应链风险面，warning 必须有明确处置。",
+      "review_action_source_ref_count": 3,
+      "review_action_verification_command": "python3 scripts/trust_check.py ."
+    },
+    {
+      "key": "python-compat",
+      "label": "Python 兼容",
+      "status": "warn",
+      "detail": "Python compatibility report is missing",
+      "evidence": "reports/python_compatibility.json",
+      "link": "python_compatibility.md",
+      "review_action_id": "review-action-python-compat",
+      "review_action_status": "warn",
+      "review_action_title": "Python 兼容",
+      "review_action_next_step": "修复 Python 3.11 语法兼容问题，尤其是 f-string 表达式内的反斜杠转义。",
+      "review_action_reason": "目标运行环境可能仍停留在 Python 3.11，语法漂移会让 CLI、报告生成和 CI 在发布后直接失败。",
+      "review_action_source_ref_count": 3,
+      "review_action_verification_command": "python3 scripts/yao.py python-compat . --self"
+    },
+    {
+      "key": "architecture-maintainability",
+      "label": "架构维护",
+      "status": "pass",
+      "detail": "architecture maintainability report is optional until code surface grows",
+      "evidence": "reports/architecture_maintainability.json",
+      "link": "architecture_maintainability.md",
+      "review_action_id": "",
+      "review_action_status": "",
+      "review_action_title": "",
+      "review_action_next_step": "",
+      "review_action_reason": "",
+      "review_action_source_ref_count": 0,
+      "review_action_verification_command": ""
+    },
+    {
+      "key": "permission-gates",
+      "label": "权限批准",
+      "status": "warn",
+      "detail": "0/1 permissions approved; gaps 1; required file_write",
+      "evidence": "reports/security_trust_report.json + security/permission_policy.json",
+      "link": "..\\security\\permission_policy.md",
+      "review_action_id": "review-action-permission-gates",
+      "review_action_status": "warn",
+      "review_action_title": "权限批准",
+      "review_action_next_step": "补齐高权限能力的 reviewer、scope、reason、expires_at 和目标端 enforcement 说明。",
+      "review_action_reason": "权限契约只有在批准人、有效期和目标端处置方式明确时，才能支撑 governed release。",
+      "review_action_source_ref_count": 2,
+      "review_action_verification_command": "python3 scripts/trust_check.py ."
+    },
+    {
+      "key": "permission-runtime",
+      "label": "权限探针",
+      "status": "warn",
+      "detail": "runtime permission probe report is missing",
+      "evidence": "reports/runtime_permission_probes.json",
+      "link": "runtime_permission_probes.md",
+      "review_action_id": "review-action-permission-runtime",
+      "review_action_status": "warn",
+      "review_action_title": "权限探针",
+      "review_action_next_step": "生成并修复目标包的 runtime permission probe 报告。",
+      "review_action_reason": "目标端即使只能提供 metadata fallback，也必须明确 native enforcement 缺口、表示位置和 operator note。",
+      "review_action_source_ref_count": 4,
+      "review_action_verification_command": "python3 scripts/probe_runtime_permissions.py . --package-dir dist"
+    },
+    {
+      "key": "skill-atlas",
+      "label": "组合治理",
+      "status": "warn",
+      "detail": "skill atlas is missing; portfolio-level conflicts are unknown",
+      "evidence": "reports/skill_atlas.json",
+      "link": "skill_atlas.html",
+      "review_action_id": "review-action-skill-atlas",
+      "review_action_status": "warn",
+      "review_action_title": "组合治理",
+      "review_action_next_step": "处理 portfolio 里的路由冲突、owner 缺口、stale skill 和重复能力。",
+      "review_action_reason": "单个 Skill 质量很高仍可能在团队 skill library 中被相邻 Skill 冲突削弱。",
+      "review_action_source_ref_count": 3,
+      "review_action_verification_command": "python3 scripts/build_skill_atlas.py --workspace-root ."
+    },
+    {
+      "key": "operations-loop",
+      "label": "运营回路",
+      "status": "warn",
+      "detail": "adoption drift report is missing; real usage impact is unknown",
+      "evidence": "reports/adoption_drift_report.json + reports/skillops/daily + reports/skillops/weekly",
+      "link": "adoption_drift_report.md",
+      "review_action_id": "review-action-operations-loop",
+      "review_action_status": "warn",
+      "review_action_title": "运营回路",
+      "review_action_next_step": "记录 metadata-only 使用事件，或明确当前 release 缺少真实使用信号。",
+      "review_action_reason": "没有运营回路时，reviewer 无法判断采用率、误触发、坏输出和 review overdue 的真实影响。",
+      "review_action_source_ref_count": 2,
+      "review_action_verification_command": "python3 scripts/render_adoption_drift_report.py . --record-event skill_activation --activation-type explicit --outcome accepted"
+    },
+    {
+      "key": "review-waivers",
+      "label": "人工批准",
+      "status": "warn",
+      "detail": "review waiver ledger is missing; warning acceptance is not auditable",
+      "evidence": "reports/review_waivers.json",
+      "link": "review_waivers.md",
+      "review_action_id": "review-action-review-waivers",
+      "review_action_status": "warn",
+      "review_action_title": "人工批准",
+      "review_action_next_step": "对保留的 warning 写入 reviewer、理由、范围和到期时间，或修掉 warning。",
+      "review_action_reason": "warning 可以被接受，但必须可审计、会过期，并且不能掩盖 blocker。",
+      "review_action_source_ref_count": 2,
+      "review_action_verification_command": "python3 scripts/render_review_waivers.py ."
+    },
+    {
+      "key": "world-class-evidence",
+      "label": "世界证据",
+      "status": "pass",
+      "detail": "world-class evidence ledger is optional until governed or public world-class readiness is claimed",
+      "evidence": "reports/world_class_evidence_ledger.json",
+      "link": "world_class_evidence_ledger.md",
+      "review_action_id": "",
+      "review_action_status": "",
+      "review_action_title": "",
+      "review_action_next_step": "",
+      "review_action_reason": "",
+      "review_action_source_ref_count": 0,
+      "review_action_verification_command": ""
+    },
+    {
+      "key": "registry-audit",
+      "label": "注册审计",
+      "status": "block",
+      "detail": "registry audit is optional until team distribution is required; install fail with 1 adapters; installer permissions 0 enforced / 1 failures",
+      "evidence": "reports/registry_audit.json + reports/install_simulation.json",
+      "link": "registry_audit.md",
+      "review_action_id": "review-action-registry-audit",
+      "review_action_status": "block",
+      "review_action_title": "注册审计",
+      "review_action_next_step": "补齐 registry package metadata、checksum、license、owner、review cadence 和 install evidence。",
+      "review_action_reason": "分发元数据不完整时，团队无法安全安装、升级或追溯包体来源。",
+      "review_action_source_ref_count": 3,
+      "review_action_verification_command": "python3 scripts/registry_audit.py ."
+    },
+    {
+      "key": "release-notes",
+      "label": "发布路线",
+      "status": "warn",
+      "detail": "promotion decisions are missing; release notes need reviewer confirmation",
+      "evidence": "reports/promotion_decisions.json + reports/upgrade_check.json + docs/migration-v2.md",
+      "link": "C:\\Users\\18765\\.dsh\\skills\\yao-meta-skill\\docs\\migration-v2.md",
+      "review_action_id": "review-action-release-notes",
+      "review_action_status": "warn",
+      "review_action_title": "发布路线",
+      "review_action_next_step": "确认 promotion、upgrade diff、breaking changes、migration guide 和 known limitations。",
+      "review_action_reason": "发布说明不完整会让使用者无法判断升级风险和迁移动作。",
+      "review_action_source_ref_count": 3,
+      "review_action_verification_command": "python3 scripts/upgrade_check.py . --previous-package-json registry/examples/yao-meta-skill-1.0.0.json"
+    }
+  ],
+  "gate_contract": {
+    "ok": true,
+    "expected_gate_count": 16,
+    "actual_gate_count": 16,
+    "expected_gate_keys": [
+      "architecture-maintainability",
+      "context-budget",
+      "intent-canvas",
+      "operations-loop",
+      "output-lab",
+      "permission-gates",
+      "permission-runtime",
+      "python-compat",
+      "registry-audit",
+      "release-notes",
+      "review-waivers",
+      "runtime-matrix",
+      "skill-atlas",
+      "trigger-lab",
+      "trust-report",
+      "world-class-evidence"
+    ],
+    "rendered_gate_keys": [
+      "intent-canvas",
+      "trigger-lab",
+      "output-lab",
+      "context-budget",
+      "runtime-matrix",
+      "trust-report",
+      "python-compat",
+      "architecture-maintainability",
+      "permission-gates",
+      "permission-runtime",
+      "skill-atlas",
+      "operations-loop",
+      "review-waivers",
+      "world-class-evidence",
+      "registry-audit",
+      "release-notes"
+    ],
+    "missing_gate_keys": [],
+    "unknown_gate_keys": [],
+    "duplicate_gate_keys": [],
+    "unweighted_gate_keys": []
+  },
+  "blockers": [
+    {
+      "key": "registry-audit",
+      "label": "注册审计",
+      "status": "block",
+      "detail": "registry audit is optional until team distribution is required; install fail with 1 adapters; installer permissions 0 enforced / 1 failures",
+      "evidence": "reports/registry_audit.json + reports/install_simulation.json",
+      "link": "registry_audit.md",
+      "review_action_id": "review-action-registry-audit",
+      "review_action_status": "block",
+      "review_action_title": "注册审计",
+      "review_action_next_step": "补齐 registry package metadata、checksum、license、owner、review cadence 和 install evidence。",
+      "review_action_reason": "分发元数据不完整时，团队无法安全安装、升级或追溯包体来源。",
+      "review_action_source_ref_count": 3,
+      "review_action_verification_command": "python3 scripts/registry_audit.py ."
+    }
+  ],
+  "warnings": [
+    {
+      "key": "intent-canvas",
+      "label": "意图画布",
+      "status": "warn",
+      "detail": "intent confidence 0/100; clarification legacy; assumptions 0; stop n/a; review current intent frame",
+      "evidence": "reports/intent-confidence.json",
+      "link": "intent-confidence.md",
+      "review_action_id": "review-action-intent-canvas",
+      "review_action_status": "warn",
+      "review_action_title": "意图画布",
+      "review_action_next_step": "收紧真实任务、输入、输出、排除项和成功标准。",
+      "review_action_reason": "低 intent confidence 会让后续 Skill IR、输出评测和 Review Studio 结论建立在模糊意图上。",
+      "review_action_source_ref_count": 2,
+      "review_action_verification_command": "python3 scripts/yao.py intent-confidence . --self"
+    },
+    {
+      "key": "trigger-lab",
+      "label": "触发实验",
+      "status": "warn",
+      "detail": "route scorecard is missing; run route-scorecard before release review",
+      "evidence": "reports/route_scorecard.json",
+      "link": "route_scorecard.md",
+      "review_action_id": "review-action-trigger-lab",
+      "review_action_status": "warn",
+      "review_action_title": "触发实验",
+      "review_action_next_step": "修正 route scorecard 中的误触发、漏触发或 ambiguous case。",
+      "review_action_reason": "触发错误会让正确 Skill 失活，或让相邻 Skill 被错误调用。",
+      "review_action_source_ref_count": 3,
+      "review_action_verification_command": "python3 scripts/build_confusion_matrix.py"
+    },
+    {
+      "key": "output-lab",
+      "label": "输出实验",
+      "status": "warn",
+      "detail": "output eval scorecard is missing; generate it before production review",
+      "evidence": "reports/output_quality_scorecard.json",
+      "link": "output_quality_scorecard.md",
+      "review_action_id": "review-action-output-lab",
+      "review_action_status": "warn",
+      "review_action_title": "输出实验",
+      "review_action_next_step": "补足 output eval 覆盖、execution evidence、blind A/B 和 reviewer adjudication。同步补足盲审声明。",
+      "review_action_reason": "没有输出质量和人工盲评证据时，Skill 只能证明会触发，不能证明输出真的更好且经得起审查。",
+      "review_action_source_ref_count": 6,
+      "review_action_verification_command": "python3 scripts/adjudicate_output_review.py --write-template && python3 scripts/yao.py output-review --self"
+    },
+    {
+      "key": "context-budget",
+      "label": "上下文",
+      "status": "warn",
+      "detail": "initial load n/a/n/a; deferred n/a/n/a; top deferred none; resource governance unknown; quality density n/a",
+      "evidence": "reports/context_budget.json",
+      "link": "context_budget.md",
+      "review_action_id": "review-action-context-budget",
+      "review_action_status": "warn",
+      "review_action_title": "上下文",
+      "review_action_next_step": "压缩或拆分高成本 deferred resources，保留最小可路由上下文。",
+      "review_action_reason": "初始加载可以安全，但后续 references、scripts、evals 体量过大时，reviewer 仍需要看到维护和读取成本。",
+      "review_action_source_ref_count": 4,
+      "review_action_verification_command": "python3 scripts/render_context_reports.py"
+    },
+    {
+      "key": "runtime-matrix",
+      "label": "运行矩阵",
+      "status": "warn",
+      "detail": "runtime conformance matrix is missing",
+      "evidence": "reports/conformance_matrix.json",
+      "link": "conformance_matrix.md",
+      "review_action_id": "review-action-runtime-matrix",
+      "review_action_status": "warn",
+      "review_action_title": "运行矩阵",
+      "review_action_next_step": "修复目标端结构、metadata、相对路径、fallback 或 adapter target 声明。",
+      "review_action_reason": "runtime conformance 失败意味着包可能被目标客户端错误加载或静默降级。",
+      "review_action_source_ref_count": 2,
+      "review_action_verification_command": "python3 scripts/run_conformance_suite.py ."
+    },
+    {
+      "key": "trust-report",
+      "label": "信任报告",
+      "status": "warn",
+      "detail": "0 secrets; 5 scripts; 0 network-capable scripts; 0 help smoke failures",
+      "evidence": "reports/security_trust_report.json",
+      "link": "security_trust_report.md",
+      "review_action_id": "review-action-trust-report",
+      "review_action_status": "warn",
+      "review_action_title": "信任报告",
+      "review_action_next_step": "处理脚本 help surface、依赖 pin、network policy、secret 和权限声明。",
+      "review_action_reason": "团队分发时，脚本和依赖是主要供应链风险面，warning 必须有明确处置。",
+      "review_action_source_ref_count": 3,
+      "review_action_verification_command": "python3 scripts/trust_check.py ."
+    },
+    {
+      "key": "python-compat",
+      "label": "Python 兼容",
+      "status": "warn",
+      "detail": "Python compatibility report is missing",
+      "evidence": "reports/python_compatibility.json",
+      "link": "python_compatibility.md",
+      "review_action_id": "review-action-python-compat",
+      "review_action_status": "warn",
+      "review_action_title": "Python 兼容",
+      "review_action_next_step": "修复 Python 3.11 语法兼容问题，尤其是 f-string 表达式内的反斜杠转义。",
+      "review_action_reason": "目标运行环境可能仍停留在 Python 3.11，语法漂移会让 CLI、报告生成和 CI 在发布后直接失败。",
+      "review_action_source_ref_count": 3,
+      "review_action_verification_command": "python3 scripts/yao.py python-compat . --self"
+    },
+    {
+      "key": "permission-gates",
+      "label": "权限批准",
+      "status": "warn",
+      "detail": "0/1 permissions approved; gaps 1; required file_write",
+      "evidence": "reports/security_trust_report.json + security/permission_policy.json",
+      "link": "..\\security\\permission_policy.md",
+      "review_action_id": "review-action-permission-gates",
+      "review_action_status": "warn",
+      "review_action_title": "权限批准",
+      "review_action_next_step": "补齐高权限能力的 reviewer、scope、reason、expires_at 和目标端 enforcement 说明。",
+      "review_action_reason": "权限契约只有在批准人、有效期和目标端处置方式明确时，才能支撑 governed release。",
+      "review_action_source_ref_count": 2,
+      "review_action_verification_command": "python3 scripts/trust_check.py ."
+    },
+    {
+      "key": "permission-runtime",
+      "label": "权限探针",
+      "status": "warn",
+      "detail": "runtime permission probe report is missing",
+      "evidence": "reports/runtime_permission_probes.json",
+      "link": "runtime_permission_probes.md",
+      "review_action_id": "review-action-permission-runtime",
+      "review_action_status": "warn",
+      "review_action_title": "权限探针",
+      "review_action_next_step": "生成并修复目标包的 runtime permission probe 报告。",
+      "review_action_reason": "目标端即使只能提供 metadata fallback，也必须明确 native enforcement 缺口、表示位置和 operator note。",
+      "review_action_source_ref_count": 4,
+      "review_action_verification_command": "python3 scripts/probe_runtime_permissions.py . --package-dir dist"
+    },
+    {
+      "key": "skill-atlas",
+      "label": "组合治理",
+      "status": "warn",
+      "detail": "skill atlas is missing; portfolio-level conflicts are unknown",
+      "evidence": "reports/skill_atlas.json",
+      "link": "skill_atlas.html",
+      "review_action_id": "review-action-skill-atlas",
+      "review_action_status": "warn",
+      "review_action_title": "组合治理",
+      "review_action_next_step": "处理 portfolio 里的路由冲突、owner 缺口、stale skill 和重复能力。",
+      "review_action_reason": "单个 Skill 质量很高仍可能在团队 skill library 中被相邻 Skill 冲突削弱。",
+      "review_action_source_ref_count": 3,
+      "review_action_verification_command": "python3 scripts/build_skill_atlas.py --workspace-root ."
+    },
+    {
+      "key": "operations-loop",
+      "label": "运营回路",
+      "status": "warn",
+      "detail": "adoption drift report is missing; real usage impact is unknown",
+      "evidence": "reports/adoption_drift_report.json + reports/skillops/daily + reports/skillops/weekly",
+      "link": "adoption_drift_report.md",
+      "review_action_id": "review-action-operations-loop",
+      "review_action_status": "warn",
+      "review_action_title": "运营回路",
+      "review_action_next_step": "记录 metadata-only 使用事件，或明确当前 release 缺少真实使用信号。",
+      "review_action_reason": "没有运营回路时，reviewer 无法判断采用率、误触发、坏输出和 review overdue 的真实影响。",
+      "review_action_source_ref_count": 2,
+      "review_action_verification_command": "python3 scripts/render_adoption_drift_report.py . --record-event skill_activation --activation-type explicit --outcome accepted"
+    },
+    {
+      "key": "review-waivers",
+      "label": "人工批准",
+      "status": "warn",
+      "detail": "review waiver ledger is missing; warning acceptance is not auditable",
+      "evidence": "reports/review_waivers.json",
+      "link": "review_waivers.md",
+      "review_action_id": "review-action-review-waivers",
+      "review_action_status": "warn",
+      "review_action_title": "人工批准",
+      "review_action_next_step": "对保留的 warning 写入 reviewer、理由、范围和到期时间，或修掉 warning。",
+      "review_action_reason": "warning 可以被接受，但必须可审计、会过期，并且不能掩盖 blocker。",
+      "review_action_source_ref_count": 2,
+      "review_action_verification_command": "python3 scripts/render_review_waivers.py ."
+    },
+    {
+      "key": "release-notes",
+      "label": "发布路线",
+      "status": "warn",
+      "detail": "promotion decisions are missing; release notes need reviewer confirmation",
+      "evidence": "reports/promotion_decisions.json + reports/upgrade_check.json + docs/migration-v2.md",
+      "link": "C:\\Users\\18765\\.dsh\\skills\\yao-meta-skill\\docs\\migration-v2.md",
+      "review_action_id": "review-action-release-notes",
+      "review_action_status": "warn",
+      "review_action_title": "发布路线",
+      "review_action_next_step": "确认 promotion、upgrade diff、breaking changes、migration guide 和 known limitations。",
+      "review_action_reason": "发布说明不完整会让使用者无法判断升级风险和迁移动作。",
+      "review_action_source_ref_count": 3,
+      "review_action_verification_command": "python3 scripts/upgrade_check.py . --previous-package-json registry/examples/yao-meta-skill-1.0.0.json"
+    }
+  ],
+  "review_actions": [
+    {
+      "action_id": "review-action-intent-canvas",
+      "gate_key": "intent-canvas",
+      "title": "意图画布",
+      "label": "意图画布",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "收紧真实任务、输入、输出、排除项和成功标准。",
+      "summary": "收紧真实任务、输入、输出、排除项和成功标准。",
+      "reason": "低 intent confidence 会让后续 Skill IR、输出评测和 Review Studio 结论建立在模糊意图上。",
+      "why": "低 intent confidence 会让后续 Skill IR、输出评测和 Review Studio 结论建立在模糊意图上。",
+      "source_fix": "reports/intent-dialogue.md + reports/intent-confidence.md",
+      "source_refs": [
+        {
+          "path": "reports/intent-dialogue.md",
+          "label": "intent dialogue",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "reports/intent-confidence.md",
+          "label": "intent confidence",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        }
+      ],
+      "evidence": "reports/intent-confidence.json",
+      "evidence_link": "intent-confidence.md",
+      "verification_command": "python3 scripts/yao.py intent-confidence . --self",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-trigger-lab",
+      "gate_key": "trigger-lab",
+      "title": "触发实验",
+      "label": "触发实验",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "修正 route scorecard 中的误触发、漏触发或 ambiguous case。",
+      "summary": "修正 route scorecard 中的误触发、漏触发或 ambiguous case。",
+      "reason": "触发错误会让正确 Skill 失活，或让相邻 Skill 被错误调用。",
+      "why": "触发错误会让正确 Skill 失活，或让相邻 Skill 被错误调用。",
+      "source_fix": "SKILL.md frontmatter description + evals/*/trigger_cases.json",
+      "source_refs": [
+        {
+          "path": "SKILL.md",
+          "label": "frontmatter description",
+          "kind": "source",
+          "line": 3,
+          "matched_pattern": "description:",
+          "excerpt": "description: HTML 出口层：消费路由单，从主题注册库取组件，把条目渲染成单文件离线 HTML。版式稳定靠组件装配、风格一致靠主题 token。触发语：「把这篇做成网页」「出个 HTML 版」。",
+          "exists": true,
+          "link": "..\\SKILL.md"
+        },
+        {
+          "path": "evals/trigger_cases.json",
+          "label": "trigger eval cases",
+          "kind": "eval",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "reports/route_scorecard.md",
+          "label": "route scorecard",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        }
+      ],
+      "evidence": "reports/route_scorecard.json",
+      "evidence_link": "route_scorecard.md",
+      "verification_command": "python3 scripts/build_confusion_matrix.py",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-output-lab",
+      "gate_key": "output-lab",
+      "title": "输出实验",
+      "label": "输出实验",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "补足 output eval 覆盖、execution evidence、blind A/B 和 reviewer adjudication。同步补足盲审声明。",
+      "summary": "补足 output eval 覆盖、execution evidence、blind A/B 和 reviewer adjudication。同步补足盲审声明。",
+      "reason": "没有输出质量和人工盲评证据时，Skill 只能证明会触发，不能证明输出真的更好且经得起审查。",
+      "why": "没有输出质量和人工盲评证据时，Skill 只能证明会触发，不能证明输出真的更好且经得起审查。",
+      "source_fix": "evals/output/cases.jsonl + reports/output_quality_scorecard.md + reports/output_review_kit.html + reports/output_review_adjudication.md + reports/output_review_decisions.json",
+      "source_refs": [
+        {
+          "path": "evals/output/cases.jsonl",
+          "label": "output eval cases",
+          "kind": "eval",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "reports/output_quality_scorecard.md",
+          "label": "output scorecard",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "reports/output_execution_runs.md",
+          "label": "output execution runs",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "reports/output_blind_review_pack.md",
+          "label": "blind A/B review pack",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "reports/output_review_kit.html",
+          "label": "reviewer cockpit",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "reports/output_review_adjudication.md",
+          "label": "review adjudication",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        }
+      ],
+      "evidence": "reports/output_quality_scorecard.json",
+      "evidence_link": "output_quality_scorecard.md",
+      "verification_command": "python3 scripts/adjudicate_output_review.py --write-template && python3 scripts/yao.py output-review --self",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-context-budget",
+      "gate_key": "context-budget",
+      "title": "上下文",
+      "label": "上下文",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "压缩或拆分高成本 deferred resources，保留最小可路由上下文。",
+      "summary": "压缩或拆分高成本 deferred resources，保留最小可路由上下文。",
+      "reason": "初始加载可以安全，但后续 references、scripts、evals 体量过大时，reviewer 仍需要看到维护和读取成本。",
+      "why": "初始加载可以安全，但后续 references、scripts、evals 体量过大时，reviewer 仍需要看到维护和读取成本。",
+      "source_fix": "SKILL.md + references/ + scripts/ + evals/",
+      "source_refs": [
+        {
+          "path": "SKILL.md",
+          "label": "entrypoint",
+          "kind": "source",
+          "line": 1,
+          "matched_pattern": "",
+          "excerpt": "---",
+          "exists": true,
+          "link": "..\\SKILL.md"
+        },
+        {
+          "path": "reports/context_budget.md",
+          "label": "context budget",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "scripts/resource_boundary_check.py",
+          "label": "resource boundary checker",
+          "kind": "source",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "references/skill-engineering-method.md",
+          "label": "skill engineering method",
+          "kind": "method",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        }
+      ],
+      "evidence": "reports/context_budget.json",
+      "evidence_link": "context_budget.md",
+      "verification_command": "python3 scripts/render_context_reports.py",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-runtime-matrix",
+      "gate_key": "runtime-matrix",
+      "title": "运行矩阵",
+      "label": "运行矩阵",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "修复目标端结构、metadata、相对路径、fallback 或 adapter target 声明。",
+      "summary": "修复目标端结构、metadata、相对路径、fallback 或 adapter target 声明。",
+      "reason": "runtime conformance 失败意味着包可能被目标客户端错误加载或静默降级。",
+      "why": "runtime conformance 失败意味着包可能被目标客户端错误加载或静默降级。",
+      "source_fix": "agents/interface.yaml + reports/conformance_matrix.md",
+      "source_refs": [
+        {
+          "path": "agents/interface.yaml",
+          "label": "portable interface",
+          "kind": "source",
+          "line": 7,
+          "matched_pattern": "adapter_targets",
+          "excerpt": "adapter_targets:",
+          "exists": true,
+          "link": "..\\agents\\interface.yaml"
+        },
+        {
+          "path": "reports/conformance_matrix.md",
+          "label": "conformance matrix",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        }
+      ],
+      "evidence": "reports/conformance_matrix.json",
+      "evidence_link": "conformance_matrix.md",
+      "verification_command": "python3 scripts/run_conformance_suite.py .",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-trust-report",
+      "gate_key": "trust-report",
+      "title": "信任报告",
+      "label": "信任报告",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "处理脚本 help surface、依赖 pin、network policy、secret 和权限声明。",
+      "summary": "处理脚本 help surface、依赖 pin、network policy、secret 和权限声明。",
+      "reason": "团队分发时，脚本和依赖是主要供应链风险面，warning 必须有明确处置。",
+      "why": "团队分发时，脚本和依赖是主要供应链风险面，warning 必须有明确处置。",
+      "source_fix": "reports/security_trust_report.md + security/*.md + scripts/",
+      "source_refs": [
+        {
+          "path": "reports/security_trust_report.md",
+          "label": "trust report",
+          "kind": "report",
+          "line": 1,
+          "matched_pattern": "# Security",
+          "excerpt": "# Security Trust Report",
+          "exists": true,
+          "link": "security_trust_report.md"
+        },
+        {
+          "path": "security/script_policy.md",
+          "label": "script policy",
+          "kind": "policy",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "security/network_policy.md",
+          "label": "network policy",
+          "kind": "policy",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        }
+      ],
+      "evidence": "reports/security_trust_report.json",
+      "evidence_link": "security_trust_report.md",
+      "verification_command": "python3 scripts/trust_check.py .",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-python-compat",
+      "gate_key": "python-compat",
+      "title": "Python 兼容",
+      "label": "Python 兼容",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "修复 Python 3.11 语法兼容问题，尤其是 f-string 表达式内的反斜杠转义。",
+      "summary": "修复 Python 3.11 语法兼容问题，尤其是 f-string 表达式内的反斜杠转义。",
+      "reason": "目标运行环境可能仍停留在 Python 3.11，语法漂移会让 CLI、报告生成和 CI 在发布后直接失败。",
+      "why": "目标运行环境可能仍停留在 Python 3.11，语法漂移会让 CLI、报告生成和 CI 在发布后直接失败。",
+      "source_fix": "reports/python_compatibility.md + scripts/*.py + tests/*.py",
+      "source_refs": [
+        {
+          "path": "reports/python_compatibility.md",
+          "label": "Python compatibility",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "scripts/python_compat_check.py",
+          "label": "compatibility checker",
+          "kind": "source",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": ".github/workflows/test.yml",
+          "label": "CI test workflow",
+          "kind": "ci",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        }
+      ],
+      "evidence": "reports/python_compatibility.json",
+      "evidence_link": "python_compatibility.md",
+      "verification_command": "python3 scripts/yao.py python-compat . --self",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-permission-gates",
+      "gate_key": "permission-gates",
+      "title": "权限批准",
+      "label": "权限批准",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "补齐高权限能力的 reviewer、scope、reason、expires_at 和目标端 enforcement 说明。",
+      "summary": "补齐高权限能力的 reviewer、scope、reason、expires_at 和目标端 enforcement 说明。",
+      "reason": "权限契约只有在批准人、有效期和目标端处置方式明确时，才能支撑 governed release。",
+      "why": "权限契约只有在批准人、有效期和目标端处置方式明确时，才能支撑 governed release。",
+      "source_fix": "security/permission_policy.json + security/permission_policy.md",
+      "source_refs": [
+        {
+          "path": "security/permission_policy.json",
+          "label": "permission approvals",
+          "kind": "policy",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "security/permission_policy.md",
+          "label": "permission method",
+          "kind": "policy",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        }
+      ],
+      "evidence": "reports/security_trust_report.json + security/permission_policy.json",
+      "evidence_link": "..\\security\\permission_policy.md",
+      "verification_command": "python3 scripts/trust_check.py .",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-permission-runtime",
+      "gate_key": "permission-runtime",
+      "title": "权限探针",
+      "label": "权限探针",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "生成并修复目标包的 runtime permission probe 报告。",
+      "summary": "生成并修复目标包的 runtime permission probe 报告。",
+      "reason": "目标端即使只能提供 metadata fallback，也必须明确 native enforcement 缺口、表示位置和 operator note。",
+      "why": "目标端即使只能提供 metadata fallback，也必须明确 native enforcement 缺口、表示位置和 operator note。",
+      "source_fix": "dist/targets/*/adapter.json + reports/runtime_permission_probes.md",
+      "source_refs": [
+        {
+          "path": "reports/runtime_permission_probes.md",
+          "label": "runtime permission probes",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "dist/targets/openai/adapter.json",
+          "label": "OpenAI adapter",
+          "kind": "package",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "dist/targets/claude/adapter.json",
+          "label": "Claude adapter",
+          "kind": "package",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "dist/targets/generic/adapter.json",
+          "label": "generic adapter",
+          "kind": "package",
+          "line": 186,
+          "matched_pattern": "target_permission_contract",
+          "excerpt": "\"target_permission_contract\": {",
+          "exists": true,
+          "link": "..\\dist\\targets\\generic\\adapter.json"
+        }
+      ],
+      "evidence": "reports/runtime_permission_probes.json",
+      "evidence_link": "runtime_permission_probes.md",
+      "verification_command": "python3 scripts/probe_runtime_permissions.py . --package-dir dist",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-skill-atlas",
+      "gate_key": "skill-atlas",
+      "title": "组合治理",
+      "label": "组合治理",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "处理 portfolio 里的路由冲突、owner 缺口、stale skill 和重复能力。",
+      "summary": "处理 portfolio 里的路由冲突、owner 缺口、stale skill 和重复能力。",
+      "reason": "单个 Skill 质量很高仍可能在团队 skill library 中被相邻 Skill 冲突削弱。",
+      "why": "单个 Skill 质量很高仍可能在团队 skill library 中被相邻 Skill 冲突削弱。",
+      "source_fix": "reports/skill_atlas.html + skill_atlas/catalog.json",
+      "source_refs": [
+        {
+          "path": "skill_atlas/catalog.json",
+          "label": "skill atlas catalog",
+          "kind": "atlas",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "skill_atlas/policy.json",
+          "label": "atlas scope policy",
+          "kind": "policy",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "reports/skill_atlas.html",
+          "label": "skill atlas report",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        }
+      ],
+      "evidence": "reports/skill_atlas.json",
+      "evidence_link": "skill_atlas.html",
+      "verification_command": "python3 scripts/build_skill_atlas.py --workspace-root .",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-operations-loop",
+      "gate_key": "operations-loop",
+      "title": "运营回路",
+      "label": "运营回路",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "记录 metadata-only 使用事件，或明确当前 release 缺少真实使用信号。",
+      "summary": "记录 metadata-only 使用事件，或明确当前 release 缺少真实使用信号。",
+      "reason": "没有运营回路时，reviewer 无法判断采用率、误触发、坏输出和 review overdue 的真实影响。",
+      "why": "没有运营回路时，reviewer 无法判断采用率、误触发、坏输出和 review overdue 的真实影响。",
+      "source_fix": "reports/adoption_drift_report.md",
+      "source_refs": [
+        {
+          "path": "reports/adoption_drift_report.md",
+          "label": "adoption drift report",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "references/telemetry-drift-method.md",
+          "label": "telemetry method",
+          "kind": "method",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        }
+      ],
+      "evidence": "reports/adoption_drift_report.json + reports/skillops/daily + reports/skillops/weekly",
+      "evidence_link": "adoption_drift_report.md",
+      "verification_command": "python3 scripts/render_adoption_drift_report.py . --record-event skill_activation --activation-type explicit --outcome accepted",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-review-waivers",
+      "gate_key": "review-waivers",
+      "title": "人工批准",
+      "label": "人工批准",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "对保留的 warning 写入 reviewer、理由、范围和到期时间，或修掉 warning。",
+      "summary": "对保留的 warning 写入 reviewer、理由、范围和到期时间，或修掉 warning。",
+      "reason": "warning 可以被接受，但必须可审计、会过期，并且不能掩盖 blocker。",
+      "why": "warning 可以被接受，但必须可审计、会过期，并且不能掩盖 blocker。",
+      "source_fix": "reports/review_waivers.md",
+      "source_refs": [
+        {
+          "path": "reports/review_waivers.md",
+          "label": "waiver ledger",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "references/review-waiver-method.md",
+          "label": "waiver method",
+          "kind": "method",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        }
+      ],
+      "evidence": "reports/review_waivers.json",
+      "evidence_link": "review_waivers.md",
+      "verification_command": "python3 scripts/render_review_waivers.py .",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-registry-audit",
+      "gate_key": "registry-audit",
+      "title": "注册审计",
+      "label": "注册审计",
+      "status": "block",
+      "priority": "blocker",
+      "next_step": "补齐 registry package metadata、checksum、license、owner、review cadence 和 install evidence。",
+      "summary": "补齐 registry package metadata、checksum、license、owner、review cadence 和 install evidence。",
+      "reason": "分发元数据不完整时，团队无法安全安装、升级或追溯包体来源。",
+      "why": "分发元数据不完整时，团队无法安全安装、升级或追溯包体来源。",
+      "source_fix": "registry/ + reports/registry_audit.md",
+      "source_refs": [
+        {
+          "path": "registry/packages/yao-meta-skill.json",
+          "label": "registry package",
+          "kind": "registry",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "reports/registry_audit.md",
+          "label": "registry audit",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "reports/install_simulation.md",
+          "label": "install simulation",
+          "kind": "report",
+          "line": 1,
+          "matched_pattern": "# Install",
+          "excerpt": "# Install Simulation",
+          "exists": true,
+          "link": "install_simulation.md"
+        }
+      ],
+      "evidence": "reports/registry_audit.json + reports/install_simulation.json",
+      "evidence_link": "registry_audit.md",
+      "verification_command": "python3 scripts/registry_audit.py .",
+      "evidence_steps": []
+    },
+    {
+      "action_id": "review-action-release-notes",
+      "gate_key": "release-notes",
+      "title": "发布路线",
+      "label": "发布路线",
+      "status": "warn",
+      "priority": "warning",
+      "next_step": "确认 promotion、upgrade diff、breaking changes、migration guide 和 known limitations。",
+      "summary": "确认 promotion、upgrade diff、breaking changes、migration guide 和 known limitations。",
+      "reason": "发布说明不完整会让使用者无法判断升级风险和迁移动作。",
+      "why": "发布说明不完整会让使用者无法判断升级风险和迁移动作。",
+      "source_fix": "reports/upgrade_check.md + docs/migration-v2.md",
+      "source_refs": [
+        {
+          "path": "reports/upgrade_check.md",
+          "label": "upgrade check",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "docs/migration-v2.md",
+          "label": "migration guide",
+          "kind": "docs",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        },
+        {
+          "path": "reports/promotion_decisions.md",
+          "label": "promotion decisions",
+          "kind": "report",
+          "line": null,
+          "matched_pattern": "",
+          "excerpt": "",
+          "exists": false,
+          "link": ""
+        }
+      ],
+      "evidence": "reports/promotion_decisions.json + reports/upgrade_check.json + docs/migration-v2.md",
+      "evidence_link": "C:\\Users\\18765\\.dsh\\skills\\yao-meta-skill\\docs\\migration-v2.md",
+      "verification_command": "python3 scripts/upgrade_check.py . --previous-package-json registry/examples/yao-meta-skill-1.0.0.json",
+      "evidence_steps": []
+    }
+  ],
+  "evidence_paths": {
+    "skill_overview": "reports/skill-overview.html",
+    "review_viewer": "reports/review-viewer.html",
+    "phase1_trigger_holdout": "reports/phase1_trigger_holdout.md",
+    "output_eval": "reports/output_quality_scorecard.md",
+    "output_execution": "reports/output_execution_runs.md",
+    "provider_output_evaluation": "reports/provider_output_evaluation.json",
+    "provider_output_adjudication": "reports/provider_output_adjudication.json",
+    "output_blind_review": "reports/output_blind_review_pack.md",
+    "output_review_kit": "reports/output_review_kit.md",
+    "output_review_kit_html": "reports/output_review_kit.html",
+    "output_review_decisions": "reports/output_review_decisions.json",
+    "output_review_adjudication": "reports/output_review_adjudication.md",
+    "benchmark_reproducibility": "reports/benchmark_reproducibility.md",
+    "skill_os2_coverage": "reports/skill_os2_coverage.md",
+    "runtime_conformance": "reports/conformance_matrix.md",
+    "trust_report": "reports/security_trust_report.md",
+    "python_compatibility": "reports/python_compatibility.md",
+    "architecture_maintainability": "reports/architecture_maintainability.md",
+    "permission_policy": "security/permission_policy.md",
+    "runtime_permissions": "reports/runtime_permission_probes.md",
+    "skill_atlas": "reports/skill_atlas.html",
+    "compiled_targets": "reports/compiled_targets.md",
+    "adoption_drift": "reports/adoption_drift_report.md",
+    "review_waivers": "reports/review_waivers.md",
+    "review_annotations": "reports/review_annotations.md",
+    "adaptation_proposals": "reports/adaptation_proposals.md",
+    "adaptation_approval_ledger": "reports/adaptation_approval_ledger.json",
+    "adaptation_regression": "reports/adaptation_regression_report.md",
+    "world_class_evidence_plan": "reports/world_class_evidence_plan.md",
+    "world_class_evidence_ledger": "reports/world_class_evidence_ledger.md",
+    "world_class_evidence_intake": "reports/world_class_evidence_intake.md",
+    "world_class_evidence_preflight": "reports/world_class_evidence_preflight.md",
+    "world_class_evidence_preflight_html": "reports/world_class_evidence_preflight.html",
+    "world_class_submission_review": "reports/world_class_submission_review.md",
+    "world_class_operator_runbook": "reports/world_class_operator_runbook.md",
+    "world_class_operator_runbook_html": "reports/world_class_operator_runbook.html",
+    "world_class_claim_guard": "reports/world_class_claim_guard.md",
+    "registry_audit": "reports/registry_audit.md",
+    "package_verification": "reports/package_verification.md",
+    "install_simulation": "reports/install_simulation.md",
+    "upgrade_check": "reports/upgrade_check.md",
+    "migration": "docs/migration-v2.md"
+  },
+  "data": {
+    "overview": {
+      "skill_summary": {
+        "name": "pkos-html",
+        "title": "前置契约",
+        "display_name": "HTML 出口",
+        "description": "HTML 出口层：消费路由单，从主题注册库取组件，把条目渲染成单文件离线 HTML。版式稳定靠组件装配、风格一致靠主题 token。触发语：「把这篇做成网页」「出个 HTML 版」。",
+        "maturity": "production",
+        "updated_at": "2026-08-24",
+        "core_value": "把一次性经验沉淀为可复用、可评估、可迁移的 Skill 包体。",
+        "audience": "Skill 作者、复用团队和后续 reviewer。",
+        "deliverables": [
+          "SKILL.md",
+          "agents/interface.yaml",
+          "reports/skill-ir.json",
+          "reports/compiled_targets.md",
+          "reports/output_quality_scorecard.md",
+          "reports/conformance_matrix.md",
+          "reports/security_trust_report.md",
+          "reports/skill_atlas.html",
+          "reports/registry_audit.md",
+          "reports/package_verification.md",
+          "reports/install_simulation.md",
+          "reports/upgrade_check.md",
+          "reports/adoption_drift_report.md",
+          "reports/review_waivers.md",
+          "reports/review_annotations.md",
+          "reports/review-studio.html",
+          "reports/skill-interpretation.html",
+          "reports/skill-overview.html"
+        ],
+        "flow": [
+          "输入材料",
+          "Skill 包体",
+          "可复用能力"
+        ]
+      },
+      "scorecard": {
+        "completeness_score": {
+          "label": "完整度",
+          "score": 72,
+          "reasons": [
+            "SKILL.md 已存在，是 Skill 的入口。",
+            "README.md 未发现或为空，完整度扣分。",
+            "agents/interface.yaml 已存在，便于跨平台适配。",
+            "manifest.json 已存在，生命周期信息可追踪。",
+            "reports/ 已存在，生成证据可以随包体迁移。"
+          ]
+        },
+        "trigger_score": {
+          "label": "触发清晰",
+          "score": 55,
+          "reasons": [
+            "frontmatter description 已存在，具备基础路由面。",
+            "description 有足够长度说明任务边界。",
+            "description 缺少明确使用场景或排除边界。",
+            "evals/ 证据不足，误触发检查仍偏弱。",
+            "intent-confidence 证据不足。"
+          ]
+        },
+        "evidence_score": {
+          "label": "证据充分",
+          "score": 15,
+          "reasons": [
+            "已生成 3 / 20 类报告证据。",
+            "security_trust_report.json 已存在。",
+            "package_verification.json 已存在。",
+            "install_simulation.json 已存在。",
+            "证据不足：缺少 skill-ir.json, compiled_targets.json, intent-dialogue.json。"
+          ]
+        },
+        "maintainability_score": {
+          "label": "可维护性",
+          "score": 70,
+          "reasons": [
+            "SKILL.md 约 782 个词/字。",
+            "入口文件保持克制，可维护性较好。",
+            "references/ 证据不足，长指导可能堆在入口。",
+            "scripts/ 已承载确定性逻辑。",
+            "evals/ 证据不足。"
+          ]
+        },
+        "portability_score": {
+          "label": "可迁移性",
+          "score": 100,
+          "reasons": [
+            "agents/interface.yaml 已存在。",
+            "manifest.json 已存在。",
+            "目标平台或 adapter target 已声明。",
+            "入口文件未发现明显私有绝对路径。"
+          ]
+        },
+        "context_cost": {
+          "label": "上下文成本",
+          "score": 95,
+          "reasons": [
+            "入口约 782 个词/字，references 约 0 个词/字。",
+            "分数越高代表上下文成本越低。",
+            "上下文成本处于可控区间。"
+          ]
+        }
+      },
+      "capability_profile": {
+        "archetype": "production",
+        "task_family": "Skill workflow",
+        "maturity": "production",
+        "trigger_strength": "手动触发 + description 路由",
+        "reuse_scope": "跨平台",
+        "matrix": {
+          "execution_certainty": 72,
+          "knowledge_density": 62
+        }
+      },
+      "principle_model": {
+        "nodes": [
+          {
+            "title": "意图澄清",
+            "body": "先确认真实任务、输入材料和交付结果。"
+          },
+          {
+            "title": "边界路由",
+            "body": "用 frontmatter description 决定是否触发，并写明相邻非目标。"
+          },
+          {
+            "title": "资产分层",
+            "body": "把入口、参考、脚本、评估和报告拆到各自目录，避免 SKILL.md 膨胀。"
+          },
+          {
+            "title": "证据回路",
+            "body": "通过评估、报告和复盘把真实使用反馈变成下一轮改进。"
+          },
+          {
+            "title": "漂移观察",
+            "body": "持续观察触发漂移、输出漂移和治理漂移。"
+          },
+          {
+            "title": "杠杆升级",
+            "body": "优先改边界、触发和一个最小自修复检查。"
+          }
+        ],
+        "layers": [
+          "入口层",
+          "参考层",
+          "脚本层",
+          "评估层",
+          "报告层"
+        ]
+      },
+      "contract_boundary": {
+        "trigger": {
+          "description": "HTML 出口层：消费路由单，从主题注册库取组件，把条目渲染成单文件离线 HTML。版式稳定靠组件装配、风格一致靠主题 token。触发语：「把这篇做成网页」「出个 HTML 版」。",
+          "activation": "manual",
+          "execution": "inline",
+          "shell": "bash"
+        },
+        "inputs": [
+          "用户提供的工作流、提示词、文档、记录或散乱笔记",
+          "期望沉淀的复用场景、排除项、约束和质量标准"
+        ],
+        "outputs": [
+          "可路由的 SKILL.md",
+          "agents/interface.yaml 元数据",
+          "必要的 references、scripts、evals、reports 证据",
+          "结构化 Skill 目录，共 3 类关键资产。"
+        ],
+        "should_trigger": [
+          "团队复用前，需要明确触发边界、质量证据和维护责任。",
+          "用户说出类似需求时：Use $pkos-html when the user says 把这篇做成网页 / 出个 HTML 版.",
+          "已有原始资料，但还没有清晰输入、输出和后续迭代路径。"
+        ],
+        "should_not_trigger": [
+          "只需要一次性回答、没有复用价值的临时请求。",
+          "要求直接执行相邻任务，而不是沉淀或使用这个 Skill。",
+          "缺少必要事实且用户不允许澄清的场景。"
+        ],
+        "boundary_cards": [
+          {
+            "label": "Owned",
+            "body": "HTML 出口层：消费路由单，从主题注册库取组件，把条目渲染成单文件离线 HTML。版式稳定靠组件装配、风格一致靠主题 token。触发语：「把这篇做成网页」「出个 HTML 版」。"
+          },
+          {
+            "label": "Adjacent",
+            "body": "相邻任务需要先确认是否应转为独立 Skill。"
+          },
+          {
+            "label": "Excluded",
+            "body": "不替代人工事实核查，也不静默扩大职责。"
+          }
+        ]
+      },
+      "quality_review": {
+        "strengths": [
+          "触发面保持精简，并锚定在 frontmatter description。",
+          "已生成 Security Trust Report，可审查脚本、依赖、secret 和包完整性风险。",
+          "已生成 Install Simulation，可审查 zip 解压、入口加载、接口元数据和 adapter 可读性。",
+          "已生成 Review Studio 2.0，可在一页中查看 blocker、warning、证据路径和发布闸门。",
+          "已打包 agents/interface.yaml，便于后续做跨平台适配。",
+          "确定性辅助逻辑放在 scripts 中，而不是藏在提示词里。"
+        ],
+        "gaps": [
+          "触发清晰需要补强：frontmatter description 已存在，具备基础路由面。",
+          "证据充分需要补强：已生成 3 / 20 类报告证据。"
+        ],
+        "recommendations": [
+          "先改触发边界，再扩展工作流。",
+          "只把重复且稳定的步骤沉淀为脚本。",
+          "每次升级后重新生成报告并检查分数原因。"
+        ],
+        "artifact_design": {
+          "design_system": "content-led editorial",
+          "highlights": []
+        },
+        "prompt_quality": {
+          "overall_quality_score": "n/a",
+          "highlights": []
+        },
+        "system_model": {
+          "stability": {},
+          "highlights": []
+        }
+      },
+      "risk_governance": {
+        "risks": [
+          {
+            "name": "误触发风险",
+            "impact": 3,
+            "probability": 2,
+            "signal": "frontmatter description 已存在，具备基础路由面。",
+            "response": "先补证据和边界，再增加包体复杂度。"
+          },
+          {
+            "name": "输出漂移风险",
+            "impact": 2,
+            "probability": 3,
+            "signal": "已生成 3 / 20 类报告证据。",
+            "response": "先补证据和边界，再增加包体复杂度。"
+          },
+          {
+            "name": "证据不足风险",
+            "impact": 3,
+            "probability": 3,
+            "signal": "已生成 3 / 20 类报告证据。",
+            "response": "先补证据和边界，再增加包体复杂度。"
+          },
+          {
+            "name": "包体膨胀风险",
+            "impact": 2,
+            "probability": 2,
+            "signal": "SKILL.md 约 782 个词/字。",
+            "response": "先补证据和边界，再增加包体复杂度。"
+          },
+          {
+            "name": "跨平台迁移风险",
+            "impact": 3,
+            "probability": 1,
+            "signal": "agents/interface.yaml 已存在。",
+            "response": "先补证据和边界，再增加包体复杂度。"
+          }
+        ],
+        "risk_families": [],
+        "human_judgment_boundary": []
+      },
+      "world_class_readiness": {
+        "ready": false,
+        "decision": "not-generated",
+        "entry_count": 0,
+        "pending_count": 0,
+        "accepted_count": 0,
+        "external_pending_count": 0,
+        "human_pending_count": 0,
+        "source_check_count": 0,
+        "source_pass_count": 0,
+        "conclusion_zh": "未生成 world-class ledger；当前报告不会宣称世界级完成。",
+        "conclusion_en": "No world-class ledger was generated; this report does not claim world-class completion.",
+        "entries": []
+      },
+      "package_assets": {
+        "entries": [
+          {
+            "path": "SKILL.md",
+            "label": "Skill entrypoint",
+            "kind": "file",
+            "file_count": 1
+          },
+          {
+            "path": "scripts",
+            "label": "Deterministic helpers or local tooling",
+            "kind": "folder",
+            "file_count": 5
+          },
+          {
+            "path": "reports",
+            "label": "Generated evidence and overview artifacts",
+            "kind": "folder",
+            "file_count": 0
+          }
+        ],
+        "file_count": 6,
+        "folder_count": 2,
+        "distribution": [
+          {
+            "label": "SKILL.md",
+            "value": 1
+          },
+          {
+            "label": "scripts",
+            "value": 5
+          },
+          {
+            "label": "reports",
+            "value": 1
+          }
+        ]
+      },
+      "iteration_roadmap": {
+        "items": [
+          {
+            "title": "收紧触发",
+            "why": "先让 Skill 在正确场景被调用，再扩展资产。",
+            "actions": [
+              "增加正例、反例和近邻用例。",
+              "压缩 frontmatter description。"
+            ],
+            "unlocks": "更稳定的路由边界。"
+          }
+        ]
+      },
+      "report_contract": {
+        "schema_version": "2.0",
+        "html_report": "reports/skill-overview.html",
+        "language": "zh-CN",
+        "default_language": "zh-CN",
+        "languages": [
+          "zh-CN",
+          "en"
+        ],
+        "layout": "kami-white-audit-v2",
+        "nav_labels": [
+          "技能概述",
+          "总览指标",
+          "能力画像",
+          "原理结构",
+          "契约边界",
+          "质量评估",
+          "风险治理",
+          "包体资产",
+          "迭代路线"
+        ],
+        "nav_labels_en": [
+          "Overview",
+          "Metrics",
+          "Profile",
+          "Principle",
+          "Contract",
+          "Quality",
+          "Risk",
+          "Assets",
+          "Roadmap"
+        ]
+      },
+      "name": "pkos-html",
+      "title": "前置契约",
+      "display_name": "HTML 出口",
+      "description": "HTML 出口层：消费路由单，从主题注册库取组件，把条目渲染成单文件离线 HTML。版式稳定靠组件装配、风格一致靠主题 token。触发语：「把这篇做成网页」「出个 HTML 版」。",
+      "logic_steps": [
+        "**禁止临时发挥样式、禁止裸色值**：一切颜色经 token；一切标签类来自 recipes。",
+        "一篇文章只用一套主题；「未用变体勿混入」。",
+        "新主题必须过 `lint_theme.py`（0 ERROR）才可写入 index.json。",
+        "`build_themes.py --check` 保证 index.md 与 index.json 同源。",
+        "读路由单 → 选主题（conversion_types 匹配）→ 读该主题 profile.md；"
+      ],
+      "usage_steps": [
+        "Use $pkos-html when the user says 把这篇做成网页 / 出个 HTML 版.",
+        "Use this skill when the request matches: HTML 出口层：消费路由单，从主题注册库取组件，把条目渲染成单文件离线 HTML。版式稳定靠组件装配、风格一致靠主题 token。触发语：「把这篇做成网页」「出个 HTML 版」。"
+      ],
+      "package_map": [
+        {
+          "path": "SKILL.md",
+          "label": "Skill entrypoint",
+          "kind": "file",
+          "file_count": 1
+        },
+        {
+          "path": "scripts",
+          "label": "Deterministic helpers or local tooling",
+          "kind": "folder",
+          "file_count": 5
+        },
+        {
+          "path": "reports",
+          "label": "Generated evidence and overview artifacts",
+          "kind": "folder",
+          "file_count": 0
+        }
+      ],
+      "strengths": [
+        "触发面保持精简，并锚定在 frontmatter description。",
+        "已生成 Security Trust Report，可审查脚本、依赖、secret 和包完整性风险。",
+        "已生成 Install Simulation，可审查 zip 解压、入口加载、接口元数据和 adapter 可读性。",
+        "已生成 Review Studio 2.0，可在一页中查看 blocker、warning、证据路径和发布闸门。",
+        "已打包 agents/interface.yaml，便于后续做跨平台适配。",
+        "确定性辅助逻辑放在 scripts 中，而不是藏在提示词里。"
+      ],
+      "scenarios": [
+        "团队复用前，需要明确触发边界、质量证据和维护责任。",
+        "用户说出类似需求时：Use $pkos-html when the user says 把这篇做成网页 / 出个 HTML 版.",
+        "已有原始资料，但还没有清晰输入、输出和后续迭代路径。"
+      ],
+      "trigger_contract": {
+        "description": "HTML 出口层：消费路由单，从主题注册库取组件，把条目渲染成单文件离线 HTML。版式稳定靠组件装配、风格一致靠主题 token。触发语：「把这篇做成网页」「出个 HTML 版」。",
+        "activation": "manual",
+        "execution": "inline",
+        "shell": "bash"
+      },
+      "io_contract": {
+        "inputs": [
+          "用户提供的工作流、提示词、文档、记录或散乱笔记",
+          "期望沉淀的复用场景、排除项、约束和质量标准"
+        ],
+        "outputs": [
+          "可路由的 SKILL.md",
+          "agents/interface.yaml 元数据",
+          "必要的 references、scripts、evals、reports 证据",
+          "结构化 Skill 目录，共 3 类关键资产。"
+        ]
+      },
+      "principles": [
+        {
+          "title": "意图澄清",
+          "body": "先确认真实任务、输入材料和交付结果。"
+        },
+        {
+          "title": "边界路由",
+          "body": "用 frontmatter description 决定是否触发，并写明相邻非目标。"
+        },
+        {
+          "title": "资产分层",
+          "body": "把入口、参考、脚本、评估和报告拆到各自目录，避免 SKILL.md 膨胀。"
+        },
+        {
+          "title": "证据回路",
+          "body": "通过评估、报告和复盘把真实使用反馈变成下一轮改进。"
+        },
+        {
+          "title": "漂移观察",
+          "body": "持续观察触发漂移、输出漂移和治理漂移。"
+        },
+        {
+          "title": "杠杆升级",
+          "body": "优先改边界、触发和一个最小自修复检查。"
+        }
+      ],
+      "roadmap": [
+        {
+          "title": "收紧触发",
+          "why": "先让 Skill 在正确场景被调用，再扩展资产。",
+          "actions": [
+            "增加正例、反例和近邻用例。",
+            "压缩 frontmatter description。"
+          ],
+          "unlocks": "更稳定的路由边界。"
+        }
+      ],
+      "cards": [],
+      "introduction": [
+        "这份报告用于快速理解新生成 Skill 的定位、原理、触发边界和交付内容。",
+        "先确认重复任务、真实输入形态和可交付输出，再决定是否继续加 references、scripts 或 evals。",
+        "如果需求仍然模糊，优先回到 intent dialogue 收紧边界，再扩展包体结构。"
+      ],
+      "benchmark_highlights": [],
+      "skill_ir": {
+        "schema_version": "",
+        "source_path": "",
+        "target_count": 0,
+        "trigger_samples": 0,
+        "output_eval_cases": 0
+      },
+      "compiled_targets": {
+        "ok": false,
+        "schema_version": "",
+        "summary": {},
+        "targets": [],
+        "failures": [],
+        "warnings": []
+      },
+      "output_quality": {},
+      "output_execution": {
+        "ok": false,
+        "summary": {},
+        "runner": {},
+        "failures": []
+      },
+      "output_blind_review": {
+        "summary": {},
+        "seed": "",
+        "pair_count": 0,
+        "answer_key_separate": false
+      },
+      "output_review_kit": {
+        "ok": false,
+        "summary": {},
+        "artifacts": {},
+        "failures": []
+      },
+      "output_review_adjudication": {
+        "ok": false,
+        "summary": {},
+        "reviewer": "",
+        "reviewed_at": "",
+        "failures": []
+      },
+      "benchmark_reproducibility": {
+        "ok": false,
+        "summary": {},
+        "commit": "",
+        "missing_artifacts": [],
+        "limitations": []
+      },
+      "runtime_conformance": {},
+      "runtime_permissions": {
+        "ok": false,
+        "summary": {},
+        "expected_capabilities": [],
+        "targets": [],
+        "failures": []
+      },
+      "trust_security": {
+        "scanned_files": 8,
+        "script_count": 5,
+        "internal_module_count": 0,
+        "secret_findings": 0,
+        "dependency_files": [],
+        "network_script_count": 0,
+        "network_policy_covered_count": 0,
+        "network_policy_missing_count": 0,
+        "file_write_script_count": 3,
+        "permission_required_count": 1,
+        "permission_approved_count": 0,
+        "permission_missing_count": 1,
+        "permission_invalid_count": 0,
+        "permission_expired_count": 0,
+        "help_smoke_checked_count": 3,
+        "help_smoke_failed_count": 0,
+        "interactive_script_count": 0,
+        "package_hash_scope": "source-contract-without-generated-reports",
+        "package_hash_file_count": 8,
+        "package_sha256": "a552126149000d44b56aa024ec8945a0b2198ae70446d1a17bb961051147940d"
+      },
+      "skill_atlas": {},
+      "registry_distribution": {
+        "ok": false,
+        "package": {},
+        "failures": [],
+        "warnings": []
+      },
+      "package_verification": {
+        "ok": false,
+        "summary": {
+          "target_count": 0,
+          "adapter_count": 0,
+          "archive_present": false,
+          "archive_sha256": "",
+          "archive_entry_count": 0,
+          "nested_skill_entry_count": 0,
+          "failure_count": 2,
+          "warning_count": 1
+        },
+        "failures": [
+          "Package manifest exists: D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\pkos-v0.0.1-packages\\manifest.json",
+          "Missing required package archive: D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\pkos-v0.0.1-packages\\pkos-html.zip"
+        ],
+        "warnings": [
+          "Registry audit was not supplied; package verification skipped metadata parity checks."
+        ]
+      },
+      "install_simulation": {
+        "ok": false,
+        "summary": {
+          "archive_present": true,
+          "archive_entry_count": 22,
+          "nested_skill_entry_count": 0,
+          "archive_extracted": true,
+          "entrypoint_loaded": true,
+          "manifest_loaded": true,
+          "interface_loaded": true,
+          "adapter_count": 1,
+          "installer_permission_enforced_count": 0,
+          "installer_permission_failure_count": 1,
+          "permission_target_count": 1,
+          "permission_capability_count": 0,
+          "install_root_is_temp": false,
+          "failure_count": 3,
+          "warning_count": 0
+        },
+        "failures": [
+          "Installed overview report is present",
+          "Installed Review Studio report is present",
+          "Installed permission policy is readable"
+        ],
+        "warnings": []
+      },
+      "upgrade_check": {
+        "ok": false,
+        "summary": {},
+        "upgrade_diff": {},
+        "release_notes": [],
+        "failures": [],
+        "warnings": []
+      },
+      "adoption_drift": {
+        "ok": false,
+        "summary": {},
+        "next_iteration_candidates": [],
+        "privacy_contract": {},
+        "failures": []
+      },
+      "review_waivers": {
+        "ok": false,
+        "summary": {},
+        "policy": {},
+        "failures": [],
+        "warnings": []
+      },
+      "review_annotations": {
+        "ok": false,
+        "summary": {},
+        "annotations": [],
+        "failures": []
+      },
+      "world_class_evidence_plan": {
+        "ok": false,
+        "summary": {},
+        "tasks": [],
+        "source_audit": {}
+      },
+      "world_class_evidence_ledger": {
+        "ok": false,
+        "summary": {},
+        "entries": [],
+        "source_plan": {}
+      },
+      "synthesis_highlights": [],
+      "artifact_design": {
+        "design_system": "content-led editorial",
+        "highlights": []
+      },
+      "prompt_quality": {
+        "overall_quality_score": "n/a",
+        "highlights": []
+      },
+      "system_model": {
+        "stability": {},
+        "highlights": []
+      },
+      "metadata": {
+        "canonical_format": "agent-skills",
+        "targets": [
+          "openai",
+          "claude",
+          "generic",
+          "vscode"
+        ],
+        "maturity_tier": "production",
+        "skill_archetype": "production",
+        "updated_at": "2026-08-24"
+      }
+    },
+    "intent_confidence": {},
+    "intent_dialogue": {},
+    "route_scorecard": {},
+    "phase1_trigger_holdout": {},
+    "output_quality": {},
+    "output_execution": {},
+    "provider_output_evaluation": {},
+    "provider_output_adjudication": {},
+    "output_blind_review": {},
+    "output_review_kit": {},
+    "output_review_adjudication": {},
+    "benchmark_reproducibility": {},
+    "skill_os2_coverage": {},
+    "compiled_targets": {},
+    "conformance": {},
+    "runtime_permissions": {},
+    "trust": {
+      "ok": true,
+      "skill_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html",
+      "summary": {
+        "scanned_files": 8,
+        "script_count": 5,
+        "internal_module_count": 0,
+        "secret_findings": 0,
+        "dependency_files": [],
+        "network_script_count": 0,
+        "network_policy_covered_count": 0,
+        "network_policy_missing_count": 0,
+        "file_write_script_count": 3,
+        "permission_required_count": 1,
+        "permission_approved_count": 0,
+        "permission_missing_count": 1,
+        "permission_invalid_count": 0,
+        "permission_expired_count": 0,
+        "help_smoke_checked_count": 3,
+        "help_smoke_failed_count": 0,
+        "interactive_script_count": 0,
+        "package_hash_scope": "source-contract-without-generated-reports",
+        "package_hash_file_count": 8,
+        "package_sha256": "a552126149000d44b56aa024ec8945a0b2198ae70446d1a17bb961051147940d"
+      },
+      "failures": [],
+      "warnings": [
+        "No dependency or lock file detected",
+        "CLI scripts without argparse/help surface: scripts\\build_themes.py, scripts\\lint_theme.py",
+        "Permission approvals missing: file_write"
+      ],
+      "secrets": [],
+      "scripts": [
+        {
+          "path": "scripts\\build_themes.py",
+          "interface": "cli",
+          "interface_declared": false,
+          "interface_reason": "Default CLI classification; add SCRIPT_INTERFACE for internal modules.",
+          "has_argparse": false,
+          "has_main_guard": true,
+          "uses_input": false,
+          "uses_network": false,
+          "uses_file_write": true,
+          "uses_subprocess": false,
+          "network_urls": [],
+          "network_hosts": []
+        },
+        {
+          "path": "scripts\\lint_theme.py",
+          "interface": "cli",
+          "interface_declared": false,
+          "interface_reason": "Default CLI classification; add SCRIPT_INTERFACE for internal modules.",
+          "has_argparse": false,
+          "has_main_guard": true,
+          "uses_input": false,
+          "uses_network": false,
+          "uses_file_write": false,
+          "uses_subprocess": false,
+          "network_urls": [],
+          "network_hosts": []
+        },
+        {
+          "path": "scripts\\render.py",
+          "interface": "cli",
+          "interface_declared": false,
+          "interface_reason": "Default CLI classification; add SCRIPT_INTERFACE for internal modules.",
+          "has_argparse": true,
+          "has_main_guard": true,
+          "uses_input": false,
+          "uses_network": false,
+          "uses_file_write": true,
+          "uses_subprocess": false,
+          "network_urls": [],
+          "network_hosts": []
+        },
+        {
+          "path": "scripts\\render_combined.py",
+          "interface": "cli",
+          "interface_declared": false,
+          "interface_reason": "Default CLI classification; add SCRIPT_INTERFACE for internal modules.",
+          "has_argparse": true,
+          "has_main_guard": true,
+          "uses_input": false,
+          "uses_network": false,
+          "uses_file_write": true,
+          "uses_subprocess": false,
+          "network_urls": [],
+          "network_hosts": []
+        },
+        {
+          "path": "scripts\\validate_output.py",
+          "interface": "cli",
+          "interface_declared": false,
+          "interface_reason": "Default CLI classification; add SCRIPT_INTERFACE for internal modules.",
+          "has_argparse": true,
+          "has_main_guard": true,
+          "uses_input": false,
+          "uses_network": false,
+          "uses_file_write": false,
+          "uses_subprocess": false,
+          "network_urls": [],
+          "network_hosts": []
+        }
+      ],
+      "dependencies": {
+        "present": [],
+        "pinned": [],
+        "unpinned": []
+      },
+      "network_policy": {
+        "present": false,
+        "path": "security/network_policy.json",
+        "schema_version": "",
+        "network_script_count": 0,
+        "covered_scripts": [],
+        "missing_scripts": [],
+        "mismatches": [],
+        "default_policy": {}
+      },
+      "help_smoke": {
+        "enabled": true,
+        "timeout_seconds": 5.0,
+        "candidate_count": 3,
+        "checked_count": 3,
+        "passed_count": 3,
+        "failed_count": 0,
+        "skipped_count": 2,
+        "failed_scripts": [],
+        "results": [
+          {
+            "path": "scripts\\render.py",
+            "command": "python3 scripts\\render.py --help",
+            "returncode": 0,
+            "timed_out": false,
+            "passed": true,
+            "has_help_text": true,
+            "stdout_excerpt": "usage: render.py [-h] --content CONTENT --theme THEME --route-id ROUTE_ID\n                 --source-id SOURCE_ID --out OUT\n\noptions:\n  -h, --help            show this help message and exit\n  --content CONTENT\n  --theme THEME\n  --route-id RO",
+            "stderr_excerpt": ""
+          },
+          {
+            "path": "scripts\\render_combined.py",
+            "command": "python3 scripts\\render_combined.py --help",
+            "returncode": 0,
+            "timed_out": false,
+            "passed": true,
+            "has_help_text": true,
+            "stdout_excerpt": "usage: render_combined.py [-h] --article ARTICLE --slides SLIDES\n                          --html-theme HTML_THEME --ppt-theme PPT_THEME\n                          --route-id ROUTE_ID --source-id SOURCE_ID --out OUT\n\noptions:\n  -h, --help   ",
+            "stderr_excerpt": ""
+          },
+          {
+            "path": "scripts\\validate_output.py",
+            "command": "python3 scripts\\validate_output.py --help",
+            "returncode": 0,
+            "timed_out": false,
+            "passed": true,
+            "has_help_text": true,
+            "stdout_excerpt": "usage: validate_output.py [-h] --sink {web-combined,web-single-file} file\n\npositional arguments:\n  file\n\noptions:\n  -h, --help            show this help message and exit\n  --sink {web-combined,web-single-file}",
+            "stderr_excerpt": ""
+          }
+        ],
+        "skipped": [
+          {
+            "path": "scripts\\build_themes.py",
+            "reason": "missing argparse/help surface"
+          },
+          {
+            "path": "scripts\\lint_theme.py",
+            "reason": "missing argparse/help surface"
+          }
+        ]
+      },
+      "permission_governance": {
+        "present": false,
+        "path": "security/permission_policy.json",
+        "schema_version": "",
+        "reviewed_at": "",
+        "required_capabilities": [
+          "file_write"
+        ],
+        "approved_capabilities": [],
+        "missing_capabilities": [
+          "file_write"
+        ],
+        "invalid_capabilities": [],
+        "expired_capabilities": [],
+        "approval_count": 0,
+        "required_count": 1,
+        "missing_count": 1,
+        "invalid_count": 0,
+        "expired_count": 0,
+        "approvals": [
+          {
+            "capability": "file_write",
+            "status": "missing",
+            "scripts": [
+              "scripts\\build_themes.py",
+              "scripts\\render.py",
+              "scripts\\render_combined.py"
+            ],
+            "validation": [
+              "approval entry is missing"
+            ]
+          }
+        ]
+      },
+      "trust_metadata": {
+        "source_tier": "local",
+        "remote_inline_execution": "forbid",
+        "remote_metadata_policy": "allow-metadata-only"
+      },
+      "artifacts": {
+        "json": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\reports\\security_trust_report.json",
+        "markdown": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\reports\\security_trust_report.md"
+      }
+    },
+    "python_compatibility": {},
+    "architecture_maintainability": {},
+    "context_budget": {},
+    "promotion": {},
+    "atlas": {},
+    "adoption_drift": {},
+    "daily_skillops": {},
+    "weekly_curator": {},
+    "review_waivers": {},
+    "review_annotations": {},
+    "adaptation_proposals": {},
+    "adaptation_approval_ledger": {},
+    "adaptation_regression": {},
+    "world_class_evidence_ledger": {},
+    "world_class_evidence_intake": {},
+    "world_class_evidence_preflight": {},
+    "world_class_submission_review": {},
+    "world_class_operator_runbook": {},
+    "world_class_claim_guard": {},
+    "registry": {},
+    "package_verification": {
+      "ok": false,
+      "schema_version": "2.0",
+      "generated_at": "2026-08-24",
+      "skill_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html",
+      "package_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\pkos-v0.0.1-packages",
+      "summary": {
+        "target_count": 0,
+        "adapter_count": 0,
+        "archive_present": false,
+        "archive_sha256": "",
+        "archive_entry_count": 0,
+        "nested_skill_entry_count": 0,
+        "failure_count": 2,
+        "warning_count": 1
+      },
+      "checks": [
+        {
+          "id": "package-manifest",
+          "status": "fail",
+          "detail": "Package manifest exists: D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\pkos-v0.0.1-packages\\manifest.json"
+        },
+        {
+          "id": "archive-present",
+          "status": "fail",
+          "detail": "Missing required package archive: D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\pkos-v0.0.1-packages\\pkos-html.zip"
+        }
+      ],
+      "failures": [
+        "Package manifest exists: D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\pkos-v0.0.1-packages\\manifest.json",
+        "Missing required package archive: D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\pkos-v0.0.1-packages\\pkos-html.zip"
+      ],
+      "warnings": [
+        "Registry audit was not supplied; package verification skipped metadata parity checks."
+      ],
+      "artifacts": {
+        "manifest": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\pkos-v0.0.1-packages\\manifest.json",
+        "archive": "",
+        "json": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\reports\\package_verification.json",
+        "markdown": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\reports\\package_verification.md"
+      }
+    },
+    "install_simulation": {
+      "ok": false,
+      "schema_version": "2.0",
+      "generated_at": "2026-08-24",
+      "skill_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html",
+      "package_dir": "D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-html",
+      "install_root": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim\\simulate-pkos-html",
+      "installed_skill_dir": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim\\simulate-pkos-html\\pkos-html",
+      "summary": {
+        "archive_present": true,
+        "archive_entry_count": 22,
+        "nested_skill_entry_count": 0,
+        "archive_extracted": true,
+        "entrypoint_loaded": true,
+        "manifest_loaded": true,
+        "interface_loaded": true,
+        "adapter_count": 1,
+        "installer_permission_enforced_count": 0,
+        "installer_permission_failure_count": 1,
+        "permission_target_count": 1,
+        "permission_capability_count": 0,
+        "install_root_is_temp": false,
+        "failure_count": 3,
+        "warning_count": 0
+      },
+      "checks": [
+        {
+          "id": "archive-present",
+          "status": "pass",
+          "detail": "Package archive exists: D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-html\\pkos-html.zip"
+        },
+        {
+          "id": "archive-safe-paths",
+          "status": "pass",
+          "detail": "Archive has no absolute or parent-traversal entries"
+        },
+        {
+          "id": "single-skill-entrypoint",
+          "status": "pass",
+          "detail": "Installed package exposes only the root SKILL.md entrypoint"
+        },
+        {
+          "id": "single-top-level",
+          "status": "pass",
+          "detail": "Archive top-level directory is pkos-html"
+        },
+        {
+          "id": "entrypoint-load",
+          "status": "pass",
+          "detail": "Installed SKILL.md frontmatter is readable"
+        },
+        {
+          "id": "entrypoint-name",
+          "status": "pass",
+          "detail": "Installed SKILL.md name matches package directory"
+        },
+        {
+          "id": "entrypoint-description",
+          "status": "pass",
+          "detail": "Installed SKILL.md description is present"
+        },
+        {
+          "id": "manifest-load",
+          "status": "pass",
+          "detail": "Installed manifest.json is readable"
+        },
+        {
+          "id": "manifest-name",
+          "status": "pass",
+          "detail": "Installed manifest name matches package manifest"
+        },
+        {
+          "id": "manifest-version",
+          "status": "pass",
+          "detail": "Installed manifest version matches package manifest"
+        },
+        {
+          "id": "interface-load",
+          "status": "pass",
+          "detail": "Installed agents/interface.yaml is readable"
+        },
+        {
+          "id": "overview-report",
+          "status": "fail",
+          "detail": "Installed overview report is present"
+        },
+        {
+          "id": "review-studio-report",
+          "status": "fail",
+          "detail": "Installed Review Studio report is present"
+        },
+        {
+          "id": "adapter-generic",
+          "status": "pass",
+          "detail": "generic adapter is readable after package install simulation"
+        },
+        {
+          "id": "adapter-generic-name",
+          "status": "pass",
+          "detail": "generic adapter name matches package manifest"
+        },
+        {
+          "id": "permission-policy-load",
+          "status": "fail",
+          "detail": "Installed permission policy is readable"
+        },
+        {
+          "id": "permission-generic-contract",
+          "status": "pass",
+          "detail": "generic adapter exposes target permission contract for installer enforcement"
+        }
+      ],
+      "failures": [
+        "Installed overview report is present",
+        "Installed Review Studio report is present",
+        "Installed permission policy is readable"
+      ],
+      "warnings": [],
+      "artifacts": {
+        "archive": "D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-html\\pkos-html.zip",
+        "package_manifest": "D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-html\\manifest.json",
+        "json": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\reports\\install_simulation.json",
+        "markdown": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-html\\reports\\install_simulation.md"
+      }
+    },
+    "upgrade_check": {},
+    "manifest": {
+      "name": "pkos-html",
+      "version": "0.0.1",
+      "owner": "PKOS Maintainers",
+      "updated_at": "2026-08-24",
+      "review_due": "2026-11-22",
+      "status": "active",
+      "maturity_tier": "production",
+      "lifecycle_stage": "production",
+      "context_budget_tier": "production",
+      "review_cadence": "quarterly",
+      "target_platforms": [
+        "openai",
+        "claude",
+        "generic",
+        "agent-skills-compatible"
+      ]
+    },
+    "frontmatter": {
+      "name": "pkos-html",
+      "description": "HTML 出口层：消费路由单，从主题注册库取组件，把条目渲染成单文件离线 HTML。版式稳定靠组件装配、风格一致靠主题 token。触发语：「把这篇做成网页」「出个 HTML 版」。"
+    },
+    "interface": {
+      "interface": {
+        "display_name": "HTML 出口",
+        "short_description": "从主题注册库装配单文件离线网页",
+        "default_prompt": "Use $pkos-html when the user says 把这篇做成网页 / 出个 HTML 版."
+      },
+      "compatibility": {
+        "canonical_format": "agent-skills",
+        "adapter_targets": [
+          "openai",
+          "claude",
+          "generic",
+          "vscode"
+        ],
+        "activation": {
+          "mode": "manual",
+          "paths": []
+        },
+        "execution": {
+          "context": "inline",
+          "shell": "bash"
+        },
+        "trust": {
+          "source_tier": "local",
+          "remote_inline_execution": "forbid",
+          "remote_metadata_policy": "allow-metadata-only"
+        },
+        "degradation": {
+          "openai": "metadata-adapter",
+          "claude": "neutral-source-plus-adapter",
+          "generic": "neutral-source",
+          "vscode": "agent-skills-source-with-vscode-notes"
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "html": "reports\\review-studio.html",
+    "json": "reports\\review-studio.json"
+  }
+}

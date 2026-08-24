@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "id": "mo-xian",
+  "name": "墨线",
+  "sinks": ["web-single-file"],
+  "description": "干货清单与对比表格版式：黑底白字+蓝色线条，骨架清晰、信息密度高，适合清单类/对照类内容。",
+  "tokens": {
+    "--bg": "#0f1117",
+    "--ink": "#e8e6e3",
+    "--ink-soft": "#8a8d96",
+    "--accent": "#4e8ef0",
+    "--line": "#2a2d37",
+    "--card": "#181b24",
+    "--border": "#3a3f4d",
+    "--font-body": "'Noto Serif SC', 'SimSun', serif",
+    "--font-head": "'Noto Sans SC', 'Microsoft YaHei', sans-serif",
+    "--font-mono": "'Cascadia Code', 'Consolas', monospace",
+    "--max-width": "48rem"
+  },
+  "recipes": {
+    "h1": ["title_center"],
+    "h2": ["section_rule"],
+    "h3": ["subsection_plain"],
+    "p": ["body"],
+    "blockquote": ["callout_card"],
+    "table": ["zebra_table"],
+    "ul": ["dash_list"],
+    "ol": ["path_steps"]
+  },
+  "skeleton": {
+    "doctype": "<!doctype html>",
+    "root_open": "<html lang=\"zh-CN\" data-style=\"mo-xian\">",
+    "style_wrap": "<style>\n{{css}}\n</style>",
+    "main_open": "<main class=\"pk-article\">",
+    "main_close": "</main>"
+  },
+  "avoid": [
+    "暖色纸背景",
+    "朱砂/红色系主色调",
+    "居中正文段落",
+    "渐变色块",
+    "衬线标题（h1 用无衬线）"
+  ],
+  "invariants": [
+    "根元素带 data-style=\"mo-xian\"",
+    "蓝色 accent 只用于：章节编号、链接 hover、步骤序号——全文 ≤5 处视觉锚点",
+    "表格斑马纹交替使用 --card 与 --bg",
+    "引用块左边线用 --accent，卡片底色用 --card"
+  ]
+}

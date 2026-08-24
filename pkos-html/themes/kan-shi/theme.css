@@ -1,0 +1,74 @@
+/* kan-shi · 刊式 —— 观点短文/评论版式：杂志 editorial 气质 */
+:root {
+  --bg: #faf8f5;
+  --ink: #1a1a1a;
+  --ink-soft: #666666;
+  --accent: #c0392b;
+  --line: #e0dbd4;
+  --card: #f0ece6;
+  --font-body: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif;
+  --font-head: 'Noto Sans SC', 'PingFang SC', sans-serif;
+  --font-mono: 'Cascadia Code', monospace;
+  --max-width: 38rem;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body { margin: 0; color: var(--ink); font-family: var(--font-body); font-size: 18px; line-height: 2.0; }
+.pk-article { max-width: var(--max-width); margin: 0 auto; padding: 52px 24px 72px; }
+.pk-title {
+  font-family: var(--font-head);
+  font-size: 2.1em;
+  font-weight: 900;
+  text-align: left;
+  letter-spacing: -.01em;
+  line-height: 1.2;
+  margin: 0 0 .35em;
+  color: var(--ink);
+}
+.pk-subtitle {
+  color: var(--ink-soft);
+  font-family: var(--font-head);
+  font-size: .85em;
+  margin: 0 0 2.8em;
+  padding-bottom: 1.5em;
+  border-bottom: 1px solid var(--line);
+}
+.pk-h2 {
+  font-family: var(--font-head);
+  font-size: 1.3em;
+  font-weight: 800;
+  margin: 2.8em 0 1em;
+  padding-bottom: .35em;
+  border-bottom: 2px solid var(--accent);
+  color: var(--ink);
+}
+.pk-h2 .pk-no { color: var(--accent); font-weight: 900; margin-right: .5em; }
+.pk-h3 { font-family: var(--font-head); font-size: 1.1em; font-weight: 700; margin: 1.8em 0 .6em; }
+p { margin: 1.1em 0; text-align: left; }
+.pk-callout {
+  background: var(--card);
+  border-left: 3px solid var(--accent);
+  margin: 1.5em 0;
+  padding: 1em 1.4em;
+}
+.pk-callout p { margin: .2em 0; }
+ol.pk-steps { padding-left: 1.5em; }
+ol.pk-steps li { margin: .7em 0; }
+ol.pk-steps li::marker { color: var(--accent); font-weight: 800; }
+ul.pk-dash { list-style: none; padding-left: 1.2em; }
+ul.pk-dash li::before { content: "—"; color: var(--accent); margin-right: .5em; }
+table.pk-zebra { border-collapse: collapse; width: 100%; font-size: .9em; margin: 1.4em 0; }
+table.pk-zebra th {
+  font-family: var(--font-head);
+  background: var(--card);
+  text-align: left;
+  padding: .6em .9em;
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent);
+}
+table.pk-zebra td { padding: .6em .9em; border-bottom: 1px solid var(--line); }
+table.pk-zebra tr:nth-child(even) td { background: var(--card); }
+a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--line); }
+a:hover { text-decoration-color: var(--accent); }
+code { font-family: var(--font-mono); font-size: .85em; background: var(--card); padding: .1em .3em; border-radius: 2px; }
+.pk-meta { margin-top: 4.5em; padding-top: 1em; border-top: 1px solid var(--line); color: var(--ink-soft); font-family: var(--font-mono); font-size: .75em; }

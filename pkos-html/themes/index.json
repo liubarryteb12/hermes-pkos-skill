@@ -3,13 +3,31 @@
   "generated_by": "build_themes.py",
   "themes": [
     {
-      "id": "paper-ink",
-      "name": "纸墨",
-      "path": "paper-ink/",
+      "id": "guang-shu",
+      "name": "光栅",
+      "path": "guang-shu/",
       "sinks": ["web-single-file"],
-      "conversion_types": ["学习路径", "wiki百科条目"],
+      "conversion_types": ["可视化笔记", "图文混排"],
       "status": "registered",
-      "description": "中文长文阅读版式：纸面底色、墨色正文、朱砂锚点。安静的图书馆气质。"
+      "description": "视觉化图文混排版式：白底无衬线、蓝色左边线章节、橙色圆点列表，节奏明快，信息密度适中。"
+    },
+    {
+      "id": "kan-shi",
+      "name": "刊式",
+      "path": "kan-shi/",
+      "sinks": ["web-single-file"],
+      "conversion_types": ["观点短文", "评论"],
+      "status": "registered",
+      "description": "观点型短文与评论版式：暖白底色、大字号衬线正文、粗黑左对齐标题，杂志 editorial 气质。"
+    },
+    {
+      "id": "mo-xian",
+      "name": "墨线",
+      "path": "mo-xian/",
+      "sinks": ["web-single-file"],
+      "conversion_types": ["干货清单", "对比表格", "实战操作指南"],
+      "status": "registered",
+      "description": "干货清单与对比表格版式：黑底蓝线骨架清晰，信息密度高，适合对照类与步骤类内容。"
     },
     {
       "id": "night-desk",
@@ -19,6 +37,15 @@
       "conversion_types": ["实战操作指南", "wiki百科条目"],
       "status": "registered",
       "description": "深夜书桌：低亮度暗色长文版式，琥珀锚点。夜间阅读与技术笔记。外部接入试点（工单 11）。"
+    },
+    {
+      "id": "paper-ink",
+      "name": "纸墨",
+      "path": "paper-ink/",
+      "sinks": ["web-single-file"],
+      "conversion_types": ["学习路径", "wiki百科条目"],
+      "status": "registered",
+      "description": "中文长文阅读版式：纸面底色、墨色正文、朱砂锚点。安静的图书馆气质。"
     }
   ]
 }

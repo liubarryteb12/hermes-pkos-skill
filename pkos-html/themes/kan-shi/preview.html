@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN" data-style="kan-shi">
+<head>
+<meta charset="utf-8">
+<title>kan-shi preview</title>
+<style>
+:root{--bg:#faf8f5;--ink:#1a1a1a;--ink-soft:#666666;--accent:#c0392b;--line:#e0dbd4;--card:#f0ece6;--font-body:'Noto Serif SC','Songti SC',serif;--font-head:'Noto Sans SC','PingFang SC',sans-serif;--font-mono:monospace}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:2.0}
+.pk-article{max-width:38rem;margin:0 auto;padding:52px 24px}
+.pk-title{font-family:var(--font-head);font-size:2.1em;font-weight:900;text-align:left;line-height:1.2;margin:0 0 .35em}
+.pk-subtitle{color:var(--ink-soft);font-size:.85em;margin:0 0 2.8em;padding-bottom:1.5em;border-bottom:1px solid var(--line)}
+.pk-h2{font-family:var(--font-head);font-size:1.3em;font-weight:800;border-bottom:2px solid var(--accent);padding-bottom:.35em;margin:2.8em 0 1em}
+.pk-h2 .pk-no{color:var(--accent);font-weight:900;margin-right:.5em}
+.pk-callout{background:var(--card);border-left:3px solid var(--accent);padding:1em 1.4em;margin:1.5em 0}
+ol.pk-steps li::marker{color:var(--accent);font-weight:800}
+ul.pk-dash{list-style:none;padding-left:1.2em}
+ul.pk-dash li::before{content:"—";color:var(--accent);margin-right:.5em}
+code{background:var(--card);padding:.1em .3em;border-radius:2px}
+.pk-meta{color:var(--ink-soft);font-family:var(--font-mono);font-size:.75em;border-top:1px solid var(--line);padding-top:1em;margin-top:4.5em}
+</style>
+</head>
+<body>
+<main class="pk-article">
+  <h1 class="pk-title" data-block="h1_title_left_bold">区块预览：刊式</h1>
+  <p class="pk-subtitle" data-block="subtitle">杂志 editorial · 观点短文版式</p>
+
+  <h2 class="pk-h2" data-block="h2_section_rule"><span class="pk-no">01</span>章节标题（红色下划线）</h2>
+  <p data-block="p_body">正文段落：大字号衬线，2.0 行高，杂志阅读舒适度。红色 accent 只用于章节编号与链接 hover。</p>
+
+  <blockquote class="pk-callout" data-block="blockquote_callout_card">
+    <p>引用块：卡片底色 + 红色左边线，右侧呼吸感充裕。 editorial 风格标志。</p>
+  </blockquote>
+
+  <h2 class="pk-h2" data-block="h2_second"><span class="pk-no">02</span>论证步骤</h2>
+  <ol class="pk-steps" data-block="ol_path_steps">
+    <li>第一步：红色序号是锚点</li>
+    <li>第二步：论证链条必须明确站边</li>
+    <li>第三步：每篇 ol 至多两个</li>
+  </ol>
+
+  <h2 class="pk-h2" data-block="h2_third"><span class="pk-no">03</span>补充分句</h2>
+  <ul class="pk-dash" data-block="ul_dash_list">
+    <li>无序列表：红色破折号引导</li>
+    <li>允许 editorial 风格的短句补充</li>
+  </ul>
+
+  <p class="pk-meta" data-block="meta_footer">PKOS · kan-shi · route=… · source=…</p>
+</main>
+</body>
+</html>

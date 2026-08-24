@@ -1,0 +1,82 @@
+/* guang-shu · 光栅 —— 视觉化图文混排版式：白底无衬线，色块分隔 */
+:root {
+  --bg: #ffffff;
+  --ink: #111111;
+  --ink-soft: #555555;
+  --accent: #0066ff;
+  --line: #e5e5e5;
+  --card: #f5f7fa;
+  --accent-2: #ff6b35;
+  --font-body: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-head: 'Noto Sans SC', 'PingFang SC', sans-serif;
+  --font-mono: 'Cascadia Code', 'Consolas', monospace;
+  --max-width: 52rem;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body { margin: 0; color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.8; }
+.pk-article { max-width: var(--max-width); margin: 0 auto; padding: 44px 28px 68px; }
+.pk-title {
+  font-family: var(--font-head);
+  font-size: 2.2em;
+  font-weight: 900;
+  text-align: left;
+  letter-spacing: -.02em;
+  line-height: 1.15;
+  margin: 0 0 .3em;
+  color: var(--ink);
+}
+.pk-subtitle {
+  color: var(--ink-soft);
+  font-family: var(--font-head);
+  font-size: .9em;
+  margin: 0 0 2.6em;
+  padding-bottom: 1.2em;
+  border-bottom: 2px solid var(--line);
+}
+.pk-h2 {
+  font-family: var(--font-head);
+  font-size: 1.25em;
+  font-weight: 800;
+  margin: 2.5em 0 .85em;
+  padding-left: .7em;
+  border-left: 4px solid var(--accent);
+  color: var(--ink);
+}
+.pk-h2 .pk-no { color: var(--accent); font-weight: 900; margin-right: .45em; }
+.pk-h3 { font-family: var(--font-head); font-size: 1.08em; font-weight: 700; margin: 1.5em 0 .5em; }
+p { margin: 1em 0; text-align: left; }
+.pk-callout {
+  background: var(--card);
+  border-left: 3px solid var(--accent);
+  margin: 1.3em 0;
+  padding: .9em 1.2em;
+}
+.pk-callout p { margin: .15em 0; }
+ol.pk-steps { padding-left: 1.4em; }
+ol.pk-steps li { margin: .6em 0; }
+ol.pk-steps li::marker { color: var(--accent); font-weight: 800; }
+ul.pk-dash { list-style: none; padding-left: 1em; }
+ul.pk-dash li::before {
+  content: "●";
+  color: var(--accent-2);
+  margin-right: .5em;
+  font-size: .65em;
+  vertical-align: middle;
+}
+table.pk-zebra { border-collapse: collapse; width: 100%; font-size: .9em; margin: 1.3em 0; }
+table.pk-zebra th {
+  font-family: var(--font-head);
+  background: var(--card);
+  text-align: left;
+  padding: .6em .9em;
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+table.pk-zebra td { padding: .55em .9em; border-bottom: 1px solid var(--line); }
+table.pk-zebra tr:nth-child(even) td { background: var(--card); }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent); }
+a:hover { border-bottom-color: var(--ink); }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--card); padding: .1em .3em; border-radius: 3px; }
+.pk-meta { margin-top: 4em; padding-top: .9em; border-top: 1px solid var(--line); color: var(--ink-soft); font-family: var(--font-mono); font-size: .75em; }

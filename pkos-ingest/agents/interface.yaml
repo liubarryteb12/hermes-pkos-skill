@@ -1,0 +1,26 @@
+interface:
+  display_name: "抽取入库"
+  short_description: "把外部输入转成 pkos-schema:1 合规条目并归位挂载"
+  default_prompt: "Use $pkos-ingest when the user says 入库这条链接 / 收进知识库."
+compatibility:
+  canonical_format: "agent-skills"
+  adapter_targets:
+    - "openai"
+    - "claude"
+    - "generic"
+    - "vscode"
+  activation:
+    mode: "manual"
+    paths: []
+  execution:
+    context: "inline"
+    shell: "bash"
+  trust:
+    source_tier: "local"
+    remote_inline_execution: "forbid"
+    remote_metadata_policy: "allow-metadata-only"
+  degradation:
+    openai: "metadata-adapter"
+    claude: "neutral-source-plus-adapter"
+    generic: "neutral-source"
+    vscode: "agent-skills-source-with-vscode-notes"

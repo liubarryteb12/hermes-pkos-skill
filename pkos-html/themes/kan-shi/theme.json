@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "id": "kan-shi",
+  "name": "刊式",
+  "sinks": ["web-single-file"],
+  "description": "观点型短文与评论版式：暖白底色、大字号衬线正文、粗黑标题，杂志 editorial 气质，适合个人评论与观点输出。",
+  "tokens": {
+    "--bg": "#faf8f5",
+    "--ink": "#1a1a1a",
+    "--ink-soft": "#666666",
+    "--accent": "#c0392b",
+    "--line": "#e0dbd4",
+    "--card": "#f0ece6",
+    "--font-body": "'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif",
+    "--font-head": "'Noto Sans SC', 'PingFang SC', sans-serif",
+    "--font-mono": "'Cascadia Code', monospace",
+    "--max-width": "38rem"
+  },
+  "recipes": {
+    "h1": ["title_left_bold"],
+    "h2": ["section_rule"],
+    "h3": ["subsection_plain"],
+    "p": ["body"],
+    "blockquote": ["callout_card"],
+    "table": ["zebra_table"],
+    "ul": ["dash_list"],
+    "ol": ["path_steps"]
+  },
+  "skeleton": {
+    "doctype": "<!doctype html>",
+    "root_open": "<html lang=\"zh-CN\" data-style=\"kan-shi\">",
+    "style_wrap": "<style>\n{{css}}\n</style>",
+    "main_open": "<main class=\"pk-article\">",
+    "main_close": "</main>"
+  },
+  "avoid": [
+    "居中对齐的正文段落",
+    "渐变背景",
+    "emoji 装饰标题",
+    "纯黑 #000 背景",
+    "等宽字体正文"
+  ],
+  "invariants": [
+    "根元素带 data-style=\"kan-shi\"",
+    "红色 accent 只用于：章节编号、链接 hover、路径步骤序号——全文 ≤5 处视觉锚点",
+    "正文字号 ≥18px，行高 ≥2.0，确保杂志阅读舒适度",
+    "引用块右边留白 ≥2rem，营造 editorial 呼吸感"
+  ]
+}
