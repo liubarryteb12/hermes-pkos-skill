@@ -4,7 +4,7 @@
 - Package directory: `D:\deepseekharness\workspace\skills\personal-knowledge-os\pkos-timeline\dist`
 - Targets: `1 / 1` adapters present
 - Archive present: `True`
-- Archive SHA256: `819626f4a2d8d585e66963a09ab502732ce327beed488146a7e970c4fcd4a983`
+- Archive SHA256: `a17132faf031e14f8b0fe12b488e9f7f344e9b518e85991f016a24df00a23d5d`
 - Nested SKILL.md entries: `0`
 - Failures: `0`
 - Warnings: `1`

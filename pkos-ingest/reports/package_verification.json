@@ -1,15 +1,15 @@
 {
   "ok": true,
   "schema_version": "2.0",
-  "generated_at": "2026-08-24",
+  "generated_at": "2026-08-25",
   "skill_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-ingest",
   "package_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-ingest\\dist",
   "summary": {
     "target_count": 1,
     "adapter_count": 1,
     "archive_present": true,
-    "archive_sha256": "dc80389c589d90edb17f077429a58f3ea0dc873e6ebfc27ebd0b7a4825af2b7b",
-    "archive_entry_count": 19,
+    "archive_sha256": "e1c0a01788ba1689c74c54c0f96666c165e102289512f4b776d10c41039c76b6",
+    "archive_entry_count": 20,
     "nested_skill_entry_count": 0,
     "failure_count": 0,
     "warning_count": 1

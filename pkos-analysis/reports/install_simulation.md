@@ -1,7 +1,7 @@
 # Install Simulation
 
 - OK: `False`
-- Package directory: `D:\deepseekharness\workspace\skills\dist\pkos-v0.0.1-packages\pkos-analysis`
+- Package directory: `D:\deepseekharness\workspace\skills\personal-knowledge-os\pkos-analysis\dist`
 - Archive extracted: `True`
 - Nested SKILL.md entries: `0`
 - Entrypoint loaded: `True`
@@ -17,7 +17,7 @@
 
 | Check | Status | Detail |
 | --- | --- | --- |
-| `archive-present` | `pass` | Package archive exists: D:\deepseekharness\workspace\skills\dist\pkos-v0.0.1-packages\pkos-analysis\pkos-analysis.zip |
+| `archive-present` | `pass` | Package archive exists: D:\deepseekharness\workspace\skills\personal-knowledge-os\pkos-analysis\dist\pkos-analysis.zip |
 | `archive-safe-paths` | `pass` | Archive has no absolute or parent-traversal entries |
 | `single-skill-entrypoint` | `pass` | Installed package exposes only the root SKILL.md entrypoint |
 | `single-top-level` | `pass` | Archive top-level directory is pkos-analysis |

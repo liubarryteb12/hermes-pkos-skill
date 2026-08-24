@@ -1,15 +1,15 @@
 {
   "ok": true,
   "schema_version": "2.0",
-  "generated_at": "2026-08-24",
+  "generated_at": "2026-08-25",
   "skill_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-audit",
   "package_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-audit\\dist",
   "summary": {
     "target_count": 1,
     "adapter_count": 1,
     "archive_present": true,
-    "archive_sha256": "ce01f96270d751bd32fd5e5525b84cda9238a186340932c4ddc4ae915a44a059",
-    "archive_entry_count": 12,
+    "archive_sha256": "d976302619d9921c9ee68da95e1fc03f4452d5162791eee4628e13c4966e2c50",
+    "archive_entry_count": 13,
     "nested_skill_entry_count": 0,
     "failure_count": 0,
     "warning_count": 1

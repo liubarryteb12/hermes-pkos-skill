@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "skill": "pkos-audit",
+  "skill": "pkos-router",
   "approved_by": "PKOS Builder",
   "approved_at": "2026-08-24",
   "review_due": "2026-11-22",
@@ -8,8 +8,8 @@
     "file_write": {
       "decision": "approved",
       "reviewer": "PKOS Builder",
-      "scope": "_PKOS/reports 审计报告",
-      "reason": "体检 JSON/MD 落盘才能基线对比并供 timeline 聚合",
+      "scope": "_PKOS/routes 路由单存档",
+      "reason": "路由决策 RT-*.yaml 存档是消费契约的前提",
       "evidence": [
         "tests/run_tests.py 19 组契约测试全 PASS（2026-08-24）",
         "pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",

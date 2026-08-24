@@ -8,8 +8,8 @@
     "file_write": {
       "decision": "approved",
       "reviewer": "PKOS Builder",
-      "scope": "_PKOS/manifests 与分拣单落点",
-      "reason": "分拣单与运行清单须写回 _PKOS 工作区供下游消费",
+      "scope": "_PKOS/manifests 分拣单落点",
+      "reason": "分拣单与运行清单写回工作区供下游消费",
       "evidence": [
         "tests/run_tests.py 19 组契约测试全 PASS（2026-08-24）",
         "pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
@@ -17,9 +17,7 @@
         "yao-meta-skill package-verify PASS（2026-08-24）"
       ],
       "target_enforcement": {
-        "mode": "path-scoped",
-        "boundary": "_PKOS/ 工作区",
-        "note": "由宿主文件沙箱与路径校验执行；越界写入视为违规"
+        "generic": "宿主文件沙箱按 _PKOS/ 路径边界拦截越界写入；路径校验由调用方执行"
       },
       "expires_at": "2026-11-22"
     }

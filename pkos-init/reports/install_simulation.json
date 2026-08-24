@@ -1,14 +1,14 @@
 {
   "ok": false,
   "schema_version": "2.0",
-  "generated_at": "2026-08-24",
+  "generated_at": "2026-08-25",
   "skill_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-init",
-  "package_dir": "D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-init",
-  "install_root": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim3\\simulate-pkos-init",
-  "installed_skill_dir": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim3\\simulate-pkos-init\\pkos-init",
+  "package_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-init\\dist",
+  "install_root": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim4\\simulate-pkos-init",
+  "installed_skill_dir": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim4\\simulate-pkos-init\\pkos-init",
   "summary": {
     "archive_present": true,
-    "archive_entry_count": 12,
+    "archive_entry_count": 13,
     "nested_skill_entry_count": 0,
     "archive_extracted": true,
     "entrypoint_loaded": true,
@@ -16,18 +16,18 @@
     "interface_loaded": true,
     "adapter_count": 1,
     "installer_permission_enforced_count": 0,
-    "installer_permission_failure_count": 3,
+    "installer_permission_failure_count": 1,
     "permission_target_count": 1,
     "permission_capability_count": 1,
     "install_root_is_temp": false,
-    "failure_count": 3,
+    "failure_count": 1,
     "warning_count": 0
   },
   "checks": [
     {
       "id": "archive-present",
       "status": "pass",
-      "detail": "Package archive exists: D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-init\\pkos-init.zip"
+      "detail": "Package archive exists: D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-init\\dist\\pkos-init.zip"
     },
     {
       "id": "archive-safe-paths",
@@ -101,7 +101,7 @@
     },
     {
       "id": "permission-policy-load",
-      "status": "fail",
+      "status": "pass",
       "detail": "Installed permission policy is readable"
     },
     {
@@ -111,7 +111,7 @@
     },
     {
       "id": "permission-generic-file_write-approved",
-      "status": "fail",
+      "status": "pass",
       "detail": "generic capability file_write has active reviewer approval"
     },
     {
@@ -121,14 +121,12 @@
     }
   ],
   "failures": [
-    "Installed permission policy is readable",
-    "generic capability file_write has active reviewer approval",
     "generic capability file_write has target enforcement note"
   ],
   "warnings": [],
   "artifacts": {
-    "archive": "D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-init\\pkos-init.zip",
-    "package_manifest": "D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-init\\manifest.json",
+    "archive": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-init\\dist\\pkos-init.zip",
+    "package_manifest": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-init\\dist\\manifest.json",
     "json": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-init\\reports\\install_simulation.json",
     "markdown": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-init\\reports\\install_simulation.md"
   }

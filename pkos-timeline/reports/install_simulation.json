@@ -1,11 +1,11 @@
 {
   "ok": false,
   "schema_version": "2.0",
-  "generated_at": "2026-08-24",
+  "generated_at": "2026-08-25",
   "skill_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-timeline",
-  "package_dir": "D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-timeline",
-  "install_root": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim3\\simulate-pkos-timeline",
-  "installed_skill_dir": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim3\\simulate-pkos-timeline\\pkos-timeline",
+  "package_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-timeline\\dist",
+  "install_root": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim4\\simulate-pkos-timeline",
+  "installed_skill_dir": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim4\\simulate-pkos-timeline\\pkos-timeline",
   "summary": {
     "archive_present": true,
     "archive_entry_count": 12,
@@ -27,7 +27,7 @@
     {
       "id": "archive-present",
       "status": "pass",
-      "detail": "Package archive exists: D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-timeline\\pkos-timeline.zip"
+      "detail": "Package archive exists: D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-timeline\\dist\\pkos-timeline.zip"
     },
     {
       "id": "archive-safe-paths",
@@ -115,8 +115,8 @@
   ],
   "warnings": [],
   "artifacts": {
-    "archive": "D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-timeline\\pkos-timeline.zip",
-    "package_manifest": "D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-timeline\\manifest.json",
+    "archive": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-timeline\\dist\\pkos-timeline.zip",
+    "package_manifest": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-timeline\\dist\\manifest.json",
     "json": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-timeline\\reports\\install_simulation.json",
     "markdown": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-timeline\\reports\\install_simulation.md"
   }

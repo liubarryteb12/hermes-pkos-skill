@@ -1,7 +1,7 @@
 # Install Simulation
 
 - OK: `False`
-- Package directory: `D:\deepseekharness\workspace\skills\dist\pkos-v0.0.1-packages\pkos-ingest`
+- Package directory: `D:\deepseekharness\workspace\skills\personal-knowledge-os\pkos-ingest\dist`
 - Archive extracted: `True`
 - Nested SKILL.md entries: `0`
 - Entrypoint loaded: `True`
@@ -9,15 +9,15 @@
 - Interface loaded: `True`
 - Adapters readable: `1`
 - Installer permissions enforced: `0`
-- Installer permission failures: `5`
-- Failures: `5`
+- Installer permission failures: `2`
+- Failures: `2`
 - Warnings: `0`
 
 ## Checks
 
 | Check | Status | Detail |
 | --- | --- | --- |
-| `archive-present` | `pass` | Package archive exists: D:\deepseekharness\workspace\skills\dist\pkos-v0.0.1-packages\pkos-ingest\pkos-ingest.zip |
+| `archive-present` | `pass` | Package archive exists: D:\deepseekharness\workspace\skills\personal-knowledge-os\pkos-ingest\dist\pkos-ingest.zip |
 | `archive-safe-paths` | `pass` | Archive has no absolute or parent-traversal entries |
 | `single-skill-entrypoint` | `pass` | Installed package exposes only the root SKILL.md entrypoint |
 | `single-top-level` | `pass` | Archive top-level directory is pkos-ingest |
@@ -32,19 +32,16 @@
 | `review-studio-report` | `pass` | Installed Review Studio report is present |
 | `adapter-generic` | `pass` | generic adapter is readable after package install simulation |
 | `adapter-generic-name` | `pass` | generic adapter name matches package manifest |
-| `permission-policy-load` | `fail` | Installed permission policy is readable |
+| `permission-policy-load` | `pass` | Installed permission policy is readable |
 | `permission-generic-contract` | `pass` | generic adapter exposes target permission contract for installer enforcement |
-| `permission-generic-file_write-approved` | `fail` | generic capability file_write has active reviewer approval |
+| `permission-generic-file_write-approved` | `pass` | generic capability file_write has active reviewer approval |
 | `permission-generic-file_write-target-enforcement` | `fail` | generic capability file_write has target enforcement note |
-| `permission-generic-subprocess-approved` | `fail` | generic capability subprocess has active reviewer approval |
+| `permission-generic-subprocess-approved` | `pass` | generic capability subprocess has active reviewer approval |
 | `permission-generic-subprocess-target-enforcement` | `fail` | generic capability subprocess has target enforcement note |
 
 ## Failures
 
-- Installed permission policy is readable
-- generic capability file_write has active reviewer approval
 - generic capability file_write has target enforcement note
-- generic capability subprocess has active reviewer approval
 - generic capability subprocess has target enforcement note
 
 ## Warnings

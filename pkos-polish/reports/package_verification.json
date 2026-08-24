@@ -1,14 +1,14 @@
 {
   "ok": true,
   "schema_version": "2.0",
-  "generated_at": "2026-08-24",
+  "generated_at": "2026-08-25",
   "skill_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-polish",
   "package_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-polish\\dist",
   "summary": {
     "target_count": 1,
     "adapter_count": 1,
     "archive_present": true,
-    "archive_sha256": "00dec84b113c55be064d96537cd0e2ed0a3ce1952851f9abd53806c9bd0e3ce8",
+    "archive_sha256": "c37a74ada675468ea3fb8de70814d169408529d0aeea27e8e379b497a6f98548",
     "archive_entry_count": 12,
     "nested_skill_entry_count": 0,
     "failure_count": 0,

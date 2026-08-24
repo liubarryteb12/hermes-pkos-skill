@@ -4,7 +4,7 @@
 - Package directory: `D:\deepseekharness\workspace\skills\personal-knowledge-os\pkos-polish\dist`
 - Targets: `1 / 1` adapters present
 - Archive present: `True`
-- Archive SHA256: `00dec84b113c55be064d96537cd0e2ed0a3ce1952851f9abd53806c9bd0e3ce8`
+- Archive SHA256: `c37a74ada675468ea3fb8de70814d169408529d0aeea27e8e379b497a6f98548`
 - Nested SKILL.md entries: `0`
 - Failures: `0`
 - Warnings: `1`

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "skill": "pkos-audit",
+  "skill": "pkos-analysis",
   "approved_by": "PKOS Builder",
   "approved_at": "2026-08-24",
   "review_due": "2026-11-22",
@@ -8,8 +8,8 @@
     "file_write": {
       "decision": "approved",
       "reviewer": "PKOS Builder",
-      "scope": "_PKOS/reports 审计报告",
-      "reason": "体检 JSON/MD 落盘才能基线对比并供 timeline 聚合",
+      "scope": "_PKOS/analysis 分析产物",
+      "reason": "发现表与分析笔记 AN-* 必须落盘供 polish 与追溯",
       "evidence": [
         "tests/run_tests.py 19 组契约测试全 PASS（2026-08-24）",
         "pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
