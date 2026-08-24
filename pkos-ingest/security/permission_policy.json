@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "skill": "pkos-ingest",
+  "approved_by": "PKOS Builder",
+  "approved_at": "2026-08-24",
+  "review_due": "2026-11-22",
+  "capabilities": {
+    "file_write": {
+      "decision": "approved",
+      "reviewer": "PKOS Builder",
+      "scope": "_PKOS 条目区与 manifests",
+      "reason": "合规条目归位挂载与运行清单写入",
+      "evidence": [
+        "tests/run_tests.py 19 组契约测试全 PASS（2026-08-24）",
+        "pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
+        "yao-meta-skill trust_check PASS（reports/security_trust_report.json）",
+        "yao-meta-skill package-verify PASS（2026-08-24）"
+      ],
+      "target_enforcement": {
+        "mode": "path-scoped",
+        "boundary": "_PKOS/ 工作区",
+        "note": "由宿主文件沙箱与路径校验执行；越界写入视为违规"
+      },
+      "expires_at": "2026-11-22"
+    },
+    "subprocess": {
+      "decision": "approved",
+      "reviewer": "PKOS Builder",
+      "scope": "本地文档解析器子进程（PDF/docx 抽取）",
+      "reason": "入库抽取需要调用本地解析工具进程，无网络行为",
+      "evidence": [
+        "tests/run_tests.py 19 组契约测试全 PASS（2026-08-24）",
+        "pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
+        "yao-meta-skill trust_check PASS（reports/security_trust_report.json）",
+        "yao-meta-skill package-verify PASS（2026-08-24）"
+      ],
+      "target_enforcement": {
+        "mode": "path-scoped",
+        "boundary": "_PKOS/ 工作区",
+        "note": "由宿主文件沙箱与路径校验执行；越界写入视为违规"
+      },
+      "expires_at": "2026-11-22"
+    }
+  }
+}

@@ -4,11 +4,11 @@
   "generated_at": "2026-08-24",
   "skill_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-ingest",
   "package_dir": "D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-ingest",
-  "install_root": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim2\\simulate-pkos-ingest",
-  "installed_skill_dir": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim2\\simulate-pkos-ingest\\pkos-ingest",
+  "install_root": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim3\\simulate-pkos-ingest",
+  "installed_skill_dir": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim3\\simulate-pkos-ingest\\pkos-ingest",
   "summary": {
     "archive_present": true,
-    "archive_entry_count": 13,
+    "archive_entry_count": 19,
     "nested_skill_entry_count": 0,
     "archive_extracted": true,
     "entrypoint_loaded": true,
@@ -16,11 +16,11 @@
     "interface_loaded": true,
     "adapter_count": 1,
     "installer_permission_enforced_count": 0,
-    "installer_permission_failure_count": 1,
+    "installer_permission_failure_count": 5,
     "permission_target_count": 1,
-    "permission_capability_count": 0,
+    "permission_capability_count": 2,
     "install_root_is_temp": false,
-    "failure_count": 3,
+    "failure_count": 5,
     "warning_count": 0
   },
   "checks": [
@@ -81,12 +81,12 @@
     },
     {
       "id": "overview-report",
-      "status": "fail",
+      "status": "pass",
       "detail": "Installed overview report is present"
     },
     {
       "id": "review-studio-report",
-      "status": "fail",
+      "status": "pass",
       "detail": "Installed Review Studio report is present"
     },
     {
@@ -108,12 +108,34 @@
       "id": "permission-generic-contract",
       "status": "pass",
       "detail": "generic adapter exposes target permission contract for installer enforcement"
+    },
+    {
+      "id": "permission-generic-file_write-approved",
+      "status": "fail",
+      "detail": "generic capability file_write has active reviewer approval"
+    },
+    {
+      "id": "permission-generic-file_write-target-enforcement",
+      "status": "fail",
+      "detail": "generic capability file_write has target enforcement note"
+    },
+    {
+      "id": "permission-generic-subprocess-approved",
+      "status": "fail",
+      "detail": "generic capability subprocess has active reviewer approval"
+    },
+    {
+      "id": "permission-generic-subprocess-target-enforcement",
+      "status": "fail",
+      "detail": "generic capability subprocess has target enforcement note"
     }
   ],
   "failures": [
-    "Installed overview report is present",
-    "Installed Review Studio report is present",
-    "Installed permission policy is readable"
+    "Installed permission policy is readable",
+    "generic capability file_write has active reviewer approval",
+    "generic capability file_write has target enforcement note",
+    "generic capability subprocess has active reviewer approval",
+    "generic capability subprocess has target enforcement note"
   ],
   "warnings": [],
   "artifacts": {

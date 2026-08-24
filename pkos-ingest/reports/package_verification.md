@@ -4,7 +4,7 @@
 - Package directory: `D:\deepseekharness\workspace\skills\personal-knowledge-os\pkos-ingest\dist`
 - Targets: `1 / 1` adapters present
 - Archive present: `True`
-- Archive SHA256: `a5059142cc2dc1f76cda7cd1ee42d2fd333c88888d50c0c1df9d74ed610625a8`
+- Archive SHA256: `dc80389c589d90edb17f077429a58f3ea0dc873e6ebfc27ebd0b7a4825af2b7b`
 - Nested SKILL.md entries: `0`
 - Failures: `0`
 - Warnings: `1`

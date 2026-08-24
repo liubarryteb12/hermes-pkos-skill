@@ -4,11 +4,11 @@
   "generated_at": "2026-08-24",
   "skill_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\pkos-router",
   "package_dir": "D:\\deepseekharness\\workspace\\skills\\dist\\pkos-v0.0.1-packages\\pkos-router",
-  "install_root": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim2\\simulate-pkos-router",
-  "installed_skill_dir": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim2\\simulate-pkos-router\\pkos-router",
+  "install_root": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim3\\simulate-pkos-router",
+  "installed_skill_dir": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim3\\simulate-pkos-router\\pkos-router",
   "summary": {
     "archive_present": true,
-    "archive_entry_count": 5,
+    "archive_entry_count": 11,
     "nested_skill_entry_count": 0,
     "archive_extracted": true,
     "entrypoint_loaded": true,
@@ -20,7 +20,7 @@
     "permission_target_count": 1,
     "permission_capability_count": 0,
     "install_root_is_temp": false,
-    "failure_count": 3,
+    "failure_count": 1,
     "warning_count": 0
   },
   "checks": [
@@ -81,12 +81,12 @@
     },
     {
       "id": "overview-report",
-      "status": "fail",
+      "status": "pass",
       "detail": "Installed overview report is present"
     },
     {
       "id": "review-studio-report",
-      "status": "fail",
+      "status": "pass",
       "detail": "Installed Review Studio report is present"
     },
     {
@@ -111,8 +111,6 @@
     }
   ],
   "failures": [
-    "Installed overview report is present",
-    "Installed Review Studio report is present",
     "Installed permission policy is readable"
   ],
   "warnings": [],

@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "skill": "pkos-init",
+  "approved_by": "PKOS Builder",
+  "approved_at": "2026-08-24",
+  "review_due": "2026-11-22",
+  "capabilities": {
+    "file_write": {
+      "decision": "approved",
+      "reviewer": "PKOS Builder",
+      "scope": "_PKOS 工作区内目录与配置文件创建",
+      "reason": "初始化必须在用户确认的知识库路径下生成 _PKOS 骨架、config.json 与 README",
+      "evidence": [
+        "tests/run_tests.py 19 组契约测试全 PASS（2026-08-24）",
+        "pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
+        "yao-meta-skill trust_check PASS（reports/security_trust_report.json）",
+        "yao-meta-skill package-verify PASS（2026-08-24）"
+      ],
+      "target_enforcement": {
+        "mode": "path-scoped",
+        "boundary": "_PKOS/ 工作区",
+        "note": "由宿主文件沙箱与路径校验执行；越界写入视为违规"
+      },
+      "expires_at": "2026-11-22"
+    }
+  }
+}

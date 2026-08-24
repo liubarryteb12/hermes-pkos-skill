@@ -8,8 +8,8 @@
     "target_count": 1,
     "adapter_count": 1,
     "archive_present": true,
-    "archive_sha256": "754bb8693694fd34c75a5d3c6bf29a5f4e7d98aa7b6fbe706246d92ddf9ede89",
-    "archive_entry_count": 6,
+    "archive_sha256": "00dec84b113c55be064d96537cd0e2ed0a3ce1952851f9abd53806c9bd0e3ce8",
+    "archive_entry_count": 12,
     "nested_skill_entry_count": 0,
     "failure_count": 0,
     "warning_count": 1

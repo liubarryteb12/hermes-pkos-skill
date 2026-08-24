@@ -4,7 +4,7 @@
 - Package directory: `D:\deepseekharness\workspace\skills\personal-knowledge-os\pkos-audit\dist`
 - Targets: `1 / 1` adapters present
 - Archive present: `True`
-- Archive SHA256: `17f04f436330ee5bab336de9c49335907fe71fa1f5af09c4497445a04f5224de`
+- Archive SHA256: `ce01f96270d751bd32fd5e5525b84cda9238a186340932c4ddc4ae915a44a059`
 - Nested SKILL.md entries: `0`
 - Failures: `0`
 - Warnings: `1`

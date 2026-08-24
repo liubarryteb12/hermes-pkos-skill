@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "skill": "pkos-html",
+  "approved_by": "PKOS Builder",
+  "approved_at": "2026-08-24",
+  "review_due": "2026-11-22",
+  "capabilities": {
+    "file_write": {
+      "decision": "approved",
+      "reviewer": "PKOS Builder",
+      "scope": "_PKOS/outputs 渲染产物",
+      "reason": "单文件 HTML 成品交付到约定出口目录",
+      "evidence": [
+        "tests/run_tests.py 19 组契约测试全 PASS（2026-08-24）",
+        "pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
+        "yao-meta-skill trust_check PASS（reports/security_trust_report.json）",
+        "yao-meta-skill package-verify PASS（2026-08-24）"
+      ],
+      "target_enforcement": {
+        "mode": "path-scoped",
+        "boundary": "_PKOS/ 工作区",
+        "note": "由宿主文件沙箱与路径校验执行；越界写入视为违规"
+      },
+      "expires_at": "2026-11-22"
+    }
+  }
+}

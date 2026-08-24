@@ -10,7 +10,7 @@
 - Adapters readable: `1`
 - Installer permissions enforced: `0`
 - Installer permission failures: `3`
-- Failures: `5`
+- Failures: `3`
 - Warnings: `0`
 
 ## Checks
@@ -28,8 +28,8 @@
 | `manifest-name` | `pass` | Installed manifest name matches package manifest |
 | `manifest-version` | `pass` | Installed manifest version matches package manifest |
 | `interface-load` | `pass` | Installed agents/interface.yaml is readable |
-| `overview-report` | `fail` | Installed overview report is present |
-| `review-studio-report` | `fail` | Installed Review Studio report is present |
+| `overview-report` | `pass` | Installed overview report is present |
+| `review-studio-report` | `pass` | Installed Review Studio report is present |
 | `adapter-generic` | `pass` | generic adapter is readable after package install simulation |
 | `adapter-generic-name` | `pass` | generic adapter name matches package manifest |
 | `permission-policy-load` | `fail` | Installed permission policy is readable |
@@ -39,8 +39,6 @@
 
 ## Failures
 
-- Installed overview report is present
-- Installed Review Studio report is present
 - Installed permission policy is readable
 - generic capability file_write has active reviewer approval
 - generic capability file_write has target enforcement note
