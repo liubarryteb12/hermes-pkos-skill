@@ -1,6 +1,6 @@
 # Install Simulation
 
-- OK: `False`
+- OK: `True`
 - Package directory: `D:\deepseekharness\workspace\skills\personal-knowledge-os\pkos-ingest\dist`
 - Archive extracted: `True`
 - Nested SKILL.md entries: `0`
@@ -8,9 +8,9 @@
 - Manifest loaded: `True`
 - Interface loaded: `True`
 - Adapters readable: `1`
-- Installer permissions enforced: `0`
-- Installer permission failures: `2`
-- Failures: `2`
+- Installer permissions enforced: `2`
+- Installer permission failures: `0`
+- Failures: `0`
 - Warnings: `0`
 
 ## Checks
@@ -35,14 +35,13 @@
 | `permission-policy-load` | `pass` | Installed permission policy is readable |
 | `permission-generic-contract` | `pass` | generic adapter exposes target permission contract for installer enforcement |
 | `permission-generic-file_write-approved` | `pass` | generic capability file_write has active reviewer approval |
-| `permission-generic-file_write-target-enforcement` | `fail` | generic capability file_write has target enforcement note |
+| `permission-generic-file_write-target-enforcement` | `pass` | generic capability file_write has target enforcement note |
 | `permission-generic-subprocess-approved` | `pass` | generic capability subprocess has active reviewer approval |
-| `permission-generic-subprocess-target-enforcement` | `fail` | generic capability subprocess has target enforcement note |
+| `permission-generic-subprocess-target-enforcement` | `pass` | generic capability subprocess has target enforcement note |
 
 ## Failures
 
-- generic capability file_write has target enforcement note
-- generic capability subprocess has target enforcement note
+- None
 
 ## Warnings
 

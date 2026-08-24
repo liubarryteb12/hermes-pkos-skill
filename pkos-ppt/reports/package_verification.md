@@ -4,7 +4,7 @@
 - Package directory: `D:\deepseekharness\workspace\skills\personal-knowledge-os\pkos-ppt\dist`
 - Targets: `1 / 1` adapters present
 - Archive present: `True`
-- Archive SHA256: `6bec1a2b4a8946cc83a20741a9aa4d5b983d95f019e970b2919fc209a9370c22`
+- Archive SHA256: `fb5c997fc6e0cb6a9517b3da82b4d037f3a8d6cbdcff6ba8248c32d07f4554cc`
 - Nested SKILL.md entries: `0`
 - Failures: `0`
 - Warnings: `1`

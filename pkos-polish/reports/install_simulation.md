@@ -1,6 +1,6 @@
 # Install Simulation
 
-- OK: `False`
+- OK: `True`
 - Package directory: `D:\deepseekharness\workspace\skills\personal-knowledge-os\pkos-polish\dist`
 - Archive extracted: `True`
 - Nested SKILL.md entries: `0`
@@ -9,8 +9,8 @@
 - Interface loaded: `True`
 - Adapters readable: `1`
 - Installer permissions enforced: `0`
-- Installer permission failures: `1`
-- Failures: `1`
+- Installer permission failures: `0`
+- Failures: `0`
 - Warnings: `0`
 
 ## Checks
@@ -32,12 +32,12 @@
 | `review-studio-report` | `pass` | Installed Review Studio report is present |
 | `adapter-generic` | `pass` | generic adapter is readable after package install simulation |
 | `adapter-generic-name` | `pass` | generic adapter name matches package manifest |
-| `permission-policy-load` | `fail` | Installed permission policy is readable |
+| `permission-policy-load` | `pass` | Installed permission policy is readable |
 | `permission-generic-contract` | `pass` | generic adapter exposes target permission contract for installer enforcement |
 
 ## Failures
 
-- Installed permission policy is readable
+- None
 
 ## Warnings
 

@@ -4,7 +4,7 @@
 - Package directory: `D:\deepseekharness\workspace\skills\personal-knowledge-os\pkos-router\dist`
 - Targets: `1 / 1` adapters present
 - Archive present: `True`
-- Archive SHA256: `98eee0c55806351ec96dbd2b2943925274a5599a2de76f2cce01bc90172211e9`
+- Archive SHA256: `91d1ed8b8a73a71476815af66f33ec38c1c8014c7bc9e4084e9bdad4ed42fc6a`
 - Nested SKILL.md entries: `0`
 - Failures: `0`
 - Warnings: `1`
