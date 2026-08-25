@@ -1,0 +1,106 @@
+{
+  "schema": "pkos-pipeline:1",
+  "version": 1,
+  "updated_at": "2026-08-24",
+  "description": "pkos 流水线单元注册表：增/删功能的唯一改动点。role ∈ intake|process|governance|decision|exit|maintenance|required-by-exit；core 单元不可禁用。",
+  "units": [
+    {
+      "id": "pkos-intake",
+      "role": "intake",
+      "stage": 0,
+      "consumes": "_PKOS/INBOX/* 与对话给的路径",
+      "produces": "_PKOS/manifests/*-intake.json 分拣单",
+      "required": true,
+      "status": "registered"
+    },
+    {
+      "id": "pkos-ingest",
+      "role": "process",
+      "stage": 1,
+      "consumes": "分拣单 + 原始物件",
+      "produces": "pkos-schema:1 合规条目（entries 区）",
+      "required": true,
+      "status": "registered"
+    },
+    {
+      "id": "pkos-analysis",
+      "role": "process",
+      "stage": 2,
+      "consumes": "已入库条目",
+      "produces": "_PKOS/analysis/AN-* 发现表与分析笔记",
+      "required": true,
+      "status": "registered"
+    },
+    {
+      "id": "pkos-polish",
+      "role": "process",
+      "stage": 3,
+      "consumes": "AN-* 发现表",
+      "produces": "_PKOS/analysis/POL-* 净化稿 + 评分卡",
+      "required": true,
+      "status": "registered"
+    },
+    {
+      "id": "pkos-router",
+      "role": "decision",
+      "stage": 4,
+      "consumes": "POL-* 净化稿 + 用户意图",
+      "produces": "_PKOS/routes/RT-*.yaml 路由单",
+      "required": true,
+      "status": "registered"
+    },
+    {
+      "id": "pkos-html",
+      "role": "exit",
+      "stage": 5,
+      "consumes": "路由单(exit=html)",
+      "produces": "_PKOS/outputs/*.html 单文件离线网页",
+      "sinks": ["web-single-file"],
+      "conversion_types": ["学习路径", "wiki百科条目", "实战操作指南"],
+      "required": false,
+      "status": "registered"
+    },
+    {
+      "id": "pkos-ppt",
+      "role": "exit",
+      "stage": 5,
+      "consumes": "路由单(exit=ppt)",
+      "produces": "_PKOS/outputs/<route-id>-deck-images/ 演示图组",
+      "sinks": ["ppt-export"],
+      "conversion_types": ["实战操作指南"],
+      "required": false,
+      "status": "registered"
+    },
+    {
+      "id": "pkos-audit",
+      "role": "maintenance",
+      "stage": 9,
+      "consumes": "全库条目",
+      "produces": "_PKOS/reports/<date>_audit.json|md",
+      "required": false,
+      "status": "registered"
+    },
+    {
+      "id": "pkos-timeline",
+      "role": "maintenance",
+      "stage": 9,
+      "consumes": "_PKOS/reports/ 历次审计 JSON",
+      "produces": "_PKOS/reports/timeline.html",
+      "required": false,
+      "status": "registered"
+    },
+    {
+      "id": "pkos-init",
+      "role": "governance",
+      "stage": null,
+      "consumes": "用户提供的知识库路径与模式选择",
+      "produces": "_PKOS/ 地基骨架 + config.json(pkos-config:1)",
+      "required": false,
+      "status": "registered"
+    }
+  ],
+  "infra_non_units": [
+    { "id": "pkos-meta", "note": "元治理设施（门禁/SOP），无 SKILL.md，不参与启停" }
+  ],
+  "external_exits_note": "公众号出口经 gzh-design 外部技能桥接（快路径），未注册为本套件单元；原生 wechat-paste 出口规划中，注册后即成为可选 exit 位。"
+}

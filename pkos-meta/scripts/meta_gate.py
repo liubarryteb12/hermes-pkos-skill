@@ -47,6 +47,34 @@ def keyword_hit(query: str, name: str, description: str) -> bool:
     return len(q) > 1 and hits / max(1, len(q) - 1) >= 0.18
 
 
+def run_registry() -> list[str]:
+    """pipeline/registry.json 一致性：registered 单元目录与三件套在场，id 无重复。"""
+    reg_path = ROOT / "pipeline" / "registry.json"
+    if not reg_path.is_file():
+        return ["pipeline/registry.json 缺失"]
+    try:
+        data = json.loads(reg_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        return [f"registry 不可解析: {e}"]
+    fails: list[str] = []
+    seen: set[str] = set()
+    for u in data.get("units", []):
+        uid = u.get("id", "")
+        if not uid:
+            fails.append("registry: 存在无 id 单元")
+            continue
+        if uid in seen:
+            fails.append(f"{uid}: registry 重复登记")
+        seen.add(uid)
+        if u.get("status") != "registered":
+            continue
+        d = ROOT / uid
+        for f in ("SKILL.md", "manifest.json", "agents/interface.yaml"):
+            if not (d / f).is_file():
+                fails.append(f"{uid}: status=registered 但缺 {f}")
+    return fails
+
+
 def run_validate() -> list[str]:
     fails = []
     for mod in SPEC["modules"]:
@@ -94,6 +122,7 @@ def main(argv=None) -> int:
     all_fails: list[str] = []
     if mode in ("validate", "all"):
         f = run_validate()
+        f += run_registry()
         all_fails += f
         print(f"[validate] {'PASS' if not f else 'FAIL'} ({len(f)} 项)")
         for x in f:

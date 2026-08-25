@@ -1,0 +1,26 @@
+interface:
+  display_name: "<中文展示名>"
+  short_description: "<一句话职责>"
+  default_prompt: "Use $pkos-<你的单元名> when the user says <触发短语>."
+compatibility:
+  canonical_format: "agent-skills"
+  adapter_targets:
+    - "openai"
+    - "claude"
+    - "generic"
+    - "vscode"
+  activation:
+    mode: "manual"
+    paths: []
+  execution:
+    context: "inline"
+    shell: "bash"
+  trust:
+    source_tier: "local"
+    remote_inline_execution: "forbid"
+    remote_metadata_policy: "allow-metadata-only"
+  degradation:
+    openai: "metadata-adapter"
+    claude: "neutral-source-plus-adapter"
+    generic: "neutral-source"
+    vscode: "agent-skills-source-with-vscode-notes"

@@ -22,7 +22,7 @@ route_id: RT-YYYYMMDD-NNN        # 存档文件同名
 created: YYYY-MM-DD
 source_entry: "[[条目名]]"        # 必须 analyzed 及以后
 user_intent: "用户原话或场景描述"
-exit: html | ppt                  # 出口二值；双出口=两张路由单
+exit: html | ppt                  # 出口词表=pipeline/registry.json 中 role=exit 且本库未禁用(exit∉modules.enabled)的单元；双出口=两张路由单
 conversion_type: 学习路径          # wiki百科条目 | 实战操作指南 | 避坑风险清单 | 学习路径
 topic_suggestion: "一句话主题"
 audience: "给谁看，什么场合"
@@ -38,6 +38,7 @@ rationale:                        # 决策理由逐条列出，事后可追溯
 # 决策启发式
 
 - **出口二选一**：内容是「过程/讲稿/演示」→ ppt；是「查阅/自包含阅读」→ html。同一素材要演讲版时出第二张路由单。
+- **出口可插拔**：新增出口=在 `pipeline/registry.json` 注册新单元并装载技能（SOP 见 pipeline/README）；目标出口在本库 `_PKOS/config.json → modules` 未启用时**拒绝路由**——fail loud 并提示启用或改选其他出口。
 - **转化类型**：概念解释→wiki 百科条目；步骤可复现→实战操作指南；教训与反例密集→避坑风险清单；入门顺序明确→学习路径。
 - **确认强度默认**：单篇交互 `interactive-one-step`；批量任务必须显式升为 `batch-post-gate`；对外发布的重要产物用 `first-screen-sample`。
 

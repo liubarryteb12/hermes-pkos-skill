@@ -26,6 +26,19 @@ from pathlib import Path
 
 STAGE_DIRS = ["INBOX", "manifests", "analysis", "routes", "outputs", "reports"]
 
+
+def load_enabled_units() -> list[str]:
+    """读 pipeline/registry.json 的 registered 单元作为实例默认启用集；缺表则回退核心链。"""
+    reg = Path(__file__).resolve().parents[2] / "pipeline" / "registry.json"
+    try:
+        data = json.loads(reg.read_text(encoding="utf-8"))
+        ids = [u["id"] for u in data.get("units", []) if u.get("status") == "registered"]
+        return ids or ["pkos-intake", "pkos-ingest", "pkos-analysis", "pkos-polish",
+                       "pkos-router", "pkos-html", "pkos-ppt", "pkos-audit",
+                       "pkos-timeline", "pkos-init"]
+    except (OSError, json.JSONDecodeError, KeyError):
+        return []
+
 MODES = {
     "moc": {
         "label": "MOC 中枢笔记制",
@@ -125,6 +138,7 @@ def main(argv=None) -> int:
             "mode": args.mode,
             "created": date.today().isoformat(),
             "layout": {d.lower(): f"_PKOS/{d}" for d in STAGE_DIRS},
+            "modules": {"enabled": load_enabled_units(), "disabled": []},
         }, ensure_ascii=False, indent=2) + "\n",
         "_PKOS/README.md": lambda: make_readme(args.mode),
     }

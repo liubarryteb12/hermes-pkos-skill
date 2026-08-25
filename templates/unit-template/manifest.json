@@ -1,0 +1,13 @@
+{
+  "name": "pkos-<你的单元名>",
+  "version": "0.0.1",
+  "owner": "PKOS Maintainers",
+  "updated_at": "1970-01-01",
+  "review_due": "1970-04-01",
+  "status": "draft",
+  "maturity_tier": "production",
+  "lifecycle_stage": "scaffold",
+  "context_budget_tier": "production",
+  "review_cadence": "quarterly",
+  "target_platforms": ["openai", "claude", "generic", "agent-skills-compatible"]
+}
