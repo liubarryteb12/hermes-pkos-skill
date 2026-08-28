@@ -1,0 +1,166 @@
+# 失败三态回归测试 — pkos.fanout.concept
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4：v0 无 fanout 能力，本轮全新实现
+
+meta:
+  capability: pkos.fanout.concept
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- not_found：核心概念不可达 -----------------
+  - id: fanout-target-missing
+    failure_mode: not_found
+    description: 目标路径不存在
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/ghost.md" }
+    act: fanout
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+
+  - id: fanout-tag-no-match
+    failure_mode: not_found
+    description: by_tag 标签在库内零条目
+    arrange:
+      target: { by_tag: "占星学" }
+      env_mocks: { "tag_entries_count": 0 }
+    act: fanout
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.tag_empty"
+
+  - id: fanout-concept-no-match
+    failure_mode: not_found
+    description: by_concept 概念词在 MASTER_INDEX.json 内零命中
+    arrange:
+      target: { by_concept: "量子引力退相干" }
+      env_mocks: { "concept_in_index": false }
+    act: fanout
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.recommendation == '先跑 maintenance.index 或扩展 tag'"
+
+  - id: fanout-no-master-index
+    failure_mode: not_found
+    description: MASTER_INDEX.json 不存在
+    arrange:
+      target: { by_concept: "认知偏差" }
+      env_mocks: { "master_index_json_exists": false }
+    act: fanout
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.recommendation == '先跑 pkos.maintenance.index'"
+
+  # ----------------- ambiguous：扇出方向不决 -----------------
+  - id: fanout-auto-mode-without-directions
+    failure_mode: ambiguous
+    description: auto_mode=false 且未指定 directions
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/x.md" }
+      options: { auto_mode: false, directions: null }
+    act: fanout
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列出 6 方向（theory/application/similar/contrast/edge_case/history）+ 推荐"
+
+  - id: fanout-max-branches-touched
+    failure_mode: ambiguous
+    description: max_branches 触顶
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/x.md" }
+      options: { max_branches: 3 }
+      env_mocks: { "llm_suggested_count": 8 }
+    act: fanout
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列 '已选 3 / 候选 5' + 推荐"
+
+  # ----------------- unavailable：LLM 全档失败 -----------------
+  - id: fanout-provider-all-fail
+    failure_mode: unavailable
+    description: provider-policy 三档全失败
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/x.md" }
+      env_mocks:
+        "hy3_429": true
+        "m21_5xx": true
+        "self_degrade_fail": true
+    act: fanout
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.provider_errors 列出三档"
+      - "无扇出图落盘"
+
+  - id: fanout-llm-truncated
+    failure_mode: unavailable
+    description: LLM 返回截断
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/x.md" }
+      env_mocks: { "llm_response_truncated": true }
+    act: fanout
+    assert:
+      - "result.v2_failure_mode == 'unavailable'（integrity_policy 门 2 拦下）"
+      - "evidence.truncation"
+
+  - id: fanout-safety-reject
+    failure_mode: not_found
+    description: LLM safety 拒绝（v0/provider-policy 锁死：宁要无图完整方案）
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/unsafe.md" }
+      env_mocks: { "llm_safety_reject": true }
+    act: fanout
+    assert:
+      - "result.v2_failure_mode == 'not_found'（safety 拒绝不回退，v0 锁死）"
+      - "evidence.rejection == 'v0 锁死：宁要无图完整方案'"
+      - "**不切 P1/P2**——safety 拒绝不绕过审核"
+
+  # ----------------- success -----------------
+  - id: fanout-success-6-directions
+    failure_mode: success
+    description: 6 方向全扇出成功
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/认知偏差.md" }
+      options: { directions: ["theory", "application", "similar", "contrast", "edge_case", "history"], max_branches: 6 }
+    act: fanout
+    assert:
+      - "_PKOS/fanout/认知偏差-<时间戳>.md 落盘"
+      - "_PKOS/fanout/认知偏差-<时间戳>.json 落盘"
+      - "6 方向齐全"
+      - "每方向 ≤ max_branches 子节点"
+      - "子节点含 title/sketch/cross_domain_edges"
+      - "cross_domain_edges 含 from/to/kind 三键"
+
+  - id: fanout-success-tag-based
+    failure_mode: success
+    description: by_tag 触发：扇出"心理学"标签所有条目
+    arrange:
+      target: { by_tag: "心理学" }
+      env_mocks: { "tag_entries_count": 12 }
+    act: fanout
+    assert:
+      - "扇出图含 12 条同 tag 条目的相似度矩阵"
+      - "similar 方向子节点 = 12 条"
+
+  - id: fanout-success-auto-mode
+    failure_mode: success
+    description: auto_mode=true → 答案取自目标条目 + manifest 留痕
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/x.md" }
+      options: { auto_mode: true, directions: null }
+    act: fanout
+    assert:
+      - "扇出按默认 6 方向（auto 决策）"
+      - "manifest 含 decision_note（auto 决策来源）"
+
+  - id: fanout-success-no-auto-commit
+    failure_mode: success
+    description: 扇出草稿**不**自动 commit（必须人工 ingest）
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/x.md" }
+    act: fanout
+    assert:
+      - "扇出图落盘 _PKOS/fanout/"
+      - "**无** knowledge_service.commit 调用"
+      - "_PKOS/reports/commits/ 无新增"
+      - "子节点草稿不进 entries/（待人工 ingest.extract）"

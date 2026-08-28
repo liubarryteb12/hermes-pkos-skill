@@ -1,6 +1,6 @@
 interface:
   display_name: "出口路由决策"
-  short_description: "产出路由单 YAML 决定出口形态与转化类型"
+  short_description: "v4.0 策略消费者：读取 Policy Engine 的 Execution Strategy 校验后分发，产出路由单 YAML"
   default_prompt: "Use $pkos-router when the user asks 做成什么好 / HTML 还是 PPT."
 compatibility:
   canonical_format: "agent-skills"

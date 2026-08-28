@@ -1,0 +1,165 @@
+# 失败三态回归测试 — pkos.maintenance.index
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4：v0 无索引能力，本轮全新实现
+
+meta:
+  capability: pkos.maintenance.index
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- not_found：库未初始化 -----------------
+  - id: index-vault-not-found
+    failure_mode: not_found
+    description: 目标路径不存在
+    arrange:
+      target: { by_path_pattern: "D:\\ghost-vault/**" }
+    act: build
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.recommendation == '先跑 pkos.governance.bootstrap'"
+
+  - id: index-no-pkos-dir
+    failure_mode: not_found
+    description: _PKOS/ 不存在（bootstrap 未跑）
+    arrange:
+      target: { by_path_pattern: "D:\\tmp\\vault/**" }
+      env_mocks: { "_PKOS_exists": false }
+    act: build
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.missing == '_PKOS/ directory'"
+
+  - id: index-empty-vault
+    failure_mode: not_found
+    description: 目标域内零条目（库是空的）
+    arrange:
+      target: { by_path_pattern: "D:\\empty/**" }
+      env_mocks: { "entries_count": 0 }
+    act: build
+    assert:
+      - "result.v2_failure_mode == 'not_found'（空集合法）"
+      - "MASTER_INDEX 仍可落盘（total=0）"
+      - "json.valid == true"
+
+  # ----------------- ambiguous：scope 不决 -----------------
+  - id: index-include-status-ambiguous
+    failure_mode: ambiguous
+    description: include_status 多解
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { include_status: ["polished", "published"] }
+      env_mocks: { "vault_has_archived": true }
+    act: build
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列出 archived 处理选项"
+
+  - id: index-incremental-since-ambiguous
+    failure_mode: ambiguous
+    description: incremental=true 但 since 跨多轮
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { incremental: true, since: "2026-08-20" }
+      env_mocks: { "master_index_age_days": 30 }
+    act: build
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 含增量/全量推荐"
+      - "默认推荐全量重建（跨多轮增量风险高）"
+
+  # ----------------- unavailable：扫描故障 -----------------
+  - id: index-frontmatter-parse-fail
+    failure_mode: unavailable
+    description: 扫描脚本崩溃（front matter 解析失败）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      env_mocks: { "front_matter_parse_fail": "entries/<domain>/broken.md" }
+    act: build
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.parse_error 给出受影响文件"
+      - "rollback: MASTER_INDEX 不写入半成品"
+
+  - id: index-io-unreadable
+    failure_mode: unavailable
+    description: vault 不可读
+    arrange:
+      target: { by_path_pattern: "D:\\locked-vault/**" }
+      env_mocks: { "dir_acl": "deny-read" }
+    act: build
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+
+  - id: index-incremental-no-prior
+    failure_mode: unavailable
+    description: incremental=true 但 MASTER_INDEX.json 缺失
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { incremental: true, since: "2026-08-25" }
+      env_mocks: { "master_index_json_exists": false }
+    act: build
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.recommendation == '降级全量重建（incremental=true 但缺基线）'"
+
+  # ----------------- success -----------------
+  - id: index-success-full-rebuild
+    failure_mode: success
+    description: 全量重建 → md + json 双产物
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { incremental: false }
+      env_mocks:
+        "entries_count": 150
+        "by_status": {"triaged": 30, "analyzed": 50, "polished": 50, "routed": 15, "exported": 5}
+    act: build
+    assert:
+      - "_PKOS/MASTER_INDEX.md 落盘"
+      - "_PKOS/MASTER_INDEX.json 落盘"
+      - "JSON.valid == true"
+      - "JSON.total == 150"
+      - "JSON.by_status 分布与 mock 一致"
+      - "每条 entry 都有 front_matter_excerpt"
+      - "audit _PKOS/reports/indices/<时间戳>.json 落盘"
+
+  - id: index-success-incremental
+    failure_mode: success
+    description: 增量更新
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { incremental: true, since: "2026-08-25" }
+      env_mocks:
+        "master_index_json_exists": true
+        "changed_entries_count": 12
+    act: build
+    assert:
+      - "仅扫描 since 之后变更的 12 条"
+      - "索引更新为 162 条（前次 150 + 新增 12）"
+      - "构建时间 << 全量（实测对比）"
+
+  - id: index-success-cross-domain
+    failure_mode: success
+    description: 跨域关联正确解析
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      env_mocks:
+        "cross_domain_edges":
+          - { from: "entries/技术/x.md", to: "entries/产品/y.md", kind: "wikilink" }
+          - { from: "entries/产品/y.md", to: "entries/技术/x.md", kind: "frontmatter" }
+    act: build
+    assert:
+      - "JSON.cross_domain_edges 含 2 条"
+      - "双向关联正确记录"
+
+  - id: index-success-recent-commits
+    failure_mode: success
+    description: 最近 commit 区段（从 _PKOS/reports/commits/ 拉取）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      env_mocks: { "commits_count": 8 }
+    act: build
+    assert:
+      - "JSON.recent_commits 含 8 条（按 committed_at 降序）"
+      - "每条含 committed_at/target/from_state/to_state/audit_trail"

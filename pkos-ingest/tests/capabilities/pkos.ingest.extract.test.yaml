@@ -1,0 +1,185 @@
+# 失败三态回归测试 — pkos.ingest.extract
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4：v0 守门/降级链/dedup/validate 的失败三态拆解
+
+meta:
+  capability: pkos.ingest.extract
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- not_found：业务守门拒收 -----------------
+  - id: ingest-reject-onion
+    failure_mode: not_found
+    description: 暗网 .onion 命中七类拒收清单 → not_found 不入库
+    arrange:
+      target: { by_url: "http://example.onion/abc" }
+    act: guard
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "result.reject_reason contains '暗网' 或 'onion'"
+      - "无 L1 抓取触发"
+      - "无新条目写入"
+      - "manifest.success == false 且 error 含拒收原因"
+
+  - id: ingest-reject-pirated
+    failure_mode: not_found
+    description: 盗版仓库 → not_found
+    arrange:
+      target: { by_url: "https://pirated-mirror.example.com/book/123" }
+    act: guard
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "manifest.error contains '盗版' 或 '侵权'"
+
+  - id: ingest-reject-login-wall
+    failure_mode: not_found
+    description: 登录墙残留（即使 L1 拉回短文）→ not_found
+    arrange:
+      target: { by_url: "https://members.example.com/article" }
+      env_mocks: { "fetched": "Sign in to continue... 登录 后继续阅读 验证码" }
+    act: fetch
+    assert:
+      - "content_gate.fail_reason contains '登录墙残留'"
+      - "result.v2_failure_mode == 'not_found'"
+      - "不进入降级链（业务拒收非技术不可达）"
+
+  - id: ingest-reject-non-http
+    failure_mode: not_found
+    description: 协议非 http(s)（ftp/file/内网）→ not_found
+    arrange:
+      target: { by_url: "ftp://10.0.0.5/file.pdf" }
+    act: guard
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "reject_reason contains '协议' 或 'ftp'"
+
+  # ----------------- ambiguous：约束不足/冲突 -----------------
+  - id: ingest-dup-hit
+    failure_mode: ambiguous
+    description: dedup 命中（normalize_url 与库内既有条目主键一致）→ ambiguous 决策单
+    arrange:
+      target: { by_url: "https://already-saved.example.com/article" }
+      vault: "<库根>"
+    act: dedup
+    assert:
+      - "result.dup_match != null"
+      - "result.existing_entry_path 给出既有路径"
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card.requires_user_input == true（合并/覆盖/跳过）"
+      - "未自动覆盖"
+
+  - id: ingest-domain-pending
+    failure_mode: ambiguous
+    description: 域待定（domain=null）且无库内映射惯例 → ambiguous
+    arrange:
+      target: { by_url: "https://unknown-niche.example.com/x" }
+      options: { domain: null }
+    act: extract
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列出建议候选域"
+      - "未写入域待定区之前先问用户"
+
+  - id: ingest-index-mismatch
+    failure_mode: ambiguous
+    description: INDEX 挂载时类型不匹配（应入 A 实入 B）→ ambiguous
+    arrange:
+      target: { by_url: "https://example.com/abc" }
+      options: { type: "clipping" }
+      env_mocks: { "existing_index_domain": "技术" }
+    act: assemble
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "未写入 INDEX-技术.md"
+      - "decision_card 含类型/域建议"
+
+  # ----------------- unavailable：技术不可达 -----------------
+  - id: ingest-degrade-chain-exhaust
+    failure_mode: unavailable
+    description: L1/L2/换镜像 4 步全失败 → unavailable
+    arrange:
+      target: { by_url: "https://unreachable.example.com/x" }
+      env_mocks:
+        "l1_status": 503
+        "l1_retry_status": 503
+        "l2_status": "browser_crash"
+        "mirror_status": 404
+    act: extract
+    assert:
+      - "degrade_chain.attempts == 4"
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.attempt_log 完整（每步 status + 错误）"
+      - "manifest.error 记录最终 mode（reader/browser）"
+      - "未入库（integrity_policy 门 2 拦下）"
+
+  - id: ingest-validate-fail
+    failure_mode: unavailable
+    description: validate_entry.py 不 PASS（front matter 缺字段）→ unavailable
+    arrange:
+      target: { by_url: "https://example.com/abc" }
+      env_mocks: { "front_matter_complete": false, "missing": ["type", "pkos_schema"] }
+    act: validate
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.missing_fields 列出"
+      - "不归档为入库完成"
+      - "3 轮内重试耗尽上抛"
+
+  - id: ingest-io-disk-full
+    failure_mode: unavailable
+    description: 域目录不可写（磁盘满/权限） → unavailable
+    arrange:
+      target: { by_url: "https://example.com/abc" }
+      env_mocks: { "DISK_FREE_BYTES": 0 }
+    act: assemble
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.error_code in ['ENOSPC', 'EACCES']"
+      - "rollback executed: 任何半写文件清理"
+
+  # ----------------- success -----------------
+  - id: ingest-success-l1
+    failure_mode: success
+    description: L1 正常抓取 + 装配 + INDEX 挂载 + validate PASS
+    arrange:
+      target: { by_url: "https://example.com/long-article" }
+      options: { domain: "技术", capture: "reader" }
+    act: extract
+    assert:
+      - "result.artifact.kind == 'entry'"
+      - "result.artifact.schema == 'pkos-schema:1'"
+      - "result.artifact.front_matter.type == 'clipping'"
+      - "result.artifact.front_matter.status == 'triaged' 或 'raw'"
+      - "result.artifact.front_matter.domain == '技术'"
+      - "result.artifact.front_matter.pkos_schema == 1"
+      - "result.artifact.body 长度 ≥ 500 字符"
+      - "result.artifact.body 等于 L1 拉回原文（content_hash 校验一字不动）"
+      - "validate_entry.py PASS"
+      - "对应 INDEX-技术.md 追加了新条目链接"
+      - "_PKOS/manifests/<时间戳>.json 已落盘"
+      - "manifest.success == true 且 mode == 'reader'"
+
+  - id: ingest-success-l2-upgrade
+    failure_mode: success
+    description: L1 残壳 → L2 升级成功（manifest mode=browser）
+    arrange:
+      target: { by_url: "https://spa.example.com/app-article" }
+      env_mocks: { "l1_chars": 120 }
+    act: extract
+    assert:
+      - "degrade_chain.upgrade_triggered == true"
+      - "result.artifact.body 长度 ≥ 500 字符"
+      - "manifest.mode == 'browser'"
+
+  - id: ingest-success-file-channel
+    failure_mode: success
+    description: 本地 PDF/docx 经 intake 分拣单进入 → file_extract 通道
+    arrange:
+      target: { by_manifest_ticket: "ticket-pdf-hash" }
+    act: extract
+    assert:
+      - "result.artifact.kind == 'entry'"
+      - "result.artifact.body 含 <!-- pkos:page N --> 页锚（PDF 通道）"
+      - "validate_entry.py PASS"

@@ -1,0 +1,189 @@
+# 失败三态回归测试 — pkos.knowledge_service.commit
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4 + atomic write + rollback token（D-6 单点裁定收口）
+
+meta:
+  capability: pkos.knowledge_service.commit
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- not_found：目标不存在/无效 -----------------
+  - id: ks-target-missing
+    failure_mode: not_found
+    description: 目标条目路径不存在
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/ghost.md" }
+      options: { from_state: "triaged", to_state: "analyzed" }
+    act: commit
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.path_not_found"
+
+  - id: ks-frontmatter-incomplete
+    failure_mode: not_found
+    description: 目标 front matter 缺关键字段
+    arrange:
+      target: { by_path_pattern: "entries/broken.md" }
+      env_mocks: { "front_matter_complete": false, "missing": ["status", "domain"] }
+    act: commit
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.missing_fields 列出"
+
+  - id: ks-evidence-missing
+    failure_mode: not_found
+    description: commit_evidence 引用的上游产物不存在
+    arrange:
+      target: { by_path_pattern: "entries/x.md" }
+      options: { to_state: "analyzed", commit_evidence: { an: "_PKOS/analysis/AN-ghost.md" } }
+    act: commit
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.evidence_missing"
+
+  # ----------------- ambiguous：状态推进条件不充分 -----------------
+  - id: ks-from-state-mismatch
+    failure_mode: ambiguous
+    description: from_state 与实际 status 不一致（并发冲突）
+    arrange:
+      target: { by_path_pattern: "entries/x.md" }
+      env_mocks: { "actual_status": "polished" }
+      options: { from_state: "analyzed", to_state: "polished" }
+    act: commit
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 提示：状态已被其他 actor 推进"
+
+  - id: ks-skip-state
+    failure_mode: ambiguous
+    description: 跨状态跳过（triaged→polished 跳 analyzed）
+    arrange:
+      target: { by_path_pattern: "entries/x.md" }
+      env_mocks: { "actual_status": "triaged" }
+      options: { from_state: "triaged", to_state: "polished" }
+    act: commit
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列出推荐路径（先跑 analyzed）"
+
+  - id: ks-force-without-audit
+    failure_mode: ambiguous
+    description: force=true 但 audit_trail 不足
+    arrange:
+      target: { by_path_pattern: "entries/x.md" }
+      options: { from_state: "polished", to_state: "triaged", force: true, audit_trail: "short" }   # < 20 字符
+    act: commit
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "evidence.audit_trail_too_short"
+
+  # ----------------- unavailable：atomic 写失败 -----------------
+  - id: ks-atomic-fail
+    failure_mode: unavailable
+    description: atomic 写失败（front matter 部分写入）
+    arrange:
+      target: { by_path_pattern: "entries/x.md" }
+      env_mocks: { "atomic_write_fail_at_step": "modify_status" }
+    act: commit
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "rollback executed: 源条目恢复为 from_state"
+      - "evidence.partial_write_detected"
+      - "无 commit 审计记录落盘（避免污染 audit trail）"
+
+  - id: ks-rollback-fail
+    failure_mode: unavailable
+    description: rollback 失败（备份本身写不下）
+    arrange:
+      target: { by_path_pattern: "entries/x.md" }
+      env_mocks: { "DISK_FREE_BYTES": 0, "atomic_write_fail_at_step": "modify_status" }
+    act: commit
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.rollback_also_failed"
+      - "evidence.partial_state 给出半写入字段"
+      - "alert: 需人工介入修复"
+
+  - id: ks-source-readonly
+    failure_mode: unavailable
+    description: 目标只读（权限）
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/readonly.md" }
+      env_mocks: { "file_acl": "read-only" }
+    act: commit
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.error_code in ['EACCES', 'EROFS']"
+
+  # ----------------- success：含 B1 不回退（gate_1） -----------------
+  - id: ks-success-triaged-to-analyzed
+    failure_mode: success
+    description: 标准推进 triaged → analyzed
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/std.md" }
+      env_mocks: { "actual_status": "triaged" }
+      options: { from_state: "triaged", to_state: "analyzed", commit_evidence: { an: "_PKOS/analysis/AN-x.md" } }
+    act: commit
+    assert:
+      - "atomic write 完成"
+      - "front matter.status: triaged → analyzed"
+      - "rollback_token 生成"
+      - "_PKOS/reports/commits/<时间戳>.json 落盘"
+      - ".commit-backup/ 含原 front matter 备份"
+
+  - id: ks-success-polished-to-routed
+    failure_mode: success
+    description: 推进 polished → routed
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/x.md" }
+      env_mocks: { "actual_status": "polished" }
+      options: { from_state: "polished", to_state: "routed", commit_evidence: { route: "_PKOS/routes/RT-x.yaml" } }
+    act: commit
+    assert:
+      - "atomic 写入完成"
+      - "前置条件：RT-* 落盘校验通过"
+      - "rollback_token 可用"
+
+  - id: ks-success-routed-to-exported
+    failure_mode: success
+    description: 推进 routed → exported（exit 产物落盘后）
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/x.md" }
+      env_mocks: { "actual_status": "routed", "exit_output_exists": true, "integrity_passed": true }
+      options: { from_state: "routed", to_state: "exported", commit_evidence: { exit: "_PKOS/outputs/x.html" } }
+    act: commit
+    assert:
+      - "atomic 写入完成"
+      - "前置条件：exit 产物存在 + integrity_policy 门 2 通过"
+
+  - id: ks-success-b1-no-retrograde
+    failure_mode: success
+    description: B1 强化：默认禁止回退（analyzed→triaged 拒绝）
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/x.md" }
+      env_mocks: { "actual_status": "analyzed" }
+      options: { from_state: "analyzed", to_state: "triaged", force: false }
+    act: commit
+    assert:
+      - "result.v2_failure_mode == 'unavailable'（gate_1_no_retrograde）"
+      - "evidence.rejection == 'gate_1_no_retrograde'"
+      - "atomic 不写入"
+
+  - id: ks-success-b1-force-with-audit
+    failure_mode: success
+    description: B1 例外：force=true + audit_trail 合规 → 允许回退
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/x.md" }
+      env_mocks: { "actual_status": "analyzed" }
+      options:
+        from_state: "analyzed"
+        to_state: "triaged"
+        force: true
+        audit_trail: "POL-2026-08-25-x 评分卡发现计算错误，需重跑 analysis"
+    act: commit
+    assert:
+      - "atomic 写入回退"
+      - "审计记录含完整 audit_trail"
+      - ".commit-backup/ 含 analyzed 状态备份（可再回滚）"

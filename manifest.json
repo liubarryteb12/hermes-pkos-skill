@@ -16,14 +16,14 @@
     { "id": "pkos-polish",   "role": "诊断驱动净化：R1–R20 规则库，改动可追溯，五维评分卡" },
     { "id": "pkos-router",   "role": "纯决策：路由单 YAML（出口 html|ppt · 转化类型四值词表）" },
     { "id": "pkos-html",     "role": "HTML 出口：5 主题注册库（纸墨/夜案/墨线/刊式/光栅），确定性渲染" },
-    { "id": "pkos-ppt",      "role": "PPT 出口 v0.2 出图制：gptimage2 直接生成投屏图，生图前必问比例" },
+    { "id": "pkos-ppt-skill",      "role": "PPT 出口 v0.2 出图制：gptimage2 直接生成投屏图，生图前必问比例" },
     { "id": "pkos-audit",    "role": "全库体检：front matter 覆盖率/孤岛/悬空双链/空壳笔记" },
     { "id": "pkos-timeline", "role": "演化时间线：历次审计 JSON 聚合健康度趋势页" },
     { "id": "pkos-meta",     "role": "元治理（非触发式）：meta_gate 门禁 + 外部接入 SOP" }
   ],
   "external_dependencies": [
     { "name": "gzh-design", "purpose": "公众号排版出口（快路径桥接），未随包分发，需单独安装" },
-    { "name": "567-image-generation", "purpose": "pkos-ppt 生图的图像网关封装，需另行配置密钥" }
+    { "name": "567-image-generation", "purpose": "pkos-ppt-skill 生图的图像网关封装，需另行配置密钥" }
   ],
   "quality_gates": [
     "tests/run_tests.py（19 组契约测试）",

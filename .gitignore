@@ -1,4 +1,15 @@
+# PKOS v3.3.1 — P-04 凭证铁律子仓兜底（round-30）
+# 父仓库 D:\deepseekharness\.gitignore 已列 .env；本文件保证 PKOS 仓库独立发布时凭证仍不入库
+.env
+.env.*
+*.key
+
+# 运行残留
 .tmp/
 __pycache__/
 .staging/
-__pycache__/
+.pytest_cache/
+
+# 知识库本体（vault 不入 git——本仓自 v2 时代即只跟踪代码+契约+测试；
+# 演化快照以 _PKOS/_snapshots/ 目录形式留在两棵工作树中，不进版本库）
+_PKOS/

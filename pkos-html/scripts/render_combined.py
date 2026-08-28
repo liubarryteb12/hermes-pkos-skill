@@ -24,9 +24,11 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "pkos-ppt" / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "pkos-ppt-skill" / "scripts"))
 from render import md_to_body  # noqa: E402
 from render_deck import RUNTIME_JS, parse_slides, render_slide_body  # noqa: E402
+from render import assert_safe_out as _assert_safe_out
+from render import assert_source_unchanged  # noqa: E402
 
 TOGGLE_JS = """
 document.addEventListener('DOMContentLoaded', function () {
@@ -117,8 +119,34 @@ def main(argv=None) -> int:
         "</div>\n<script>" + RUNTIME_JS + TOGGLE_JS + "</script>\n</body>\n</html>\n"
     )
     out = Path(args.out)
+    _assert_safe_out(out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_bytes(doc.encode("utf-8"))
+
+    # v3.0 [MAX_RETRY + Self-check A]
+    import hashlib as _h
+    art_path = Path(args.article)
+    pre_hash = _h.sha256(art_path.read_bytes()).hexdigest()
+
+    from render import MAX_RETRY
+    write_retry = 0
+    written = False
+    while write_retry < MAX_RETRY and not written:
+        try:
+            out.write_bytes(doc.encode("utf-8"))
+            written = True
+        except OSError as e:
+            write_retry += 1
+            print(f"WARN: write failed (retry {write_retry}/{MAX_RETRY}) {out}: {e}", file=sys.stderr)
+            if write_retry >= MAX_RETRY:
+                fallback = out.with_suffix(".fallback.md")
+                _assert_safe_out(fallback)
+                fallback.write_text(Path(args.article).read_text(encoding="utf-8"), encoding="utf-8")
+                assert_source_unchanged(art_path, pre_hash)
+                print(json.dumps({"out": str(fallback), "bytes": len(doc.encode("utf-8")),
+                                  "degraded": True, "fallback_reason": f"OSError x{MAX_RETRY}",
+                                  "notes_all_ok": not bad, "notes_report": report}, ensure_ascii=True))
+                return 0
+    assert_source_unchanged(art_path, pre_hash)
     bad = [r for r in report if not r["notes_ok"]]
     print(json.dumps({"out": str(out), "bytes": len(doc.encode("utf-8")),
                       "notes_all_ok": not bad, "notes_report": report}, ensure_ascii=True))

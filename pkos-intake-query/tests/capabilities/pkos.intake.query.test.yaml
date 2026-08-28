@@ -1,0 +1,145 @@
+# 失败三态回归测试 — pkos.intake.query
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4：v0 无 query 能力，本轮全新实现
+
+meta:
+  capability: pkos.intake.query
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- not_found -----------------
+  - id: query-no-master-index
+    failure_mode: not_found
+    description: MASTER_INDEX.json 缺失
+    arrange:
+      query: "认知偏差如何影响决策？"
+      env_mocks: { "master_index_json_exists": false }
+    act: query
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.recommendation == '先跑 pkos.maintenance.index'"
+
+  - id: query-zero-relevant
+    failure_mode: not_found
+    description: max_relevant 0 条（库内零相关）
+    arrange:
+      query: "占星学的最新发展"
+      env_mocks: { "relevant_count": 0 }
+    act: query
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.recommendation in ['跑 ingest 入库相关条目', '扩展 tag']"
+
+  - id: query-no-hit-in-index
+    failure_mode: not_found
+    description: query 词在 INDEX 内零命中
+    arrange:
+      query: "高维拓扑学在某领域应用"
+      env_mocks: { "index_hit_count": 0 }
+    act: query
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+
+  # ----------------- ambiguous -----------------
+  - id: query-multi-meaning
+    failure_mode: ambiguous
+    description: query 词多义
+    arrange:
+      query: "模型"
+      env_mocks: { "index_multi_meaning_count": 3 }
+    act: query
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列 3 候选（数学模型/AI 模型/心理模型）"
+
+  - id: query-max-relevant-touched
+    failure_mode: ambiguous
+    description: max_relevant 触顶
+    arrange:
+      query: "通用概念"
+      options: { max_relevant: 5 }
+      env_mocks: { "index_hit_count": 25 }
+    act: query
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列 '命中 25 / max 5' + 推荐"
+
+  # ----------------- unavailable -----------------
+  - id: query-provider-all-fail
+    failure_mode: unavailable
+    description: provider-policy 三档全失败
+    arrange:
+      query: "通用查询"
+      env_mocks:
+        "hy3_429": true
+        "m21_5xx": true
+        "self_degrade_fail": true
+    act: query
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.provider_errors 列出三档"
+
+  - id: query-index-parse-fail
+    failure_mode: unavailable
+    description: INDEX 解析失败
+    arrange:
+      query: "通用查询"
+      env_mocks: { "master_index_json_invalid": true }
+    act: query
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.json_parse_error"
+
+  - id: query-safety-reject
+    failure_mode: not_found
+    description: LLM safety 拒绝（v0 锁死：不绕过审核）
+    arrange:
+      query: "如何绕过登录"
+      env_mocks: { "llm_safety_reject": true }
+    act: query
+    assert:
+      - "result.v2_failure_mode == 'not_found'（safety 拒绝不回退，v0 铁律）"
+
+  # ----------------- success -----------------
+  - id: query-success-standard
+    failure_mode: success
+    description: 标准 query 成功
+    arrange:
+      query: "认知偏差如何影响决策？"
+      options: { max_relevant: 5, include_fanout: true }
+      env_mocks:
+        "index_hit_count": 8
+        "fanout_relevant_count": 3
+    act: query
+    assert:
+      - "_PKOS/queries/<时间戳>-slug.md 落盘"
+      - "_PKOS/queries/<时间戳>-slug.json 落盘"
+      - "relevant_entries ≤ 5（max_relevant 限）"
+      - "每条含 path/score/snippet"
+      - "fanout_relations 含 3 条"
+      - "llm_answer 含 citations 引用源"
+
+  - id: query-success-no-fanout
+    failure_mode: success
+    description: include_fanout=false → 仅用 INDEX
+    arrange:
+      query: "通用查询"
+      options: { include_fanout: false }
+    act: query
+    assert:
+      - "fanout_relations = []（不消费扇出图）"
+      - "INDEX-only 检索"
+
+  - id: query-success-no-auto-commit
+    failure_mode: success
+    description: query 答案**不**自动 commit / ingest
+    arrange:
+      query: "通用查询"
+    act: query
+    assert:
+      - "答案落盘 _PKOS/queries/"
+      - "**无** knowledge_service.commit 调用"
+      - "**无** ingest.extract 调用"
+      - "需用户手动决定是否入库"

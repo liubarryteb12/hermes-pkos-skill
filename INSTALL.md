@@ -17,7 +17,7 @@
    ```
 2. 重启会话使新技能进入目录。
 3. （可选）安装外部依赖：
-   - `pkos-ppt` 出图需要图像网关封装（如 567-image-generation）与 API key；
+   - `pkos-ppt-skill` 出图需要图像网关封装（如 567-image-generation）与 API key；
    - 公众号出口需要 `gzh-design` 技能（本包不含）。
 
 ## 快速开始

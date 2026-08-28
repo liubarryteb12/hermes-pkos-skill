@@ -1,0 +1,206 @@
+# 失败三态回归测试 — pkos.exit.ppt.compose
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4：v0 比例三选一/不混装/兜底行为的失败三态拆解
+# 关键：degraded_success 状态（v0 兜底路径不视为 failure）
+
+meta:
+  capability: pkos.exit.ppt.compose
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- not_found：v0 拒绝执行条件命中 -----------------
+  - id: ppt-reject-exit-not-ppt
+    failure_mode: not_found
+    description: 路由单 exit≠ppt → 拒绝执行（v0 锁死：本单元只消费 exit=ppt）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-html.yaml" }
+      env_mocks: { "rt_exit": "html" }
+    act: compose
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.rejection == 'v0 锁死：本单元只消费 exit=ppt'"
+
+  - id: ppt-reject-conversion-type
+    failure_mode: not_found
+    description: conversion_type 不在'实战操作指南'承接子集
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-wrong.yaml" }
+      env_mocks: { "rt_conversion_type": "wiki百科条目" }
+    act: compose
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.ppt_accepts == ['实战操作指南']"
+
+  - id: ppt-reject-status-early
+    failure_mode: not_found
+    description: 源 status 早于 analyzed
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-st.yaml" }
+      env_mocks: { "source_status": "triaged" }
+    act: compose
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+
+  - id: ppt-reject-source-missing
+    failure_mode: not_found
+    description: 路由单引用 POL-* 路径不存在
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-stale.yaml" }
+      env_mocks: { "pol_exists": false }
+    act: compose
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+
+  - id: ppt-reject-html-deck-mix
+    failure_mode: not_found
+    description: v0 锁死：ppt 不出网页版 deck（两出口不混装）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-x.yaml" }
+      env_mocks: { "user_requested_html_deck": true }
+    act: compose
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.rejection == 'v0 锁死：两出口不混装'"
+
+  # ----------------- ambiguous：v0 比例三选一未确认 -----------------
+  - id: ppt-ambiguous-ratio
+    failure_mode: ambiguous
+    description: ratio=null 且未问清用户（v0 铁律：不得默认横版）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-std.yaml" }
+      options: { ratio: null, auto_mode: false }
+    act: compose
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列出三选一：16:9 / 4:3 / 3:4（v0 锁死：独立确认，不打包）"
+      - "不默认横版（v0 强约束）"
+
+  - id: ppt-ambiguous-slides
+    failure_mode: ambiguous
+    description: slides=null 且无法从 polished 自动决
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-mix.yaml" }
+      options: { slides: null, auto_mode: false }
+      env_mocks: { "polished_content_ambiguous_slides": true }
+    act: compose
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列候选页数（5/7/10）"
+
+  - id: ppt-ambiguous-no-pack
+    failure_mode: ambiguous
+    description: v0 强约束：受众/风格/比例/张数——一次问完但每项独立确认
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-multi.yaml" }
+      options: { auto_mode: false }
+    act: compose
+    assert:
+      - "decision_card 不含单一 boolean"
+      - "4 项独立列出（受众/风格/比例/张数）+ 推荐 + 理由"
+
+  # ----------------- unavailable：provider/技术不可达 -----------------
+  - id: ppt-provider-unauthorized-swap
+    failure_mode: unavailable
+    description: v0 铁律：擅自换 provider → 拒绝执行
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-x.yaml" }
+      options: { provider: "alternative-image-api" }   # 不在 manifest 声明
+    act: compose
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.rejection == 'v0 铁律：provider 走 manifest 声明'"
+
+  - id: ppt-ratio-rejected-no-retry
+    failure_mode: unavailable
+    description: 网关拒绝该尺寸（v0 锁死：如实报告，不擅自换比例重试）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-3-4.yaml" }
+      options: { ratio: "3:4" }
+      env_mocks: { "gateway_rejects": ["1024x1536"] }
+    act: compose
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.rejection == 'v0 锁死：不擅自换比例重试'"
+      - "evidence.rejected_size 给出被拒尺寸"
+      - "不在内部静默换 ratio"
+
+  - id: ppt-image-api-down-no-prompt
+    failure_mode: unavailable
+    description: image_api 不可用 + prompt 清单也未生成（v0 兜底未生效）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-fail.yaml" }
+      env_mocks: { "image_api_unavailable": true, "prompt_generation_failed": true }
+    act: compose
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "无任何产物落盘"
+
+  - id: ppt-io-disk-full
+    failure_mode: unavailable
+    description: outputs 目录不可写
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-w.yaml" }
+      env_mocks: { "DISK_FREE_BYTES": 0 }
+    act: compose
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+
+  # ----------------- degraded_success：v0 兜底路径（不算 failure） -----------------
+  - id: ppt-degraded-image-api-down-prompt-delivered
+    failure_mode: degraded_success
+    description: image_api 不可用 + prompt 清单已交付 → degraded_success（v0 行为锁死：宁要无图完整方案）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-20260823-002.yaml" }
+      env_mocks: { "image_api_unavailable": true, "prompt_generation_ok": true }
+    act: compose
+    assert:
+      - "result.v2_failure_mode == 'degraded_success'（v2 引入此第四态）"
+      - "result.status == 'success_with_degradation'（不是 failure）"
+      - "manifest.degraded == true"
+      - "prompt 清单完整（每张 slide 的 prompt 原文可重放）"
+      - "占位说明文件就位"
+      - "无图但有完整方案（v0 锁死：不编造替代品）"
+      - "**不算 unavailable**——v0 行为锁死解读"
+
+  # ----------------- success -----------------
+  - id: ppt-success-7-slides-16-9
+    failure_mode: success
+    description: 7 张 16:9 出图成功（v0 实录 2026-08-23）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-20260823-002.yaml" }
+      options: { ratio: "16:9", slides: 7 }
+    act: compose
+    assert:
+      - "_PKOS/outputs/RT-20260823-002-deck-images/ 就位"
+      - "7 张 slide-*.png 生成"
+      - "manifest.json 7 行齐全（slide/prompt/provider/size/ratio/file 五键）"
+      - "size 全部为 1536x1024（v0 锁死网关已验证尺寸）"
+      - "provider=image-api:567-image-generation（v0 铁律）"
+      - "manifest.degraded == false"
+      - "每张图 hash 写入前后一致"
+
+  - id: ppt-success-mixed-ratio
+    failure_mode: success
+    description: 同批 deck 比例可混用（v0 锁死：逐页 manifest 留 ratio）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-mix.yaml" }
+      options: { slides: 5 }
+      env_mocks: { "ratios": ["16:9", "16:9", "4:3", "4:3", "3:4"] }
+    act: compose
+    assert:
+      - "5 张图生成（每张 ratio 与 manifest 对应）"
+      - "不强行统一比例（v0 锁死）"
+
+  - id: ppt-success-auto-mode-decision-trail
+    failure_mode: success
+    description: auto_mode=true → 答案取自路由单并 manifest 留痕（v0 锁死：逃生口代价）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-auto.yaml" }
+      options: { auto_mode: true, ratio: null }
+      env_mocks: { "rt_inferred_ratio": "16:9" }
+    act: compose
+    assert:
+      - "出图按 16:9（auto 决策）"
+      - "manifest 含 decision_note（决策来源 = 路由单字段 X）"

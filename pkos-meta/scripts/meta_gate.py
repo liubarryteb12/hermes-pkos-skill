@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""meta_gate —— 触发评测最小四件套：validate / boundary_check / trigger_eval / optimize。
+"""meta_gate —— 触发评测门禁，实际提供三个模式：validate / triggers / all。
 
 用法：
-  python meta_gate.py validate      # front matter + 预算 + 边界标记
-  python meta_gate.py triggers      # 正例命中 + 近失负例不误触
+  python meta_gate.py validate      # front matter + 预算 + 边界标记 + registry 一致性
+  python meta_gate.py triggers      # 正例命中 + 近失负例不误触（附 [optimize:*] 建议，非独立模式）
   python meta_gate.py all           # 以上全部
 退出码：0 全过；1 有 FAIL。
 """

@@ -1,0 +1,232 @@
+# 失败三态回归测试 — pkos.polish.refine
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4 + integrity_policy 门 1+门 2 强约束
+# 关键：B1（空 POL 覆盖） + B2（截断/缩水）实战根治点
+
+meta:
+  capability: pkos.polish.refine
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- not_found：无可执行净化 -----------------
+  - id: polish-zero-finding
+    failure_mode: not_found
+    description: 上游 AN 零发现 → 无可执行净化 → 不产出 POL
+    arrange:
+      target: { by_an_artifact: "_PKOS/analysis/AN-zero.md" }
+      env_mocks: { "an_findings": [] }
+    act: refine
+    assert:
+      - "POL-* 不落盘"
+      - "result.v2_failure_mode == 'not_found'"
+      - "AN 已落盘作为'零发现'证据"
+      - "源 front matter 仍保持 status=analyzed（不写 polished）"
+
+  - id: polish-all-structural
+    failure_mode: not_found
+    description: 所有发现为'结构性'（v0 锁死：不可修）
+    arrange:
+      target: { by_an_artifact: "_PKOS/analysis/AN-structural.md" }
+      env_mocks:
+        "an_findings":
+          - { repairable: false, kind: "structural", evidence: "...", intent: "...", action: "..." }
+    act: refine
+    assert:
+      - "POL-* 不落盘"
+      - "result.v2_failure_mode == 'not_found'"
+
+  # ----------------- ambiguous：场景/规则不决 -----------------
+  - id: polish-scenario-unclear
+    failure_mode: ambiguous
+    description: 源条目既不像科普也不像学术，scenario 自动判失败
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/mystery.md" }
+      env_mocks: { "auto_scenario": "ambiguous" }
+    act: refine
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列候选场景"
+      - "等用户指定"
+
+  - id: polish-source-not-analyzed
+    failure_mode: ambiguous
+    description: 源条目 front matter 缺 status=analyzed（analysis 未跑过）
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/no-an.md" }
+      env_mocks: { "front_matter_status": "triaged" }
+    act: refine
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 提示：先跑 analysis"
+
+  # ----------------- unavailable：R30 耗尽 / 完整性不达（B1+B2 根治点） -----------------
+  - id: polish-r30-exhausted
+    failure_mode: unavailable
+    description: R30 惩罚性回炉 3 轮后仍 < 35 → 上抛不交付
+    arrange:
+      target: { by_an_artifact: "_PKOS/analysis/AN-hard.md" }
+      options: { max_reanalyze_rounds: 3 }
+      env_mocks:
+        "round_1_score": 28
+        "round_2_score": 30
+        "round_3_score": 32
+    act: refine
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "r30_attempts == 3"
+      - "evidence 每轮 R29 实测 + 评分"
+      - "未产出 POL（integrity_policy 门 2 拦下）"
+      - "不写入 .rejected/（不达不归档）"
+
+  - id: polish-r29-shrink
+    failure_mode: unavailable
+    description: 缩水式精简 r < 0.5 → 精炼度直接判 0 → R30 回炉
+    arrange:
+      target: { by_an_artifact: "_PKOS/analysis/AN-shrink.md" }
+      env_mocks:
+        "N_base": 4000
+        "N_pol": 1500    # r = 0.375 < 0.5
+        "c": 0.95
+    act: refine
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "polish_scorecard.refinement == 0（按 v0 ACY-5 锁死）"
+      - "total_score < 35"
+      - "进入 R30 惩罚性回炉"
+
+  - id: polish-r29-missing-measure
+    failure_mode: unavailable
+    description: 评分卡缺 R29 实测四值 → 视为未完成评分
+    arrange:
+      target: { by_an_artifact: "_PKOS/analysis/AN-x.md" }
+      env_mocks: { "scorecard_has_r29": false }
+    act: refine
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.missing_evidence == 'N_base/N_pol/r/c'"
+
+  - id: polish-b1-retrograde-attempt
+    failure_mode: unavailable
+    description: B1 根治：尝试用空 POL 覆盖既有 4000 字节好 POL → 拒绝 + .rejected 旁路
+    arrange:
+      target: { by_an_artifact: "_PKOS/analysis/AN-b1.md" }
+      env_mocks:
+        "existing_pol_bytes": 4000
+        "new_pol_bytes": 100   # < 200 字符下限
+        "new_pol_score": 8
+    act: refine
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "integrity_gate_1_passed == false"
+      - "原 POL-* 完整保留"
+      - "新 POL 落 _PKOS/analysis/.rejected/POL-<slug>-<时间戳>.md 留证"
+      - "evidence.rejection_reason == 'gate_1_no_retrograde'"
+
+  - id: polish-b1-lower-score
+    failure_mode: unavailable
+    description: B1 根治：评分卡总分低于既有 POL → 拒绝覆盖
+    arrange:
+      target: { by_an_artifact: "_PKOS/analysis/AN-b1b.md" }
+      env_mocks:
+        "existing_pol_score": 42
+        "new_pol_score": 30   # < 35
+        "new_pol_bytes": 3500
+    act: refine
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "integrity_gate_1_passed == false"
+      - "evidence.rejection_reason == 'gate_1_score_regression'"
+
+  - id: polish-b2-truncation
+    failure_mode: unavailable
+    description: B2 根治：截断/残篇 POL 首次落盘 → 完整性门槛拦下
+    arrange:
+      target: { by_an_artifact: "_PKOS/analysis/AN-b2.md" }
+      env_mocks:
+        "N_pol": 117
+        "N_base": 4000
+        "r": 0.029
+    act: refine
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "integrity_gate_2_passed == false"
+      - "未落盘（不写残篇入 .rejected/，连留证都拒绝）"
+      - "重试边界：3 轮 R30 耗尽后 abort"
+
+  - id: polish-source-unreadable
+    failure_mode: unavailable
+    description: 源条目 IO 故障
+    arrange:
+      target: { by_path_pattern: "entries/locked.md" }
+      env_mocks: { "dir_acl": "deny-read" }
+    act: refine
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.traceback != null"
+
+  # ----------------- success：含 B1 幂等保护 -----------------
+  - id: polish-success-standard
+    failure_mode: success
+    description: 标准成功 → POL 落盘 + 源 front matter 追加 + 评分卡全过
+    arrange:
+      target: { by_an_artifact: "_PKOS/analysis/AN-std.md" }
+      env_mocks:
+        "score_total": 42
+        "r": 0.85
+        "c": 0.95
+        "N_base": 4000
+        "N_pol": 3400
+    act: refine
+    assert:
+      - "POL-* 落盘，front_matter.status=polished 唯一写入"
+      - "五维评分卡 ≥ 35"
+      - "R29 实测四值齐全（`4000/3400/0.85/0.95`）"
+      - "Quick Checks 17 项全过"
+      - "双向失败模型双检双答"
+      - "源 front matter 仅追加 status=polished（diff 证明）"
+      - "更改摘要 diff 可审计（每行位置+模式编号+before→after）"
+
+  - id: polish-success-b1-idempotent
+    failure_mode: success
+    description: B1 幂等保护：差异 < 5% 重复生成 → 不覆盖（不浪费写盘）
+    arrange:
+      target: { by_an_artifact: "_PKOS/analysis/AN-idem.md" }
+      env_mocks:
+        "existing_pol_score": 42
+        "new_pol_score": 43   # 差异 < 5%
+        "new_pol_bytes_diff_pct": 2.1
+    act: refine
+    assert:
+      - "result.status == 'success'"
+      - "但实际无写盘动作（幂等保护触发）"
+      - "evidence.idempotent_skip == true"
+
+  - id: polish-success-b1-strictly-better
+    failure_mode: success
+    description: B1 严格更优：新稿正文 ≥ 旧 + 评分 ≥ 旧 → 允许覆盖
+    arrange:
+      target: { by_an_artifact: "_PKOS/analysis/AN-b1ok.md" }
+      env_mocks:
+        "existing_pol_score": 40
+        "new_pol_score": 45
+        "new_pol_bytes": 5000
+    act: refine
+    assert:
+      - "POL-* 覆盖既有"
+      - "integrity_gate_1_passed == true"
+      - "审计 trail：旧 POL 备份到 .rejected/POL-<slug>-<prev时间戳>.md"
+
+  - id: polish-success-scenario-public-account
+    failure_mode: success
+    description: 公众号场景 → R32-R40 板块规则族叠加
+    arrange:
+      target: { by_an_artifact: "_PKOS/analysis/AN-gzh.md" }
+      options: { scenario: "公众号-板块一" }
+    act: refine
+    assert:
+      - "scorecard.contains_R32_through_R40 == true"
+      - "Quick Checks 板块项全过（成果预览/极简实战/避坑CheckList/资源获取）"
+      - "开头 3 句具体痛点/冲突/悬念（R33）"
+      - "结尾 CTA 针对板块目标（R34）"

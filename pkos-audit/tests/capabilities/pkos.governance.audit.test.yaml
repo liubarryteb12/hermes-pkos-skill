@@ -1,0 +1,141 @@
+# 失败三态回归测试 — pkos.governance.audit
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4：v0 audit 行为完全锁死，v2 仅加三态解释层
+
+meta:
+  capability: pkos.governance.audit
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- not_found -----------------
+  - id: audit-target-missing
+    failure_mode: not_found
+    description: 目标路径不存在
+    arrange:
+      target: { by_path_pattern: "D:\\ghost-vault/**" }
+    act: audit
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+
+  - id: audit-no-pkos-config
+    failure_mode: not_found
+    description: _PKOS/config.json 不存在（库未初始化）
+    arrange:
+      target: { by_path_pattern: "D:\\tmp\\vault/**" }
+      env_mocks: { "_PKOS_config_exists": false }
+    act: audit
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.recommendation == '先跑 pkos.governance.bootstrap'"
+
+  # ----------------- ambiguous -----------------
+  - id: audit-first-run-baseline-decision
+    failure_mode: ambiguous
+    description: prev 缺失且首次跑（建基线 vs 报告基线决策点）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { prev: null }
+    act: audit
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列建基线 vs 报告基线 + 推荐（首次建基线）"
+
+  - id: audit-blindspot-vague
+    failure_mode: ambiguous
+    description: blindspot 模糊
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { blindspot: "?" }
+    act: audit
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+
+  # ----------------- unavailable -----------------
+  - id: audit-fm-parse-fail
+    failure_mode: unavailable
+    description: audit.py 脚本崩溃
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      env_mocks: { "front_matter_parse_fail": "entries/<domain>/broken.md" }
+    act: audit
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.parse_error 给出受影响文件"
+
+  - id: audit-vault-unreadable
+    failure_mode: unavailable
+    description: vault 不可读
+    arrange:
+      target: { by_path_pattern: "D:\\locked-vault/**" }
+      env_mocks: { "dir_acl": "deny-read" }
+    act: audit
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+
+  - id: audit-outdir-not-writable
+    failure_mode: unavailable
+    description: outdir 不可写
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { outdir: "D:\\readonly\\reports" }
+      env_mocks: { "outdir_acl": "read-only" }
+    act: audit
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+
+  # ----------------- success -----------------
+  - id: audit-success-first-baseline
+    failure_mode: success
+    description: 首次跑（建基线）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { prev: null }
+    act: audit
+    assert:
+      - "<outdir>/YYYY-MM-DD_audit.md 落盘"
+      - "<outdir>/YYYY-MM-DD_audit.json 落盘"
+      - "json.valid == true"
+      - "基线模式：标记为 baseline（无 diff 段）"
+
+  - id: audit-success-with-diff
+    failure_mode: success
+    description: 二次跑（基线 diff）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { prev: "_PKOS/reports/audit/prev.json" }
+    act: audit
+    assert:
+      - "报告含 diff 段（vs prev）"
+      - "基线 diff 模式：列变化项"
+
+  - id: audit-success-blindspots-append
+    failure_mode: success
+    description: blindspots.md 仅追加
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { blindspot: "新增轮次内容未及时 commit" }
+    act: audit
+    assert:
+      - "blindspots.md 新增一条（**仅追加**，v0 锁死）"
+      - "历史行不删不改"
+
+  - id: audit-success-no-modify-source
+    failure_mode: success
+    description: v0 锁死：不改源文件
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+    act: audit
+    assert:
+      - "vault 内所有文件 hash 前后一致（**不改源**）"
+
+  - id: audit-success-published-zero-ok
+    failure_mode: success
+    description: published 分布恒为 0（v0 锁死预期非故障）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      env_mocks: { "by_status.published": 0 }
+    act: audit
+    assert:
+      - "不告警（v0 锁死：published 0 是预期）"

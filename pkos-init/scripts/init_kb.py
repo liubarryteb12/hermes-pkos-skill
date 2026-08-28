@@ -34,7 +34,7 @@ def load_enabled_units() -> list[str]:
         data = json.loads(reg.read_text(encoding="utf-8"))
         ids = [u["id"] for u in data.get("units", []) if u.get("status") == "registered"]
         return ids or ["pkos-intake", "pkos-ingest", "pkos-analysis", "pkos-polish",
-                       "pkos-router", "pkos-html", "pkos-ppt", "pkos-audit",
+                       "pkos-router", "pkos-html", "pkos-ppt-skill", "pkos-audit",
                        "pkos-timeline", "pkos-init"]
     except (OSError, json.JSONDecodeError, KeyError):
         return []
@@ -76,7 +76,7 @@ README_HEAD = """# _PKOS —— 个人知识库工作区
 | manifests/ | ingest/intake 运行清单存档 | pkos-ingest / pkos-intake |
 | analysis/ | 分析产物（发现表等） | pkos-analysis |
 | routes/ | 路由单 YAML 存档（RT-*.yaml） | pkos-router |
-| outputs/ | 出口交付物（HTML/PPT 图组，按 route-id 归档） | pkos-html / pkos-ppt |
+| outputs/ | 出口交付物（HTML/PPT 图组，按 route-id 归档） | pkos-html / pkos-ppt-skill |
 | reports/ | 审计报告 JSON + 健康度时间线 | pkos-audit / pkos-timeline |
 
 ## 条目组织（当前模式：{mode_label}）

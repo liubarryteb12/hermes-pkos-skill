@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pkos-gzhxiaoshuo-skill-chapter:1",
+  "title": "PKOS 小说章节结构化契约",
+  "description": "pkos.exit.gzhxiaoshuo.compose 的机读产物 Schema。每章一个顶层对象；scenes 数组为原子化复用单元，被 comic/storyboard/video-script/json-canvas 直接消费。",
+  "type": "object",
+  "required": ["title", "chapter_index", "summary", "entities", "scenes", "plot_hooks", "meta"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "PKOS 元数据层：用于溯源、Hash 断言、类型守卫",
+      "required": ["type", "schema_version", "derived_from_fact_core", "generated_at"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "derived_draft"
+        },
+        "schema_version": {
+          "type": "string",
+          "const": "pkos-gzhxiaoshuo-skill-chapter:1"
+        },
+        "derived_from_fact_core": {
+          "type": "string",
+          "description": "对应 FactCore 条目的 SHA256 前 16 位或完整路径",
+          "pattern": "^[a-f0-9]{6,64}$"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "route_id": {
+          "type": "string",
+          "description": "来源 RT-* 路由单 ID",
+          "pattern": "^RT-\\d{8}-\\w{3}$"
+        },
+        "persona": {
+          "type": "string",
+          "enum": ["hard_scifi", "serious_drama", "suspense", "urban", "fantasy", "null"],
+          "description": "v3.1 Persona 矩阵中属于 storyteller 分支的子类"
+        },
+        "degraded": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "title": {
+      "type": "string",
+      "description": "章节标题，人读用",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "chapter_index": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "第几章（1-based）"
+    },
+    "summary": {
+      "type": "string",
+      "description": "本章剧情核心梗概，50 字以内",
+      "minLength": 5,
+      "maxLength": 80
+    },
+    "entities": {
+      "type": "object",
+      "description": "本章节出场实体网络，供下游 json-canvas / mermaid 解析",
+      "additionalProperties": false,
+      "properties": {
+        "characters": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^\\[\\[.+\\]\\]$" },
+          "description": "双链格式角色名列表，例如 [[林舟]]"
+        },
+        "locations": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^\\[\\[.+\\]\\]$" },
+          "description": "双链格式地点列表"
+        },
+        "props": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^\\[\\[.+\\]\\]$" },
+          "description": "双链格式道具/物品列表"
+        },
+        "factions": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^\\[\\[.+\\]\\]$" },
+          "description": "双链格式阵营/组织列表（可选）"
+        }
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "description": "场景分镜层：原子化复用单元，每格可独立被 comic/video-script 消费",
+      "items": {
+        "type": "object",
+        "required": ["scene_id", "time_location", "atmosphere", "paragraphs"],
+        "additionalProperties": false,
+        "properties": {
+          "scene_id": {
+            "type": "string",
+            "description": "场景唯一 ID，格式 SC_NNN",
+            "pattern": "^SC_\\d{3}$"
+          },
+          "time_location": {
+            "type": "string",
+            "description": "时间 + 地点标签，如 '深夜 / 废弃实验室内'",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "visual_anchor": {
+            "type": "string",
+            "description": "视觉锚点（可选）：画面核心构图描述，供漫画 Skill 提取分镜提示词",
+            "maxLength": 200
+          },
+          "atmosphere": {
+            "type": "string",
+            "description": "情绪氛围关键词，逗号分隔，如 '压抑、紧张、悬疑'",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "paragraphs": {
+            "type": "array",
+            "minItems": 1,
+            "description": "段落列表，含 narrative / dialogue / action 三种类型",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": ["type", "content"],
+                  "properties": {
+                    "type": { "const": "narrative" },
+                    "content": { "type": "string", "minLength": 1 }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": ["type", "speaker", "content"],
+                  "properties": {
+                    "type": { "const": "dialogue" },
+                    "speaker": { "type": "string", "pattern": "^\\[\\[.+\\]\\]$" },
+                    "expression": { "type": "string", "maxLength": 30 },
+                    "content": { "type": "string", "minLength": 1 }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": ["type", "content"],
+                  "properties": {
+                    "type": { "const": "action" },
+                    "content": { "type": "string", "minLength": 1 }
+                  }
+                }
+              ]
+            }
+          },
+          "downstream_hints": {
+            "type": "object",
+            "description": "下游 Skill 消费提示（可选）：各通道独立给出建议，互不覆盖",
+            "additionalProperties": false,
+            "properties": {
+              "comic_panel_desc": {
+                "type": "string",
+                "description": "漫画分镜描述（给 pkos.exit.comic.compose 使用）",
+                "maxLength": 200
+              },
+              "video_camera_move": {
+                "type": "string",
+                "description": "短视频运镜指令（给 video-script Skill 使用）",
+                "maxLength": 100
+              },
+              "video_shot_type": {
+                "type": "string",
+                "enum": ["close-up", "medium-shot", "wide-shot", "extreme-close-up", "over-shoulder", "bird-eye", "tracking"],
+                "description": "镜头类型（给 video-script 使用）"
+              },
+              "audio_bgm": {
+                "type": "string",
+                "description": "背景音乐/音效建议（给 video-script 使用）",
+                "maxLength": 80
+              },
+              "canvas_node_desc": {
+                "type": "string",
+                "description": "json-canvas / mermaid 节点描述（给可视化图谱 Skill 使用）",
+                "maxLength": 150
+              },
+              "mermaid_link_type": {
+                "type": "string",
+                "enum": ["relation", "conflict", "dependency", "causality"],
+                "description": "节点间关系类型（给 mermaid 图谱使用）"
+              },
+              "html_reader_anchor": {
+                "type": "string",
+                "description": "html-reader 锚点 ID，用于章节内跳转（可选）",
+                "maxLength": 50
+              }
+            }
+          }
+        }
+      }
+    },
+    "plot_hooks": {
+      "type": "array",
+      "description": "伏笔网络：未解悬念列表，供长线剧情连续性校验",
+      "items": {
+        "type": "object",
+        "required": ["hook", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "hook": { "type": "string", "minLength": 1 },
+          "status": {
+            "type": "string",
+            "enum": ["open", "tended", "resolved"],
+            "description": "open=待回收；tended=已埋下但未完全揭示；resolved=已回收"
+          },
+          "expected_resolution_chapter": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "预期回收章节（可选，供长线规划）"
+          }
+        }
+      }
+    },
+    "character_arcs": {
+      "type": "array",
+      "description": "角色弧线追踪（可选，长线剧情专用）",
+      "items": {
+        "type": "object",
+        "required": ["character", "state_before", "state_after"],
+        "properties": {
+          "character": { "type": "string", "pattern": "^\\[\\[.+\\]\\]$" },
+          "state_before": { "type": "string", "maxLength": 60 },
+          "state_after": { "type": "string", "maxLength": 60 },
+          "change_type": {
+            "type": "string",
+            "enum": ["decision", "revelation", "loss", "gain", "shift"]
+          }
+        }
+      }
+    },
+    "human_readable_body": {
+      "type": "string",
+      "description": "供人类直接阅读的高表现力连贯正文（Markdown 格式）。结构层与叙事层分离：JSON 字段给下游机器消费，此字段给人读。",
+      "minLength": 100
+    }
+  },
+  "validation_rules": {
+    "scene_id_unique": "scenes[].scene_id 必须全局唯一",
+    "wikilink_format": "entities 所有字段值必须匹配 [[^\\s]+\\]\\] 格式",
+    "downstream_not_mutual_exclusive": "downstream_hints 各字段可共存，不互斥",
+    "hook_status_transition": "plot_hooks[].status=open 时，expected_resolution_chapter 如有则 >= chapter_index"
+  }
+}

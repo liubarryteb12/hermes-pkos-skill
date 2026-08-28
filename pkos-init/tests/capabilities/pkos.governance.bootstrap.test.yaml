@@ -1,0 +1,113 @@
+# 失败三态回归测试 — pkos.governance.bootstrap
+# Schema: pkos-test:1
+# 本测试集对应 v2 契约 C-5 verification.regression_tests
+# 用例结构遵循 AAA (Arrange-Act-Assert) + 失败三态分桶
+
+meta:
+  capability: pkos.governance.bootstrap
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- 用例 1: not_found -----------------
+  - id: bootstrap-not-found-target
+    failure_mode: not_found
+    description: 目标路径不存在且未允许自动创建 → 触发 not_found
+    arrange:
+      target:
+        by_path_pattern: "D:\\tmp\\non-existent-path-xyz"
+        by_must_exist: true
+      options: { mode: null, force: false, dry_run: false }
+    act: invoke_capability
+    assert:
+      - "result.status == 'failed'"
+      - "result.failure_mode == 'not_found'"
+      - "result.evidence.path_checked == 'D:\\tmp\\non-existent-path-xyz'"
+      - "result.caller_action in ['ask_user', 'report']"
+      - "result.recovery_hint contains '确认路径'"
+      - "no _PKOS/ directory created on disk"
+
+  # ----------------- 用例 2: ambiguous -----------------
+  - id: bootstrap-ambiguous-existing-config
+    failure_mode: ambiguous
+    description: _PKOS/config.json 已存在且 force=false → 触发 ambiguous
+    preconditions:
+      - "D:\\tmp\\existing-kb\\_PKOS\\config.json 存在且 schema=pkos-config:1"
+    arrange:
+      target:
+        by_path_pattern: "D:\\tmp\\existing-kb"
+        by_must_exist: true
+      options: { mode: moc, force: false, dry_run: false }
+    act: invoke_capability
+    assert:
+      - "result.status == 'suspended'"
+      - "result.failure_mode == 'ambiguous'"
+      - "result.evidence.existing_config.mode != null"
+      - "result.evidence.user_specified_mode == 'moc'"
+      - "result.decision_card != null"
+      - "result.decision_card.requires_user_input == true"
+      - "_PKOS/ 目录结构未变更"
+
+  # ----------------- 用例 3: unavailable -----------------
+  - id: bootstrap-unavailable-disk-full
+    failure_mode: unavailable
+    description: 磁盘空间不足（mock 配额为 0） → 触发 unavailable
+    arrange:
+      target:
+        by_path_pattern: "D:\\tmp\\disk-full-kb"
+        by_must_exist: false
+      options: { mode: okf, force: false, dry_run: false }
+      env_mocks: { DISK_FREE_BYTES: 0 }
+    act: invoke_capability
+    assert:
+      - "result.status == 'failed'"
+      - "result.failure_mode == 'unavailable'"
+      - "result.evidence.error_code in ['ENOSPC', 'disk_quota_exceeded']"
+      - "result.evidence.traceback != null"
+      - "result.caller_action in ['retry_with_backoff', 'abort']"
+      - "rollback executed: any half-created _PKOS/ removed"
+
+  # ----------------- 用例 4: success -----------------
+  - id: bootstrap-success-fresh-path
+    failure_mode: success
+    description: 全新路径正常初始化 → success
+    arrange:
+      target:
+        by_path_pattern: "D:\\tmp\\fresh-kb-${rand}"
+        by_must_exist: false
+      options: { mode: moc, force: false, dry_run: false }
+    act: invoke_capability
+    assert:
+      - "result.status == 'success'"
+      - "result.artifact.kind == 'config_skeleton'"
+      - "result.artifact.path == '_PKOS/config.json'"
+      - "result.artifact.schema == 'pkos-config:1'"
+      - "filesystem.exists('_PKOS/config.json')"
+      - "filesystem.exists('_PKOS/INBOX/')"
+      - "filesystem.exists('_PKOS/manifests/')"
+      - "filesystem.exists('_PKOS/analysis/')"
+      - "filesystem.exists('_PKOS/routes/')"
+      - "filesystem.exists('_PKOS/outputs/')"
+      - "filesystem.exists('_PKOS/reports/')"
+      - "filesystem.exists('_PKOS/README.md')"
+      - "config.kb_root == 'D:\\tmp\\fresh-kb-${rand}'"
+      - "config.mode == 'moc'"
+      - "config.modules.enabled.length >= 5"
+
+  # ----------------- 用例 5: dry-run 路径 -----------------
+  - id: bootstrap-dry-run-no-side-effects
+    failure_mode: success
+    description: dry_run=true → 预演清单但不改盘
+    arrange:
+      target:
+        by_path_pattern: "D:\\tmp\\dryrun-kb-${rand}"
+        by_must_exist: false
+      options: { mode: index, force: false, dry_run: true }
+    act: invoke_capability
+    assert:
+      - "result.status == 'preview'"
+      - "result.preview.actions contains '_PKOS/config.json 写入'"
+      - "result.preview.actions contains '_PKOS/INBOX/ 创建'"
+      - "filesystem.not_exists('D:\\tmp\\dryrun-kb-${rand}\\_PKOS\\config.json')"
+      - "no 实际副作用"

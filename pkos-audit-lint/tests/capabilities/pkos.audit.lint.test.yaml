@@ -1,0 +1,169 @@
+# 失败三态回归测试 — pkos.audit.lint
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4：v0 audit 基础上加 auto-fix 层
+
+meta:
+  capability: pkos.audit.lint
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- not_found：MASTER_INDEX 缺失 -----------------
+  - id: lint-no-master-index
+    failure_mode: not_found
+    description: MASTER_INDEX.json 缺失（先跑 maintenance.index）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      env_mocks: { "master_index_json_exists": false }
+    act: lint
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.recommendation == '先跑 pkos.maintenance.index'"
+
+  - id: lint-no-pkos-config
+    failure_mode: not_found
+    description: _PKOS/config.json 不存在（库未初始化）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      env_mocks: { "_PKOS_config_exists": false }
+    act: lint
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.recommendation == '先跑 pkos.governance.bootstrap'"
+
+  # ----------------- ambiguous：lint 范围不决 -----------------
+  - id: lint-rules-ambiguous
+    failure_mode: ambiguous
+    description: rules 多解（哪些启用未确认）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { rules: null }
+    act: lint
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列出 8 项规则的启停推荐"
+
+  - id: lint-max-fix-touched
+    failure_mode: ambiguous
+    description: max_fix_per_run 触顶
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { max_fix_per_run: 10, mode: "auto-fix" }
+      env_mocks: { "fix_needed_count": 25 }
+    act: lint
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列出 '已修 10 / 待修 15' + 推荐（继续 or 中止）"
+
+  # ----------------- unavailable：lint 故障 -----------------
+  - id: lint-fm-parse-fail
+    failure_mode: unavailable
+    description: lint 脚本崩溃（front matter 解析失败）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      env_mocks: { "front_matter_parse_fail": "entries/<domain>/broken.md" }
+    act: lint
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.parse_error 给出受影响文件"
+      - "rollback: 已修的也回滚（不部分提交）"
+
+  - id: lint-auto-fix-no-write
+    failure_mode: unavailable
+    description: auto-fix 失败（无写权限）
+    arrange:
+      target: { by_path_pattern: "D:\\locked-vault/**" }
+      env_mocks: { "file_acl": "read-only", "fix_needed_count": 3 }
+    act: lint
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.error_code in ['EACCES', 'EROFS']"
+
+  - id: lint-master-index-bad-format
+    failure_mode: unavailable
+    description: MASTER_INDEX.json 格式错
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      env_mocks: { "master_index_json_invalid": true }
+    act: lint
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.json_parse_error"
+      - "recommendation: 重建 MASTER_INDEX"
+
+  # ----------------- success：auto-fix 4 类 -----------------
+  - id: lint-success-fm-missing-fix
+    failure_mode: success
+    description: auto-fix front matter 缺失字段
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { mode: "auto-fix", rules: ["fm-missing-fields"] }
+      env_mocks: { "fix_needed_count": 5 }
+    act: lint
+    assert:
+      - "5 条 front matter 补全 type/status/domain"
+      - "报告：applied=5, reported=0"
+      - "无 status 倒退（gate_1）"
+
+  - id: lint-success-status-default
+    failure_mode: success
+    description: auto-fix status 默认值（无 status → triaged）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { mode: "auto-fix", rules: ["fm-default-status"] }
+      env_mocks: { "no_status_count": 8 }
+    act: lint
+    assert:
+      - "8 条 status 默认 = triaged"
+      - "报告：applied=8"
+
+  - id: lint-success-status-machine-block-retro
+    failure_mode: success
+    description: B1 gate_1 生效：状态机错位倒退 → 拒绝（除非 force）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { mode: "auto-fix", rules: ["status-machine-order"], force: false }
+      env_mocks: { "retro_count": 3 }
+    act: lint
+    assert:
+      - "3 条拒绝修复（gate_1 拦下）"
+      - "report-only：3 条入报告"
+
+  - id: lint-success-tag-coverage-fix
+    failure_mode: success
+    description: auto-fix tag 覆盖（强制 ≥1 tag）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { mode: "auto-fix", rules: ["tag-coverage"] }
+      env_mocks: { "no_tag_count": 4 }
+    act: lint
+    assert:
+      - "4 条补 tag（从 path slug 提取）"
+      - "applied=4"
+
+  - id: lint-success-report-only-dangling
+    failure_mode: success
+    description: report-only 模式（v0 audit 行为）
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { mode: "report-only", rules: ["dangling-backlinks"] }
+      env_mocks: { "dangling_count": 12 }
+    act: lint
+    assert:
+      - "12 条悬空双链入报告"
+      - "applied=0, reported=12"
+      - "行为等同 v0 audit"
+
+  - id: lint-success-dry-run
+    failure_mode: success
+    description: dry_run=true → 仅预览不真改
+    arrange:
+      target: { by_path_pattern: "D:\\vault/**" }
+      options: { mode: "auto-fix", dry_run: true }
+      env_mocks: { "fix_needed_count": 5 }
+    act: lint
+    assert:
+      - "applied=0（dry_run）"
+      - "report 显示 'preview only' 标记"
+      - "前文件无变化"

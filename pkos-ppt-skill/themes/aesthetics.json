@@ -1,0 +1,69 @@
+{
+  "_comment": "美学 token 映射：html 主题 → 生图 prompt 视觉描述。ppt 出口继承 html 主题美学。",
+  "_schema": "pkos-ppt-aesthetics:1",
+  "version": "1.0.0",
+  "themes": {
+    "paper-ink": {
+      "name": "纸墨",
+      "prompt_tokens": "warm beige paper background, minimal flat illustration style, deep ink-black text, cinnabar red accent highlights, generous whitespace, East Asian editorial aesthetic, clean geometric shapes, no gradients",
+      "color_palette": "#faf7f2 #2b2723 #a4443b #e4dcd0",
+      "mood": "安静的图书馆，不是科技发布会",
+      "avoid": ["neon glow", "gradient backgrounds", "emoji decorations", "sans-serif body text"]
+    },
+    "mo-xian": {
+      "name": "墨线",
+      "prompt_tokens": "dark charcoal background with electric blue accent lines, high contrast infographic style, clean skeleton structure, data visualization aesthetic, information-dense but orderly, neon-blue highlights on dark ground",
+      "color_palette": "#0d1117 #1f6feb #58a6ff #30363d",
+      "mood": "骨架清晰的技术手册",
+      "avoid": ["warm tones", "soft shadows", "serif fonts in illustration"]
+    },
+    "kan-shi": {
+      "name": "刊式",
+      "prompt_tokens": "ivory magazine cover aesthetic, bold black editorial headlines, warm cream background, clean typography-forward composition, premium print journalism feel, strong visual hierarchy, minimal decoration",
+      "color_palette": "#fdf6e3 #1a1a1a #c9a227 #f5ebe0",
+      "mood": "高端杂志封面，观点型短文气质",
+      "avoid": ["tech-blue palette", "dark mode", "pixel art"]
+    },
+    "guang-shu": {
+      "name": "光栅",
+      "prompt_tokens": "bright white background with blue left-border chapter dividers, orange bullet accents, modern clean layout, approachable tech-blog aesthetic, balanced information density, friendly color palette",
+      "color_palette": "#ffffff #2563eb #f97316 #f1f5f9",
+      "mood": "明快友好的技术博客",
+      "avoid": ["dark backgrounds", "serif body text", "heavy ornamentation"]
+    },
+    "night-desk": {
+      "name": "夜案",
+      "prompt_tokens": "dim warm desk lamp atmosphere, deep brownish-black background, amber accent anchors, nighttime coding session mood, low-luminance technical notes aesthetic, subtle texture, comfortable for long reading",
+      "color_palette": "#1a1410 #f59e0b #d97706 #2d2418",
+      "mood": "深夜书桌，琥珀锚点的宁静技术空间",
+      "avoid": ["bright white", "neon colors", "cheerful pastels"]
+    }
+  },
+  "fallback_theme": {
+    "name": "neutral-minimal",
+    "prompt_tokens": "clean minimalist slide design, lots of whitespace, subtle accent color, flat illustration style, professional presentation aesthetic, simple geometric accents",
+    "color_palette": "#f8f9fa #212529 #6c757d #dee2e6"
+  },
+  "slide_templates": {
+    "cover": {
+      "description": "封面：大标题居中，副标题下方，极简背景装饰",
+      "prompt_suffix": "presentation cover slide, centered large title text, subtitle below, minimalist decorative elements"
+    },
+    "content": {
+      "description": "内容页：左侧标题，右侧要点列表，留白充足",
+      "prompt_suffix": "presentation content slide, left-aligned heading, right-side bullet points, clean layout"
+    },
+    "diagram": {
+      "description": "图解页：流程图/架构图，简洁线条，少文字",
+      "prompt_suffix": "presentation diagram slide, flowchart or architecture diagram, clean lines, minimal text labels"
+    },
+    "quote": {
+      "description": "引用页：大号引文，装饰性引用符，大量留白",
+      "prompt_suffix": "presentation quote slide, large centered quotation, decorative quote marks, generous whitespace"
+    },
+    "closing": {
+      "description": "封底：总结要点或感谢页",
+      "prompt_suffix": "presentation closing slide, summary or thank you, clean minimalist finish"
+    }
+  }
+}

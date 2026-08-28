@@ -1,0 +1,26 @@
+interface:
+  display_name: "PPT 出图出口"
+  short_description: "用 gptimage2 直接生成投屏演示图片"
+  default_prompt: "Use $pkos-ppt-skill when the user says 做成幻灯片 / 出个 deck."
+compatibility:
+  canonical_format: "agent-skills"
+  adapter_targets:
+    - "openai"
+    - "claude"
+    - "generic"
+    - "vscode"
+  activation:
+    mode: "manual"
+    paths: []
+  execution:
+    context: "inline"
+    shell: "bash"
+  trust:
+    source_tier: "local"
+    remote_inline_execution: "forbid"
+    remote_metadata_policy: "allow-metadata-only"
+  degradation:
+    openai: "metadata-adapter"
+    claude: "neutral-source-plus-adapter"
+    generic: "neutral-source"
+    vscode: "agent-skills-source-with-vscode-notes"

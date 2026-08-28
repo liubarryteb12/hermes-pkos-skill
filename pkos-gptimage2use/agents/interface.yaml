@@ -1,0 +1,21 @@
+name: pkos-gptimage2use
+display_name: "gptimage2 图片生成器"
+description: "调用 gptimage2 模型生成图片，提示词进、PNG 出"
+trigger_phrases:
+  - "生成一张图"
+  - "出图"
+  - "帮我画一张"
+  - "gptimage2 出图"
+  - "生图"
+  - "配图"
+  - "生成图片"
+  - "画一张"
+default_params:
+  size: "1024x1024"
+  quality: "auto"
+  background: "auto"
+  count: 1
+example_prompts:
+  - "一只橘猫坐在樱花树下，吉卜力风格，暖色调"
+  - "科技感城市夜景，赛博朋克，霓虹灯光，竖版手机壁纸"
+  - "极简 LOGO 设计：字母 M，几何风格，白色背景"

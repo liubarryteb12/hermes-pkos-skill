@@ -17,7 +17,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-FIX = Path(r"D:\deepseekharness\workspace\skills\personal-knowledge-os\.staging\intake-fixture")
+FIX = Path(__file__).resolve().parents[1] / ".staging" / "intake-fixture"
 INBOX = FIX / "inbox"
 
 

@@ -1,0 +1,19 @@
+{
+  "route_id": "RT-test-001",
+  "schema": "pkos-ppt-deck:1",
+  "generated_at": "2026-08-27T23:23:10+0800",
+  "ratio": "16:9",
+  "degraded": false,
+  "decision_note": null,
+  "slides": [
+    {
+      "slide": 1,
+      "prompt": "p1",
+      "provider": "image-api:gptimage2",
+      "size": "1536x1024",
+      "ratio": "16:9",
+      "file": "slide-01.png",
+      "hash": "abc123"
+    }
+  ]
+}

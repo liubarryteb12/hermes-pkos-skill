@@ -1,0 +1,271 @@
+# 失败三态回归测试 — pkos.router.decide
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4：v0 启停/schema/词表的失败三态拆解；v4.0 追加策略载荷三态（strategy_gate.py）
+
+meta:
+  capability: pkos.router.decide
+  schema: pkos-test:1
+  version: 2.0.0
+
+cases:
+
+  # ----------------- not_found：目标出口/路径不可用 -----------------
+  - id: router-exit-disabled
+    failure_mode: not_found
+    description: 目标 html exit 在 modules.enabled 未启用 → fail loud
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      options: { exit_hint: "html" }
+      env_mocks: { "config_modules_enabled": ["pkos-ppt-skill"] }   # html 未启用
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.target_exit == 'html'"
+      - "evidence.enabled_exits == ['pkos-ppt-skill']"
+      - "不写 RT-*（不强行选 ppt）"
+      - "决策单：'启用 html 或改选 ppt'"
+
+  - id: router-no-vault-initialized
+    failure_mode: not_found
+    description: _PKOS/ 未建（bootstrap 未跑）→ 路径不可达
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      env_mocks: { "_PKOS_exists": false }
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.recommendation == '先跑 pkos.governance.bootstrap'"
+
+  # ----------------- ambiguous：约束不足挂起 -----------------
+  - id: router-source-not-polished
+    failure_mode: ambiguous
+    description: 源条目 status≠polished → 无可路由对象
+    arrange:
+      target: { by_path_pattern: "entries/<domain>/x.md" }
+      env_mocks: { "front_matter_status": "analyzed" }
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 提示：先跑 polish"
+
+  - id: router-exit-heuristic-fail
+    failure_mode: ambiguous
+    description: v4.0 无策略载荷（exit_hint=null 且无 Execution Strategy）→ fail loud ambiguous（启发式已移交 Policy Engine）
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-mix.md" }
+      options: { exit_hint: null }
+      env_mocks: { "execution_strategy": null }   # v4.0: 策略载荷缺失
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 指向 Policy Engine：'先由 Policy Engine 产出 Execution Strategy（contracts/policy-engine.md §3）'"
+      - "不根据用户意图判断（Hook 1）"
+
+  - id: router-dual-exit-partial
+    failure_mode: ambiguous
+    description: dual_exit=true + 双出口部分未启用 → 部分挂起
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      options: { dual_exit: true, exit_hint: "html" }
+      env_mocks: { "config_modules_enabled": ["pkos-html"] }   # ppt 未启用
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 含可路由部分（html）+ 挂起部分（ppt 未启用）"
+
+  - id: router-audience-unknown
+    failure_mode: ambiguous
+    description: audience_hint=null + 无库内惯例
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-noaud.md" }
+      options: { audience_hint: null }
+      env_mocks: { "vault_audience_history": [] }
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 含 audience 候选（新人/老手/特定场合）"
+
+  # ----------------- unavailable：schema/词表/IO 故障 -----------------
+  - id: router-missing-required-field
+    failure_mode: unavailable
+    description: schema 必填字段缺失
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      env_mocks: { "auto_complete": false, "missing": ["audience"] }
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.missing_fields == ['audience']"
+
+  - id: router-conversion-out-of-vocab
+    failure_mode: unavailable
+    description: conversion_type 越出 v3.2 六值词表
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      options: { user_intent: "帮我做个产品评测" }   # 试图选'产品评测'，不在六值内
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.invalid_value == '产品评测'"
+      - "evidence.valid_vocab == ['wiki百科条目', '实战操作指南', '避坑风险清单', '学习路径', '公众号漫画', '小说']"
+      - "不强行四选一凑数"
+
+  - id: router-confirmation-out-of-vocab
+    failure_mode: unavailable
+    description: confirmation_strength 越出 v0 三值
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      options: { confirmation_strength: "auto-publish" }   # 不在三值内
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.invalid_value == 'auto-publish'"
+
+  - id: router-exit-out-of-vocab
+    failure_mode: unavailable
+    description: exit 越出 {html, ppt, comic, novel}
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      options: { exit_hint: "pdf" }   # 不在词表
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+
+  - id: router-rationale-empty
+    failure_mode: unavailable
+    description: rationale 空（v0 强约束：决策理由可追溯）
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      env_mocks: { "rationale_auto_gen": false, "rationale_empty": true }
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "不写空 rationale 的 RT"
+
+  - id: router-style-theme-non-null
+    failure_mode: unavailable
+    description: style_theme 非 null（v0 锁死：恒不填）
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      options: { user_intent: "用 dark-theme" }
+      env_mocks: { "user_specified_theme": "dark" }
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.rejection == 'v0 锁死：router 不定样式，theme 由出口层主题注册中心选'"
+      - "decision_card 提示：改由 pkos-html/pkos-ppt-skill 决定 theme"
+
+  - id: router-io-disk-full
+    failure_mode: unavailable
+    description: routes 目录不可写（磁盘满/权限）
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      env_mocks: { "DISK_FREE_BYTES": 0 }
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.error_code in ['ENOSPC', 'EACCES']"
+
+  # ----------------- success -----------------
+  - id: router-success-html
+    failure_mode: success
+    description: 标准 html 路由单
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-std.md" }
+      options: { user_intent: "做个查阅页", audience_hint: "新人入门" }
+    act: decide
+    assert:
+      - "RT-* 落盘"
+      - "schema 五键齐全"
+      - "exit=html, conversion_type ∈ 四值"
+      - "style_theme == null（v0 锁死）"
+      - "rationale 数组非空"
+      - "POL front_matter.status=polished 校验通过"
+
+  - id: router-success-ppt
+    failure_mode: success
+    description: 标准 ppt 路由单
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-deck.md" }
+      options: { user_intent: "做个讲稿", audience_hint: "团队分享" }
+    act: decide
+    assert:
+      - "RT-* 落盘"
+      - "exit=ppt, conversion_type=实战操作指南（或 wiki/避坑/学习路径之一）"
+      - "confirmation_strength 默认 interactive-one-step"
+
+  - id: router-success-dual-exit
+    failure_mode: success
+    description: dual_exit=true + 双 exit 都启用 → 出两张 RT-*
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-talk.md" }
+      options: { dual_exit: true }
+      env_mocks: { "config_modules_enabled": ["pkos-html", "pkos-ppt-skill"] }
+    act: decide
+    assert:
+      - "两张 RT-* 落盘（route_id 后缀区分）"
+      - "共享 source_entry + 各自 exit"
+      - "rationale 分别列决策理由"
+
+  # ----------------- v4.0 策略消费者（strategy_gate.py 三态） -----------------
+  - id: router-strategy-missing
+    failure_mode: ambiguous
+    description: v4.0 Execution Strategy 缺失（无策略载荷直调）→ ambiguous fail loud
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      env_mocks: { "execution_strategy": null }
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "stdout 机读 JSON {rejected: true, reason}（P-07）"
+      - "exit 2 + 决策单落 _PKOS/_quarantine/ambiguous-*.yaml"
+      - "不写 RT-*"
+
+  - id: router-strategy-structural-illegal
+    failure_mode: ambiguous
+    description: v4.0 策略载荷结构非法（缺六类 policies 组合）→ ambiguous
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      execution_strategy: { strategy_id: "ST-20260101-001", routing: { exit: html }, policies: { intent: {} } }   # 缺 capability/workflow/provider/verification/fallback
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "evidence.missing_policies ⊇ ['capability', 'workflow', 'provider', 'verification', 'fallback']"
+      - "fail loud，不静默补默认策略"
+
+  - id: router-strategy-matrix-illegal
+    failure_mode: unavailable
+    description: v4.0 策略结构合法但 routing 组合非法（exit=html × conversion_type=小说）→ unavailable
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      execution_strategy: { schema: "pkos-execution-strategy:1", strategy_id: "ST-20260101-002", policies: { intent: {}, capability: {}, workflow: {}, provider: {}, verification: {}, fallback: {} }, routing: { exit: "html", conversion_type: "小说" } }
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.combination == 'html+小说'"
+      - "决策单引用 tests/router_matrix.py 矩阵（词表单一事实源）"
+
+  - id: router-strategy-style-theme-resurrect
+    failure_mode: unavailable
+    description: v4.0 策略载荷携带非空 style_theme（v3.3 废弃字段复活）→ unavailable
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-x.md" }
+      execution_strategy: { schema: "pkos-execution-strategy:1", strategy_id: "ST-20260101-003", policies: { intent: {}, capability: {}, workflow: {}, provider: {}, verification: {}, fallback: {} }, routing: { exit: "html", conversion_type: "学习路径", style_theme: "dark" } }
+    act: decide
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.rejection 含 style_theme 恒 null（v3.3 锁死）"
+
+  - id: router-strategy-dispatch-success
+    failure_mode: success
+    description: v4.0 合法策略载荷 → RT-* 含 strategy 溯源块
+    arrange:
+      target: { by_pol_artifact: "_PKOS/analysis/POL-std.md" }
+      execution_strategy: { schema: "pkos-execution-strategy:1", strategy_id: "ST-20260101-004", policies: { intent: {}, capability: {}, workflow: {}, provider: {}, verification: {}, fallback: {} }, routing: { exit: "ppt", conversion_type: "实战操作指南", confirmation_strength: "interactive-one-step" }, provenance: { decided_at: "2026-01-01T00:00:00Z", policy_engine_version: "pkos-policy:1" } }
+    act: decide
+    assert:
+      - "RT-* 落盘"
+      - "exit=ppt, conversion_type=实战操作指南（策略变量，非自行判断）"
+      - "strategy 溯源块齐全：strategy_id / context_ref / decided_at / policy_engine_version"
+      - "telemetry 事件 router.strategy.dispatch"
+      - "schema 五键 + strategy 全部匹配，style_theme == null"

@@ -1,0 +1,235 @@
+# 失败三态回归测试 — pkos.exit.html.render
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4 + integrity_policy 门 1+门 2 强约束
+# 关键：B2（截断 HTML 落盘）实战根治点
+
+meta:
+  capability: pkos.exit.html.render
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- not_found：v0 拒绝执行条件命中 -----------------
+  - id: html-reject-style-theme-non-null
+    failure_mode: not_found
+    description: RT 的 style_theme 非空（router 越权）→ 拒绝执行
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-bad-style.yaml" }
+      env_mocks: { "rt_style_theme": "dark-tech" }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.rejection == 'v0 锁死：router 不定样式'"
+      - "不渲染"
+
+  - id: html-reject-conversion-out-of-vocab
+    failure_mode: not_found
+    description: RT 的 conversion_type 越出 v0 四值词表 → 拒绝执行
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-bad-conv.yaml" }
+      env_mocks: { "rt_conversion_type": "产品评测" }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.valid_vocab 列出四值"
+
+  - id: html-reject-status-early
+    failure_mode: not_found
+    description: 源条目 status 早于 analyzed（v0 锁死）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-st.yaml" }
+      env_mocks: { "source_status": "triaged" }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+
+  - id: html-no-theme-match
+    failure_mode: not_found
+    description: theme_id=null 且 conversion_types 在 themes/ 注册表内无匹配
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-x.yaml" }
+      options: { theme_id: null }
+      env_mocks: { "themes_no_match_for": "避坑风险清单" }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.themes_available 列出"
+
+  - id: html-source-pol-missing
+    failure_mode: not_found
+    description: RT 引用 POL-* 路径不存在
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-stale.yaml" }
+      env_mocks: { "pol_exists": false }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+
+  # ----------------- ambiguous：v0 决策收集铁律触发 -----------------
+  - id: html-ambiguous-theme
+    failure_mode: ambiguous
+    description: 主题建议不确定（多个候选可匹配）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-multi.yaml" }
+      options: { theme_id: null, auto_mode: false }
+      env_mocks: { "theme_candidates": ["paper-ink", "tech-blue", "minimal-zh"] }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 含 3 候选 + 推荐 + 理由（v0 收集铁律：每项独立）"
+
+  - id: html-ambiguous-angle
+    failure_mode: ambiguous
+    description: 内容起点不确定（可多角度展开）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-multi.yaml" }
+      options: { auto_mode: false }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 含候选角度（'入门路径' / '历史长文' / '实战对比'）"
+
+  - id: html-ambiguous-audience
+    failure_mode: ambiguous
+    description: 受众口径不确定
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-multi.yaml" }
+      options: { auto_mode: false }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 含候选受众（'新人' / '老手' / '跨领域者'）"
+
+  - id: html-ambiguous-no-pack
+    failure_mode: ambiguous
+    description: 决策卡 v0 强约束：禁止打包成"全部 OK 吗"式 yes/no
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-multi.yaml" }
+      options: { auto_mode: false }
+    act: render
+    assert:
+      - "decision_card 不含单一 boolean 字段"
+      - "每项独立列出候选与推荐"
+
+  # ----------------- unavailable：完整性不达（[B2 截断根治点]） -----------------
+  - id: html-b2-truncated
+    failure_mode: unavailable
+    description: "[B2 根治] 截断 HTML（117 字残篇）首次落盘 → 拒绝"
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-b2.yaml" }
+      env_mocks:
+        "rendered_zh_chars": 117
+        "rendered_structure": "incomplete"
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "integrity_gate_2_passed == false"
+      - "[未落盘]（B2 实战根治：不写残篇）"
+      - "evidence.truncation_position 给出截断位置"
+      - "3 轮重生成边界后 abort"
+
+  - id: html-b2-broken-html
+    failure_mode: unavailable
+    description: "[B2 根治] HTML 标签未闭合 / 句子中断 → 拒绝"
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-broken.yaml" }
+      env_mocks: { "html_validation": "tag-mismatch" }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "integrity_gate_2_passed == false"
+      - "未落盘"
+
+  - id: html-validate-output-fail
+    failure_mode: unavailable
+    description: validate_output.py --sink web-single-file 不全 PASS
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-val.yaml" }
+      env_mocks: { "validate_fail_items": ["外链", "裸色值"] }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.validate_errors 列出"
+      - "禁止项计数 > 0"
+
+  - id: html-render-hash-inconsistent
+    failure_mode: unavailable
+    description: render 两次哈希不一致（确定性自检失败，v0 强约束）
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-d.yaml" }
+      env_mocks: { "hash_run1": "abc", "hash_run2": "xyz" }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.hash_drift 列出"
+      - "render 故障 → retry"
+
+  - id: html-theme-profile-unreadable
+    failure_mode: unavailable
+    description: 主题 profile.md 不可读
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-t.yaml" }
+      env_mocks: { "theme_profile_acl": "deny-read" }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+
+  - id: html-io-disk-full
+    failure_mode: unavailable
+    description: outputs 目录不可写
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-w.yaml" }
+      env_mocks: { "DISK_FREE_BYTES": 0 }
+    act: render
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+      - "evidence.error_code in ['ENOSPC', 'EACCES']"
+
+  # ----------------- success -----------------
+  - id: html-success-standard
+    failure_mode: success
+    description: 标准成功 → HTML 落盘 + 完整性全过
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-std.yaml" }
+      env_mocks:
+        "rendered_zh_chars": 4500
+        "info_retention": 0.92   # 学习路径 90%+
+        "hash_consistent": true
+    act: render
+    assert:
+      - "HTML 落盘 _PKOS/outputs/<route-id>.html"
+      - "5 段结构齐全（封面/正文段/CTA 等）"
+      - "validate_output.py --sink web-single-file 全 PASS"
+      - "中文字数 ≥ 400"
+      - "render 两次哈希一致"
+      - "禁止项计数 = 0"
+      - "头注释含 source+route+data-style 锚"
+      - "info_retention 达标（学习路径≥90%）"
+
+  - id: html-success-auto-mode
+    failure_mode: success
+    description: auto_mode=true 自主执行轮次 → 跳过提问但附决策说明
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-20260823-001.yaml" }
+      options: { auto_mode: true }
+    act: render
+    assert:
+      - "HTML 落盘"
+      - "头注释含 decision_note（主题选定/角度选定/备选放弃，v0 演练 2026-08-23 模式）"
+      - "用户可事后否决重渲"
+
+  - id: html-success-b1-strictly-better
+    failure_mode: success
+    description: B1 严格更优：覆盖既有 HTML 必走"不回退"
+    arrange:
+      target: { by_route_artifact: "_PKOS/routes/RT-u.yaml" }
+      env_mocks:
+        "existing_html_zh": 4000
+        "new_html_zh": 4500
+        "new_forbidden_count": 0
+    act: render
+    assert:
+      - "HTML 覆盖既有"
+      - "integrity_gate_1_passed == true"
+      - "旧 HTML 备份到 .rejected/"

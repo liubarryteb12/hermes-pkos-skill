@@ -8,6 +8,96 @@
 
 ---
 
+## 0.5 Theory Layer（理论层）
+
+> 本文档的顶层公理体系。所有后续章节的设计决策，都必须与这些公理一致；如有冲突，以公理为准。
+>
+> 完整定义见 [contracts/knowledge-object-model.md](contracts/knowledge-object-model.md)。本节为速查索引。
+
+### 0.5.1 数据公理（Data Axioms）
+
+回答：**知识是什么？事实如何存在？事实如何变化？**
+
+| 编号 | 公理 |
+|---|---|
+| D1 | **Knowledge owns truth.** 长期被系统接受的事实只存在于 Knowledge 层。Skill、Workflow、Provider 等模块都不是长期事实的权威来源。 |
+| D2 | **Accepted truth is immutable until committed.** 被接受的事实在 Commit 之前不可改变。 |
+| D3 | **Intent does not change truth.** Knowledge Change Intent 永远不直接改变事实，它只描述希望改变什么。 |
+| D4 | **Commit produces new truth.** 只有 Commit 才真正使事实发生变化。 |
+| D5 | **Version belongs to Knowledge Object.** 版本属于 Object，不属于 Intent。 |
+| D6 | **除真相本身之外，一切都应该可替换。** Skill、Workflow、Provider、Model、Router、Storage Implementation、Governance Mechanism 均可替换。 |
+
+### 0.5.2 架构公理（Architecture Axioms）
+
+回答：**系统应该如何围绕知识运行？**
+
+| 编号 | 公理 |
+|---|---|
+| A1 | **Fast Path First.** 常见路径优先优化，异常路径不阻塞主流程。 |
+| A2 | **Good Enough Provider.** 选用满足当前需求的最简实现。 |
+| A3 | **Retrieve Before Reasoning, When Relevant.** 检索优先于推理，但仅在相关时。 |
+| A4 | **Stateless Skill by Default.** Skill 是无状态的能力封装，不成为事实所有者。 |
+| A5 | **Everything except truth should be replaceable.** 执行层一切均可替换，只有 Knowledge Object 的 truth 需要长期保护。 |
+
+### 0.5.3 Knowledge Object / Change Intent / Commit 三分模型
+
+```
+Knowledge Object
+       │ owns current accepted truth
+       ▼
+Knowledge Change Intent
+       │ describes desired change
+       ▼
+     Commit
+       │ accepted change
+       ▼
+New Knowledge Object Version
+```
+
+**核心表达：**
+```
+Object = Truth
+Intent = Change Intent
+Commit = Accepted Change
+```
+
+**Change Intent 四个领域字段：**
+
+| 字段 | 回答 |
+|---|---|
+| Target | 要改变哪个 Knowledge Object？ |
+| Intent | 希望它发生什么变化？ |
+| Evidence | 为什么提出这个变化？ |
+| Producer | 是谁或什么能力产生了这个变化意图？ |
+
+### 0.5.4 与流水线的映射
+
+| 理论层概念 | pkos 流水线对应 | 关键约束 |
+|---|---|---|
+| Knowledge Object | 每个 card / POL-* 产物 | 需显式声明其 Object 身份；判定标准见 [contracts/knowledge-object-model.md §2] |
+| Knowledge Change Intent | analysis 产出「发现表」+ polish 产出 POL-* | 需统一命名和契约，不得绕过 Intent 直接改 polished 状态 |
+| Commit | status=polished 写入 | 是 truth owner 的唯一入口；其他状态转换必须经过此路径 |
+| Governance | （v0 缺失） | 未来扩展点：multi-skill consensus、冲突检测 |
+| Stateless Skill | 10 个 pkos-* 技能 | 已有「只做 X 不做 Y」边界声明，与 A4 一致 |
+
+### 0.5.5 知识对象判定标准（速查）
+
+> **如果把这个东西单独放到系统里，它是否仍然能够被理解，并且具有长期独立复用价值？**
+
+- ✅ 符合 → 可建模为 Knowledge Object
+- ❌ 不符合 → 作为来源材料或运行时数据，不进入长期资产
+
+**通常不应成为 Knowledge Object：**
+临时聊天内容、一次性执行日志、中间推理过程、Workflow 运行状态、Session Memory、文档 Chunk、原始文档。
+
+---
+
+## 0.6 与 v0.2.0 的关系
+
+Theory Layer 是对 v0.2.0 设计文档的**概念升级**，不推翻已有决策，而是为后续演化提供统一的公理基础。所有 §0–§7 的设计原则保持不变，新增的理论层公理作为最高优先级约束。
+
+---
+
 ## 0. 设计原则（不可妥协项）
 
 1. **v0 锁死的是数据契约，不是功能**。入库 schema 是全系统唯一不能返工的部分；任何模块的功能都可以后续迭代，schema 变更必须走显式版本号（`pkos-schema: 1`）。
@@ -70,7 +160,7 @@
                                                         路由单（纯决策）
                                                                  ▼
                                               ④ pkos-router ──┬──▶ ⑤a pkos-html（主题库）
-                                             意图/元数据→出口   └──▶ ⑤b pkos-ppt（模板+图像API）
+                                             意图/元数据→出口   └──▶ ⑤b pkos-ppt-skill（模板+图像API）
                                                                  
   ⑥ 元层：反馈回路 · wikilink 引用图谱 · 第三方 skill 接入质量门（横切所有环节）
 ```
@@ -162,7 +252,7 @@ workspace/skills/personal-knowledge-os/
 │       ├── index.json          ← 机器可读登记表（Router 直接消费），index.md 由它再生成
 │       └── <theme-id>/         ← theme.json 数据源 + profile.md(AI 写作规范)
 │                                  + reference.html(金标准) + preview.html(区块预览锚点)
-├── pkos-ppt/
+├── pkos-ppt-skill/
 │   ├── SKILL.md
 │   └── templates/…
 └── shared/image-api.md         ← 图像 API 配置层规范（跨出口共享）
@@ -260,7 +350,7 @@ workspace/skills/personal-knowledge-os/
 - 产物：单文件离线 HTML，文件头注释记录 source 条目 id（引用闭环）。
 - ⚠️ 落地前置：本机 beautiful-article 缺 references/theme-profiles、html-anything 缺 catalog.json，动工前先从上游补齐作参照（见 §7-7）。
 
-### 4.6 pkos-ppt（v0.2，按用户裁定修正）
+### 4.6 pkos-ppt-skill（v0.2，按用户裁定修正）
 
 - **出口定义（用户 2026-08-23 裁定）**：PPT 出口 = **直接出图**——每页幻灯片一张图，
   经 shared/image-api 调用 gptimage2 生成；HTML 出口保持中规中矩的网页阅读页。
@@ -321,7 +411,7 @@ workspace/skills/personal-knowledge-os/
 - **安装方式**：每模块以 NTFS junction 链接至 `~/.dsh/skills/<模块名>`，源在仓库内；
   改仓库即改线上，无拷贝漂移。
 - **清单**：pkos-intake / pkos-ingest / pkos-analysis / pkos-polish / pkos-router /
-  pkos-html / pkos-ppt / pkos-audit —— 8/8 新会话目录可见且热生效（audit 曾因缺
+  pkos-html / pkos-ppt-skill / pkos-audit —— 8/8 新会话目录可见且热生效（audit 曾因缺
   SKILL.md 未注册，补齐后即时出现，实证热更新）。
 - **元层质量门**：`pkos-meta/scripts/meta_gate.py`（validate/boundary_check/trigger_eval/
   optimize 最小版）；触发基线 `pkos-meta/triggers.json` 每模块 ≥4 正例 + ≥2 近失负例，

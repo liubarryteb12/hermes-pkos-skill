@@ -1,0 +1,120 @@
+# 失败三态回归测试 — pkos.maintenance.timeline
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4：v0 timeline 行为完全锁死（只读/不修复/不预测），v2 仅加三态解释层
+
+meta:
+  capability: pkos.maintenance.timeline
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- not_found -----------------
+  - id: timeline-reports-dir-missing
+    failure_mode: not_found
+    description: reports 目录不存在
+    arrange:
+      target: { by_path_pattern: "D:\\ghost\\reports\\**" }
+    act: timeline
+    assert:
+      - "result.v2_failure_mode == 'not_found'"
+      - "evidence.recommendation == '先跑 pkos.governance.audit'"
+
+  - id: timeline-zero-history
+    failure_mode: not_found
+    description: 目录内零历史 JSON（首次跑）
+    arrange:
+      target: { by_path_pattern: "D:\\empty-reports\\**" }
+      env_mocks: { "history_json_count": 0 }
+    act: timeline
+    assert:
+      - "result.v2_failure_mode == 'not_found'（空集合法，但建议建基线）"
+      - "evidence.recommendation == '先跑 audit 建基线'"
+
+  # ----------------- ambiguous -----------------
+  - id: timeline-json-schema-mixed
+    failure_mode: ambiguous
+    description: JSON schema 版本不一（v0/v1 混存）
+    arrange:
+      target: { by_path_pattern: "D:\\reports\\**" }
+      env_mocks: { "schema_versions": ["v0", "v1"] }
+    act: timeline
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+      - "decision_card 列混存项 + 推荐（统一 schema 后重跑）"
+
+  - id: timeline-include-metrics-multi
+    failure_mode: ambiguous
+    description: include_metrics 多解
+    arrange:
+      target: { by_path_pattern: "D:\\reports\\**" }
+      options: { include_metrics: null }
+    act: timeline
+    assert:
+      - "result.v2_failure_mode == 'ambiguous'"
+
+  # ----------------- unavailable -----------------
+  - id: timeline-build-script-crash
+    failure_mode: unavailable
+    description: build_timeline.py 崩溃
+    arrange:
+      target: { by_path_pattern: "D:\\reports\\**" }
+      env_mocks: { "build_timeline_crash": true }
+    act: timeline
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+
+  - id: timeline-out-not-writable
+    failure_mode: unavailable
+    description: out 不可写
+    arrange:
+      target: { by_path_pattern: "D:\\reports\\**" }
+      options: { out: "D:\\readonly\\timeline.html" }
+      env_mocks: { "out_acl": "read-only" }
+    act: timeline
+    assert:
+      - "result.v2_failure_mode == 'unavailable'"
+
+  # ----------------- success -----------------
+  - id: timeline-success-md
+    failure_mode: success
+    description: 标准 md 格式输出
+    arrange:
+      target: { by_path_pattern: "D:\\reports\\audit\\**" }
+      options: { format: "md", out: "_PKOS/reports/timeline.md" }
+      env_mocks: { "history_json_count": 8 }
+    act: timeline
+    assert:
+      - "_PKOS/reports/timeline.md 落盘"
+      - "snapshots 按日期升序"
+      - "每快照含四件套（total/coverage/orphan/dangling）"
+
+  - id: timeline-success-html
+    failure_mode: success
+    description: html 格式输出
+    arrange:
+      target: { by_path_pattern: "D:\\reports\\audit\\**" }
+      options: { format: "html" }
+    act: timeline
+    assert:
+      - "html 输出含表格"
+
+  - id: timeline-success-stdout
+    failure_mode: success
+    description: out 缺省打 stdout
+    arrange:
+      target: { by_path_pattern: "D:\\reports\\audit\\**" }
+      options: { out: null }
+    act: timeline
+    assert:
+      - "输出打 stdout（无文件落盘）"
+
+  - id: timeline-success-no-modify-audit
+    failure_mode: success
+    description: v0 锁死：不修改任何审计报告
+    arrange:
+      target: { by_path_pattern: "D:\\reports\\audit\\**" }
+    act: timeline
+    assert:
+      - "audit JSON 文件 hash 前后一致（**不修改**）"
+      - "**不预测**未来（输出仅含历史快照）"

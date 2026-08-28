@@ -1,0 +1,139 @@
+# 失败三态回归测试 — pkos.intake.scan
+# Schema: pkos-test:1
+# 对应 v2 契约 C-4：v0 gate=pass/ask/reject 拆解映射为 not_found/ambiguous/unavailable
+
+meta:
+  capability: pkos.intake.scan
+  schema: pkos-test:1
+  version: 1.0.0
+
+cases:
+
+  # ----------------- not_found：正常拒收类 -----------------
+  - id: intake-reject-encrypted-pdf
+    failure_mode: not_found
+    description: 加密 PDF → gate=reject + v2 解释 not_found（正常拒收，非故障）
+    arrange:
+      target: { by_path_pattern: "_PKOS/INBOX/encrypted.pdf" }
+    act: probe
+    assert:
+      - "ticket.detected_format == 'encrypted-pdf'"
+      - "ticket.gate == 'reject'"
+      - "ticket.reject_reason != null"
+      - "ticket.route_to == null"
+      - "v2_failure_mode == 'not_found'"
+      - "no 破解尝试（不调用任何解密）"
+
+  - id: intake-reject-scanned-pdf
+    failure_mode: not_found
+    description: 扫描版 PDF（无文本层）→ reject + not_found
+    arrange:
+      target: { by_path_pattern: "_PKOS/INBOX/scan-only.pdf" }
+    act: probe
+    assert:
+      - "ticket.detected_format == 'scanned-pdf'"
+      - "ticket.gate == 'reject'"
+      - "no 自动 OCR"
+
+  - id: intake-empty-inbox
+    failure_mode: not_found
+    description: INBOX 为空 → 扫描空集，正常报告非故障
+    arrange:
+      target: { by_path_pattern: "_PKOS/INBOX/" }
+    act: triage
+    assert:
+      - "result.tickets.length == 0"
+      - "result.v2_failure_mode == 'not_found'（空集）"
+      - "分拣单仍落盘（0 ticket 的合法清单）"
+
+  - id: intake-no-rule-card-gbk
+    failure_mode: not_found
+    description: text-gbk 可识别但无规则卡 → gate=pass + route_to=null 转人工（不静默丢弃）
+    arrange:
+      target: { by_path_pattern: "_PKOS/INBOX/legacy-gbk.txt" }
+    act: probe
+    assert:
+      - "ticket.detected_format == 'text-gbk'"
+      - "ticket.gate == 'pass'"
+      - "ticket.route_to == null"
+      - "分拣单含转人工标记"
+      - "物件未被删除或移动"
+
+  # ----------------- ambiguous：挂起裁决类 -----------------
+  - id: intake-ask-oversize
+    failure_mode: ambiguous
+    description: 单件 > 100MB → gate=ask 预询，挂起等用户
+    arrange:
+      target: { by_path_pattern: "_PKOS/INBOX/huge-video-course.pdf" }
+      options: { limit_mb: 100 }
+    act: triage
+    assert:
+      - "ticket.gate == 'ask'"
+      - "v2_failure_mode == 'ambiguous'"
+      - "decision_card 列出体积 + 可选处置（拆分/跳过/强制收）"
+      - "物件未被移动"
+
+  - id: intake-dup-suspect
+    failure_mode: ambiguous
+    description: content_key 与库内既有条目疑似重复 → ambiguous 决策单
+    arrange:
+      target: { by_path_pattern: "_PKOS/INBOX/already-have.pdf" }
+    act: "probe + find-dup --vault <kb>"
+    assert:
+      - "find-dup exit code == 10（命中）"
+      - "v2_failure_mode == 'ambiguous'"
+      - "decision_card 含库内既有条目路径"
+      - "不自动跳过（用户裁决）"
+
+  # ----------------- unavailable：系统故障类 -----------------
+  - id: intake-script-crash
+    failure_mode: unavailable
+    description: intake_tools.py 依赖缺失崩溃 → 熔断上抛 + traceback 证据
+    arrange:
+      target: { by_path_pattern: "_PKOS/INBOX/" }
+      env_mocks: { "python_deps": "pypdf missing" }
+    act: triage
+    assert:
+      - "result.status == 'failed'"
+      - "v2_failure_mode == 'unavailable'"
+      - "result.evidence.traceback != null"
+      - "caller_action in ['retry_with_backoff', 'abort']"
+
+  - id: intake-io-unreadable-dir
+    failure_mode: unavailable
+    description: INBOX 目录不可读（权限）→ unavailable
+    arrange:
+      target: { by_path_pattern: "_PKOS/INBOX-locked/" }
+      env_mocks: { "dir_acl": "deny-read" }
+    act: triage
+    assert:
+      - "v2_failure_mode == 'unavailable'"
+      - "不静默返回空清单（区分空集与不可读）"
+
+  # ----------------- success + 守门铁律 -----------------
+  - id: intake-success-mixed-batch
+    failure_mode: success
+    description: 混合批次正常分拣 → 12 字段齐全 + 调度路由正确
+    arrange:
+      target: { by_path_pattern: "_PKOS/INBOX/" }
+      fixtures: ["note.md", "paper-text.pdf", "report.docx"]
+    act: triage
+    assert:
+      - "result.tickets.length == 3"
+      - "每个 ticket 恰 12 字段"
+      - "md → route_to=card-file-md"
+      - "text-pdf → route_to=card-file-pdf"
+      - "docx → route_to=card-file-docx"
+      - "分拣单 shape == {inbox, tickets[], skipped_sensitive_items}"
+
+  - id: intake-sensitive-dir-excluded
+    failure_mode: success
+    description: 敏感目录（账户密码）永不进清单
+    arrange:
+      target: { by_path_pattern: "_PKOS/INBOX/" }
+      fixtures: ["note.md", "账户密码/银行.md"]
+    act: triage
+    assert:
+      - "tickets 不含 账户密码/银行.md"
+      - "skipped_sensitive_items >= 1"
+      - "敏感件路径不出现在任何 ticket 字段"
