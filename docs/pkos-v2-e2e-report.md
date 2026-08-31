@@ -1,11 +1,11 @@
-# PKOS v2 e2e report (2026-08-31T12:43:28Z)
+# PKOS v2 e2e report (2026-08-31T13:01:35Z)
 
 - vault: `D:\obsidian`
 - overall: **PASS**
 
 ## 5-step e2e
 
-### maintenance.index (exit=0, 0.13s)
+### maintenance.index (exit=0, 0.12s)
 
   {
     "total": 0,
@@ -14,7 +14,7 @@
     "cross_domain_edges": 0
   }
 
-### audit.lint.report-only (exit=0, 0.15s)
+### audit.lint.report-only (exit=0, 0.14s)
 
   {
     "applied_count": 0,
@@ -23,7 +23,7 @@
     "reported": []
   }
 
-### capability_runner (exit=1, 8.45s)
+### capability_runner (exit=1, 6.38s)
 
   
   === pkos.maintenance.index (12 cases) ===
@@ -46,12 +46,12 @@
   === pkos.knowledge_service.commit (14 cases) ===
     FAIL ks-frontmatter-incomplete: not_found 期望非零退出或 v2_failure_mode; out[:200]={
 
-### contract_refs (exit=0, 0.2s)
+### contract_refs (exit=0, 0.14s)
 
   
   === 25 SKILL.md 扫描完成，0 错误 ===
 
-### validate_entry (exit=0, 1.6s)
+### validate_entry (exit=0, 1.34s)
 
   PASS normalize_url 'HTTPS://X.com/path/?utm_source=x&id=2'
   PASS normalize_url 'https://twitter.com/a/b'
