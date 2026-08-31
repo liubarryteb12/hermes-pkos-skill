@@ -8,6 +8,7 @@ description: 公众号漫画出口层 v3.2（v1 原生入册）：消费 RT-* �
 
 ```yaml
 capability_id: "pkos.exit.comic.compose"
+required_capability: "image_gen"  # v4.2.1 U3 批D 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=2.3.0"
 stage: exit

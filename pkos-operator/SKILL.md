@@ -7,6 +7,7 @@ description: v4.2 调用方人格守卫（Hermes 等外部 agent 的行为拦截
 
 ```yaml
 capability_id: "pkos.operator.audit"
+required_capability: "none"  # 纯代码守卫，无 LLM 需求（v4.2.1）
 version: "1.0.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: governance

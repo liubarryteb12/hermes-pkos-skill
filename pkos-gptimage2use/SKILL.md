@@ -7,6 +7,7 @@ description: 调用 gptimage2 模型生图：提示词 + 尺寸进、PNG 出。�
 
 ```yaml
 capability_id: "pkos.gptimage2use"
+required_capability: "image_gen"  # v4.2.1 U3 批D 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: utility

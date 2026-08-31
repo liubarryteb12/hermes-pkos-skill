@@ -156,6 +156,22 @@ def check_strategy(d: dict) -> tuple[str, list[str]]:
     if "style_theme" in d and not is_style_theme_legal(d.get("style_theme")):
         una.append(f"style_theme deprecated since v3.3 (non-null illegal): {d.get('style_theme')!r}")
 
+    # G1 显式规则绝对优先（pkos-policy 1.1）：显式指令存在时 routing 必须与之一致
+    ed = d.get("explicit_directives")
+    if ed is not None:
+        if not isinstance(ed, dict):
+            amb.append("explicit_directives must be mapping when present")
+        else:
+            r0 = d.get("routing")
+            for ek, rk in (("exit", "exit"), ("conversion_type", "conversion_type"), ("style_adapter", "style_adapter")):
+                ev = ed.get(ek)
+                if ev in (None, "null", ""):
+                    continue
+                rv = r0.get(rk) if isinstance(r0, dict) else None
+                if rv != ev:
+                    una.append(f"G1 explicit_directives.{ek}={ev!r} overridden by routing.{rk}={rv!r} "
+                               f"(user intent tampering, semantic routing must yield)")
+
     r = d.get("routing")
     if r is not None:
         if not isinstance(r, dict):
@@ -347,7 +363,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"rejected": True, "reason": f"payload file not found: {src}",
                           "v2_failure_mode": "ambiguous"}, ensure_ascii=False, indent=2))
         return 2
-    d = _yaml_load(src.read_text(encoding="utf-8"), src)
+    d = _yaml_load(src.read_text(encoding="utf-8-sig"), src)
 
     if a.context:
         errs = check_context(d)
@@ -445,6 +461,13 @@ def selftest() -> int:
     expect("missing routing", check_strategy(_mutate(base, _del=["routing"]))[0], "ambiguous")
     pol = {k: v for k, v in base["policies"].items() if k != "capability"}
     expect("policies.capability missing", check_strategy(_mutate(base, policies=pol))[0], "ambiguous")
+    # G1: 显式指令与 routing 一致 → OK；被覆盖 → unavailable
+    g1_ok = _mutate(base, explicit_directives={"exit": "html", "conversion_type": None, "style_adapter": None})
+    expect("G1 explicit matches routing", check_strategy(g1_ok)[0], "OK")
+    g1_bad = _mutate(base, explicit_directives={"exit": "comic", "conversion_type": None, "style_adapter": None})
+    expect("G1 explicit overridden", check_strategy(g1_bad)[0], "unavailable")
+    g1_null = _mutate(base, explicit_directives={"exit": None, "conversion_type": None, "style_adapter": None})
+    expect("G1 all-null no-op", check_strategy(g1_null)[0], "OK")
     expect("verification.threshold out of range",
            check_strategy(_mutate(base, verification={**base["verification"], "threshold": 1.5}))[0], "ambiguous")
     expect("provenance.decided_at missing",

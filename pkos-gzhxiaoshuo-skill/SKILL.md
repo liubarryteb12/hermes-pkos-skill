@@ -7,6 +7,7 @@ description: 小说生成与多模态中继 Skill：消费 RT-* 路由单（exit
 
 ```yaml
 capability_id: "pkos.exit.gzhxiaoshuo.compose"
+required_capability: "llm_chat{reasoning:high,context:large}"  # v4.2.1 U3 批D 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=3.1.0"
 stage: exit

@@ -79,17 +79,17 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     hdir, pdir = Path(args.html_theme), Path(args.ppt_theme)
-    hjson = json.loads((hdir / "theme.json").read_text(encoding="utf-8"))
-    css = (hdir / "theme.css").read_text(encoding="utf-8") + "\n" + \
-          (pdir / "tokens.css").read_text(encoding="utf-8")
+    hjson = json.loads((hdir / "theme.json").read_text(encoding="utf-8-sig"))
+    css = (hdir / "theme.css").read_text(encoding="utf-8-sig") + "\n" + \
+          (pdir / "tokens.css").read_text(encoding="utf-8-sig")
 
-    art_md = Path(args.article).read_text(encoding="utf-8")
+    art_md = Path(args.article).read_text(encoding="utf-8-sig")
     if art_md.lstrip().startswith("---"):
         end = art_md.find("\n---", 3)
         art_md = art_md[end + 4:] if end != -1 else art_md
     art_title, art_body = md_to_body(art_md)
 
-    deck_md = Path(args.slides).read_text(encoding="utf-8")
+    deck_md = Path(args.slides).read_text(encoding="utf-8-sig")
     d_title, d_sub, slides = parse_slides(deck_md)
     sections = []
     report = []
@@ -140,7 +140,7 @@ def main(argv=None) -> int:
             if write_retry >= MAX_RETRY:
                 fallback = out.with_suffix(".fallback.md")
                 _assert_safe_out(fallback)
-                fallback.write_text(Path(args.article).read_text(encoding="utf-8"), encoding="utf-8")
+                fallback.write_text(Path(args.article).read_text(encoding="utf-8-sig"), encoding="utf-8")
                 assert_source_unchanged(art_path, pre_hash)
                 print(json.dumps({"out": str(fallback), "bytes": len(doc.encode("utf-8")),
                                   "degraded": True, "fallback_reason": f"OSError x{MAX_RETRY}",

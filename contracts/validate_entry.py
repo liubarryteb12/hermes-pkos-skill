@@ -231,7 +231,7 @@ def _check_enum(rep, fm, field, vocab, missing_level, missing_msg, default=None)
 def validate_entry(path: str) -> Report:
     rep = Report(path)
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8-sig") as f:
             text = f.read()
     except OSError as e:
         rep.err("read-error", f"无法读取: {e}")

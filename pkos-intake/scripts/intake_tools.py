@@ -83,7 +83,7 @@ def probe(path: str) -> dict:
             fmt = "unknown"
     else:
         try:
-            text = p.read_text(encoding="utf-8")
+            text = p.read_text(encoding="utf-8-sig")
         except UnicodeDecodeError:
             try:
                 p.read_text(encoding="gbk")
@@ -108,7 +108,7 @@ def _is_own_product(p: Path) -> tuple[bool, str | None]:
     ve = ilu.module_from_spec(spec)
     spec.loader.exec_module(ve)
     try:
-        fm, _ = ve.load_front_matter(p.read_text(encoding="utf-8", errors="replace"))
+        fm, _ = ve.load_front_matter(p.read_text(encoding="utf-8-sig", errors="replace"))
     except ve.FMParseError:
         return False, None
     t = (fm or {}).get("type")
@@ -205,7 +205,7 @@ def main(argv=None) -> int:
             if any(part.startswith(".") for part in q.parts):
                 continue
             try:
-                fm, _ = ve.load_front_matter(q.read_text(encoding="utf-8", errors="replace")[:4000])
+                fm, _ = ve.load_front_matter(q.read_text(encoding="utf-8-sig", errors="replace")[:4000])
             except ve.FMParseError:
                 continue
             if isinstance(fm, dict) and fm.get("source") == key:

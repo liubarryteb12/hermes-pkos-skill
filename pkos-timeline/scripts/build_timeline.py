@@ -21,7 +21,7 @@ def collect(reports_dir: Path) -> list[dict]:
         if not m:
             continue
         try:
-            data = json.loads(p.read_text(encoding="utf-8"))
+            data = json.loads(p.read_text(encoding="utf-8-sig"))
         except json.JSONDecodeError:
             continue
         totals = data.get("totals") or {}

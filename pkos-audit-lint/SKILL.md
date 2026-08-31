@@ -7,6 +7,7 @@ description: 在 v0 audit 基础上加修正动作：从 MASTER_INDEX.json 读"�
 
 ```yaml
 capability_id: "pkos.audit.lint"
+required_capability: "none"  # v4.2.1 U3 批B 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=2.1.0"
 stage: maintenance

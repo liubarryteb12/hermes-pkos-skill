@@ -1,7 +1,7 @@
 {
   "schema": "pkos-pipeline:2",
   "version": 2,
-  "pkos_semver": "4.4.0",
+  "pkos_semver": "4.5.0",
   "updated_at": "2026-08-31",
   "changelog": [
     {
@@ -860,6 +860,23 @@
         "pkos-ppt-skill"
       ],
       "supersedes": "v0.2 出图制裁定（2026-08-23 用户裁定，2026-08-31 用户裁定作废）"
+    },
+    {
+      "version": "4.5.0",
+      "date": "2026-08-31",
+      "author": "hermes (pkos-wenzhang-skill 首版落地，用户裁定吸收 creator-buddy)",
+      "summary": "新增 exit=article 第五出口槽位 pkos.exit.wenzhang.compose（units 36→38）：吸收 SpaceZephyr/creator-buddy 写作三件套方法论（gzh-longform-writer 六写法诊断路由 / gzh-short-post 短文规则 / baokuan-title-generator 16 法标题矩阵 / my-voice 个人文风档案），按 PKOS 契约移植为单元目录 pkos-wenzhang-skill（SKILL.md 五键 + references×4 + scripts/article_tools.py 机器质检 lint + tests）。产物四件落 _PKOS/_Export/article/（article.md + titles.md + qc-report.json + manifest，schema pkos-wenzhang-article:1）。词表 v4.5 全量同步（P-14）：conversion_type 六值→七值（增 公众号文章）、exit 四槽→五槽、style_adapter 增 gzh_article；同步点=router SKILL.md 十处 + router_matrix.py（单一事实源，43/43）+ policy-engine §2.1/§3 + dispatch catalog 2.5 卡片/速查表/总表 + knowledge-object-model/polish target_skill + relations-network。未吸收：选题监控四件套（外部 API，违反用户禁外部 API 铁律）、space-* 配图排版（与 gzh-design 职责重叠，v2.25 外部辅助边界不变）。",
+      "breaking_changes": false,
+      "affected_units": [
+        "pkos.exit.wenzhang.compose",
+        "pkos-wenzhang-skill",
+        "pkos.router.decide",
+        "pkos-polish",
+        "registry",
+        "router_matrix",
+        "policy-engine",
+        "skill-dispatch-catalog"
+      ]
     }
   ],
   "description": "pkos 流水线单元注册表 v2：role ∈ intake|process|governance|decision|exit|maintenance|knowledge_service；含 v0 兼容条目（status=deprecated）。D-7 公理要求每次新增/修改/弃用均记 changelog。",
@@ -2114,6 +2131,95 @@
       "integrity_policy": "contracts/artifact-integrity-policy.md",
       "contract": "contracts/operator-policy.md",
       "guard": "pkos-operator/scripts/auditor_gate.py"
+    },
+    {
+      "id": "pkos.exit.wenzhang.compose",
+      "capability_id": "pkos.exit.wenzhang.compose",
+      "version": "1.0.0",
+      "compatible_pkos_schema": ">=4.5.0",
+      "role": "exit",
+      "stage": 5,
+      "stage_label": "exit.article",
+      "consumes": "TargetConstraint(by_route_artifact: exit=article) + options(writing_mode, length_target, draft_path, voice_profile, title_count, auto_mode, provider)",
+      "produces": "_PKOS/_Export/article/<route-id>-article/（<route-id>-article.md + <route-id>-titles.md + <route-id>-qc-report.json + manifest.json）",
+      "semantic_goal": "消费 RT-* (exit=article + conversion_type=公众号文章) + 源 POL-* 条目，诊断路由六种写法（访谈/大纲/续写/素材整合/破题/重写），产出公众号文章成稿 + 爆款标题矩阵 + 机器质检报告；可选个人文风档案硬约束（吸收 SpaceZephyr/creator-buddy 写作三件套方法论）",
+      "not_actions": [
+        "click",
+        "type",
+        "scroll",
+        "modify_source",
+        "decide_exit",
+        "decide_conversion_type",
+        "polish",
+        "render_html",
+        "compose_ppt",
+        "compose_comic",
+        "compose_novel",
+        "invent_facts",
+        "swap_voice_profile_unauthorized",
+        "layout_render"
+      ],
+      "required": false,
+      "status": "registered",
+      "sinks": [
+        "gzh-article-draft"
+      ],
+      "conversion_types": [
+        "公众号文章"
+      ],
+      "writing_mode_vocabulary": [
+        "interview",
+        "outline",
+        "continuation",
+        "material-merge",
+        "angle",
+        "rewrite",
+        "auto"
+      ],
+      "replaces": [],
+      "integrity_policy": "contracts/artifact-integrity-policy.md",
+      "integrity_enforced": {
+        "gate_1_no_retrograde": true,
+        "gate_2_integrity": true,
+        "supports_degraded_success": true
+      },
+      "depends_on_capabilities": [
+        "pkos.router.decide",
+        "pkos.polish.refine",
+        "pkos.weak_check.verify"
+      ],
+      "depends_on_providers": [
+        "filesystem",
+        "markdown_writer"
+      ],
+      "required_capability": {
+        "llm_chat": {
+          "reasoning": "high",
+          "context": "large"
+        }
+      },
+      "failure_modes_declared": true,
+      "test_suite": "pkos-wenzhang-skill/tests/article_tests.py",
+      "added_in_version": 4.5
+    },
+    {
+      "id": "pkos-wenzhang-skill",
+      "role": "exit",
+      "stage": 5,
+      "consumes": "路由单(exit=article) + POL 源 + writing_mode/length/voice_profile",
+      "produces": "_PKOS/_Export/article/<route-id>-article/ 公众号文章成稿四件",
+      "sinks": [
+        "gzh-article-draft"
+      ],
+      "conversion_types": [
+        "公众号文章"
+      ],
+      "required": false,
+      "status": "registered",
+      "note": "v1.0 物理目录入口（P-11：loader 按目录名查找）；契约权威在 pkos.exit.wenzhang.compose",
+      "test_suite": null,
+      "added_in_version": 4.5,
+      "capability_id": "pkos.exit.wenzhang.compose"
     }
   ],
   "infra_non_units": [

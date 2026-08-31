@@ -339,7 +339,7 @@ def load_strategy_verification_policy(strategy_path: str | None) -> tuple[float,
     if not strategy_path:
         return WEAK_CHECK_THRESHOLD, False, None
     try:
-        text = Path(strategy_path).read_text(encoding="utf-8")
+        text = Path(strategy_path).read_text(encoding="utf-8-sig")
     except OSError as e:
         return WEAK_CHECK_THRESHOLD, False, f"strategy unreadable: {e}"
     data = None
@@ -514,9 +514,6 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--strategy", default=None, help="ExecutionStrategy YAML（verification_policy 覆盖）")
     ap.add_argument("--report-out", default=None, help="报告落盘路径（必须在 PKOS_BASE 内，P-03）")
     ap.add_argument("--no-cross-check", action="store_true", help="禁用模型交叉验证")
-    ap.add_argument("--content-tier", default="unknown",
-                    choices=("fact_dense", "format_only", "unknown"),
-                    help="pkos-evolution:1 §3 验证分级（默认 unknown = v4.0 行为不变）")
     ap.add_argument("--selftest", action="store_true", help="纯内存自检（无磁盘/telemetry/网络）")
     args = ap.parse_args(argv)
 
@@ -529,8 +526,8 @@ def main(argv: list[str]) -> int:
         return 3
 
     try:
-        draft = json.loads(Path(args.draft).read_text(encoding="utf-8"))
-        fact = json.loads(Path(args.fact).read_text(encoding="utf-8"))
+        draft = json.loads(Path(args.draft).read_text(encoding="utf-8-sig"))
+        fact = json.loads(Path(args.fact).read_text(encoding="utf-8-sig"))
     except (OSError, json.JSONDecodeError) as e:
         print(json.dumps({"rejected": True, "reason": f"input unreadable: {e}"}, ensure_ascii=False))
         return 3
@@ -568,23 +565,8 @@ def main(argv: list[str]) -> int:
         "fact_core_numbers": fact_view["numbers"],
     })
 
-    # pkos-evolution:1 §3 分级门：format_only = 用 lint 兜底，跳过模型交叉验证（成本降一个量级）；
-    # fact_dense = 事实密集，交叉验证被显式禁用视为验收缺口（requirement FAIL）。
-    # unknown（默认）完全走 v4.0 原语义。
-    tier = args.content_tier
-    no_cross = args.no_cross_check
-    tier_reason = None
-    if tier == "format_only":
-        no_cross = True
-        tier_reason = "content-tier format_only: lint-only gate, cross-validation skipped"
-    elif tier == "fact_dense" and args.no_cross_check:
-        cross_required = True
-        tier_reason = "content-tier fact_dense: cross-validation explicitly disabled, requirement marked FAIL"
-
     cross = ({"status": "skipped", "reason": "disabled by --no-cross-check", "notes": ""}
-             if no_cross else cross_validate(draft, fact_view))
-    if tier == "format_only" and cross.get("status") == "skipped":
-        cross["notes"] = tier_reason
+             if args.no_cross_check else cross_validate(draft, fact_view))
     decision, requirement = decide(score, threshold, args.retry_count, cross["status"], cross_required)
     report = build_report(True, score, threshold, breakdown, cross, requirement, decision, draft)
 

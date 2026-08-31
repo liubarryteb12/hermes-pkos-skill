@@ -7,6 +7,7 @@ description: OpenCLI 驱动已登录 Chrome 的 Gemini 生图（Nano Banana 网�
 
 ```yaml
 capability_id: "pkos.gemini.image"
+required_capability: "browser_bridge+image_gen"  # v4.3.1 自进化轮补齐（OpenCLI 浏览器驱动）
 version: "1.0.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: utility

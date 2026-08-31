@@ -34,11 +34,11 @@ def render_md(data: dict) -> str:
 
 def main(argv=None) -> int:
     check = "--check" in (argv or sys.argv[1:])
-    data = json.loads((THEMES_DIR / "index.json").read_text(encoding="utf-8"))
+    data = json.loads((THEMES_DIR / "index.json").read_text(encoding="utf-8-sig"))
     md = render_md(data)
     target = THEMES_DIR / "index.md"
     if check:
-        disk = target.read_text(encoding="utf-8") if target.exists() else ""
+        disk = target.read_text(encoding="utf-8-sig") if target.exists() else ""
         if disk != md:
             print("index.md 与 index.json 不同源：运行 build_themes.py 再生成", file=sys.stderr)
             return 1

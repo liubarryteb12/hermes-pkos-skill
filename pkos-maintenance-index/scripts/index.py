@@ -128,7 +128,7 @@ def scan_vault(vault: Path, since_mtime: float | None = None) -> list[dict]:
         if since_mtime is not None and p.stat().st_mtime <= since_mtime:
             continue
         try:
-            text = p.read_text(encoding="utf-8", errors="replace")
+            text = p.read_text(encoding="utf-8-sig", errors="replace")
         except OSError:
             continue
         fm = parse_front_matter(text)
@@ -212,7 +212,7 @@ def load_recent_commits(reports_dir: Path, limit: int = 20) -> list[dict]:
     commits: list[dict] = []
     for jf in sorted(reports_dir.glob("*.json"), reverse=True)[:limit]:
         try:
-            d = json.loads(jf.read_text(encoding="utf-8"))
+            d = json.loads(jf.read_text(encoding="utf-8-sig"))
             if "to_state" in d and "target" in d:
                 commits.append(d)
         except (OSError, json.JSONDecodeError):
@@ -261,7 +261,7 @@ def build_index(vault: Path, out_dir: Path, incremental: bool, since: str | None
     prior: dict = {}
     if incremental and master_json.exists():
         try:
-            prior = json.loads(master_json.read_text(encoding="utf-8"))
+            prior = json.loads(master_json.read_text(encoding="utf-8-sig"))
             prev_gen = prior.get("generated_at", "")
             if prev_gen:
                 # 简化：since=上次生成时间，按 mtime 过滤
@@ -306,9 +306,31 @@ def build_index(vault: Path, out_dir: Path, incremental: bool, since: str | None
         "recent_commits": commits,
     }
 
-    master_json.write_text(json.dumps(idx, ensure_ascii=False, indent=2), encoding="utf-8")
+    # R1 锁修复：Windows 下 Obsidian/AV 会瞬时锁住直接覆写的索引文件；
+    # 改为写临时文件 + os.replace 原子改名（同卷原子操作，不惧读者持有旧句柄）
+    import os, time as _time
+    def atomic_write(path: Path, content: str, retries: int = 3) -> None:
+        """写临时文件后原子改名；Windows 下目标被 Obsidian/AV 持锁时重试，
+        仍失败则退化为时间戳旁路文件（内容永不丢失，主名由下次成功写入接管）。"""
+        tmp = path.with_suffix(path.suffix + f".tmp-{os.getpid()}")
+        tmp.write_text(content, encoding="utf-8")
+        for i in range(retries):
+            try:
+                os.replace(tmp, path)
+                return
+            except PermissionError:
+                _time.sleep(1.5 * (i + 1))
+        # 兜底：旁路文件（时间戳版），并清理 tmp
+        side = path.with_name(path.stem + f"-sidecar-{int(_time.time())}{path.suffix}")
+        try:
+            os.replace(tmp, side)
+        except PermissionError:
+            side = tmp  # 连改名都失败就保留 tmp 本体，至少内容在盘上
+        print(f"WARN: {path.name} 被占用，内容已写旁路文件: {side.name}", file=sys.stderr)
+
+    atomic_write(master_json, json.dumps(idx, ensure_ascii=False, indent=2))
     md = render_markdown(idx)
-    (out_dir / "MASTER_INDEX.md").write_text(md, encoding="utf-8")
+    atomic_write(out_dir / "MASTER_INDEX.md", md)
 
     # 构建审计
     audit = {

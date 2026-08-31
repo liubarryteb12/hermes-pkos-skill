@@ -7,6 +7,7 @@ description: 高价值问答相关条目查询：从用户问题出发，读 MAS
 
 ```yaml
 capability_id: "pkos.intake.query"
+required_capability: "llm_chat{reasoning:high,context:large}"  # v4.2.1 U3 批A 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=2.1.0"
 stage: intake

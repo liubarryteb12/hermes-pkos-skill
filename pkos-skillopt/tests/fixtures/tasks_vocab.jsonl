@@ -1,0 +1,9 @@
+{"input": "一篇从网页剪藏的技术文章原文，还没做过任何加工处理。按 PKOS 词表该标 type 和 status 各是什么？只答格式：type=<值>; status=<值>", "expect_contains": ["type=clipping", "status=raw"]}
+{"input": "一篇剪藏文章已完成结构化分析，产出了发现表 AN-*。此时 type 和 status 该是什么？只答：type=<值>; status=<值>", "expect_contains": ["type=clipping", "status=analyzed"]}
+{"input": "自己写的方法论笔记（非外部剪藏），刚刚建立条目。type 该用什么？只答：type=<值>", "expect_contains": ["type=method"]}
+{"input": "一个具体案例的复盘记录（实战教训类）。type 该用什么？只答：type=<值>", "expect_contains": ["type=case"]}
+{"input": "某人的人物条目（介绍一个作者/专家）。type 该用什么？只答：type=<值>", "expect_contains": ["type=person"]}
+{"input": "条目已经过 polish 净化、router 出了路由单，正等待出口生产。status 该是什么？只答：status=<值>", "expect_contains": ["status=routed"]}
+{"input": "最终产物（HTML/PPT）已全部交付完成。status 该是什么？只答：status=<值>", "expect_contains": ["status=exported"]}
+{"input": "PKOS 条目 status 能从 published 倒回 analyzed 吗？只答：能 或 不能+原因关键词", "expect_contains": ["不能"]}
+{"input": "刚抓取的 URL 稍后要读，还没读。type 和 status？只答：type=<值>; status=<值>", "expect_contains": ["type=clipping", "status=raw"]}

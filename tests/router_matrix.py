@@ -1,6 +1,6 @@
 """v3.3 断言 B: Router 合法性矩阵机器验证 (tests/router_matrix.py)
 
-矩阵来自 pkos-router/SKILL.md v3.3 Compatibility Matrix（10 合法 / 24 全组合）。
+矩阵来自 pkos-router/SKILL.md v3.3 Compatibility Matrix（v4.5.0 起 11 合法 / 30 全组合）。
 非法组合必须被 ROUTER_MATRIX.is_legal 拦截 → unavailable + 决策单。
 """
 from __future__ import annotations
@@ -9,11 +9,13 @@ import sys
 from pathlib import Path
 
 # v3.3 Compatibility Matrix（与 pkos-router/SKILL.md 保持同步）
+# v4.5.0: 新增 article 第五出口槽位（pkos.exit.wenzhang.compose，承接 公众号文章）
 ROUTER_MATRIX: dict[str, set[str]] = {
     "html": {"wiki百科条目", "实战操作指南", "避坑风险清单", "学习路径"},
     "ppt": {"wiki百科条目", "实战操作指南", "避坑风险清单", "学习路径"},
     "comic": {"公众号漫画"},
     "novel": {"小说"},
+    "article": {"公众号文章"},
 }
 
 STYLE_ADAPTER_MATRIX: dict[str, set[str]] = {
@@ -21,6 +23,7 @@ STYLE_ADAPTER_MATRIX: dict[str, set[str]] = {
     "ppt": {"video_script", "null"},
     "comic": {"comic_storyboard", "null"},
     "novel": {"novel_chapter", "null"},
+    "article": {"gzh_article", "null"},
 }
 
 # v3.3 style_theme 强制收敛: 全局废弃, 唯一合法值 = null
@@ -53,6 +56,7 @@ def main() -> int:
         ("ppt", "wiki百科条目"), ("ppt", "实战操作指南"),
         ("ppt", "避坑风险清单"), ("ppt", "学习路径"),
         ("comic", "公众号漫画"), ("novel", "小说"),
+        ("article", "公众号文章"),
     ]
     illegal_cases = [
         ("comic", "学习路径"),      # 指令中的示例
@@ -60,10 +64,13 @@ def main() -> int:
         ("ppt", "公众号漫画"), ("novel", "wiki百科条目"),
         ("novel", "实战操作指南"), ("comic", "小说"),
         ("unknown_exit", "学习路径"), ("html", "unknown_type"),
+        # v4.5.0 article 槽位负例
+        ("article", "小说"), ("article", "wiki百科条目"), ("novel", "公众号文章"),
     ]
     style_illegal = [
         ("html", "novel_chapter"), ("comic", "html_article"),
         ("novel", "comic_storyboard"), ("ppt", "html_article"),
+        ("article", "novel_chapter"), ("html", "gzh_article"),
     ]
     # v3.3: style_theme 全局强制 null; 任何非 null 必拒
     style_theme_legal = [None, "null", "Null", "NONE", ""]
@@ -84,6 +91,8 @@ def main() -> int:
         fails.append("legal style wrongly rejected: html+html_article")
     if not is_style_legal("novel", "novel_chapter"):
         fails.append("legal style wrongly rejected: novel+novel_chapter")
+    if not is_style_legal("article", "gzh_article"):
+        fails.append("legal style wrongly rejected: article+gzh_article")
     # v3.3 style_theme 强制收敛验证
     for s in style_theme_legal:
         if not is_style_theme_legal(s):
@@ -92,7 +101,7 @@ def main() -> int:
         if is_style_theme_legal(s):
             fails.append(f"style_theme not converged (must reject): {s!r}")
 
-    total = (len(legal_cases) + len(illegal_cases) + len(style_illegal) + 2
+    total = (len(legal_cases) + len(illegal_cases) + len(style_illegal) + 3
              + len(style_theme_legal) + len(style_theme_illegal))
     n_ok = total - len(fails)
     print(f"router matrix: {n_ok}/{total} cases PASS "

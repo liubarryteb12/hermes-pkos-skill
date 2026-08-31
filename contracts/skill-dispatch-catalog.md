@@ -47,6 +47,9 @@
         └──────────────────┴──────────────────┴──────────────────────┘
                                 ExportArtifact（白名单落盘）
 
+（v4.5 第五出口: [exit.wenzhang.compose] article_tools.py → _Export/article/（成稿+标题矩阵+QC报告），
+  与 comic/novel 平级，图中未重绘。）
+
 治理旁路: [governance.tick] 心跳巡检 · [maintenance.index/timeline] 索引与趋势 · [audit.lint] 全库体检
 Provider: hy3 (chat, hunyuan-direct) · gpt-image-2 (image, PKOS_IMG_API_KEY)
 ```
@@ -99,7 +102,19 @@ Provider: hy3 (chat, hunyuan-direct) · gpt-image-2 (image, PKOS_IMG_API_KEY)
 | 机器验收 | gzhxiaoshuo_tools.py 四子命令：validate / count / slice / check_wikilinks |
 | 特点 | 多模态中继：slice 场景切片可直接喂 comic/video skill 复用 |
 
-### 2.5 pkos.gptimage2use — 原子出图工具（utility，非出口层）
+### 2.5 pkos.exit.wenzhang.compose — 公众号文章出口（v4.5 新增）
+
+| 项 | 内容 |
+|---|---|
+| 功能 | 诊断作者手上有什么（念头/素材/半稿/大纲/不满意成稿）→ 路由六种写法之一（访谈/大纲/续写/素材整合/破题/重写），产出**成稿 article.md + 标题矩阵 titles.md（16 法/评分/Top5 角色）+ 机器质检 qc-report.json**；可选个人文风档案硬约束 |
+| 用户命令特征 | "写篇公众号文章 / 按这条素材写长文 / 出个文章版 / 深度文 / 这个主题怎么写" |
+| 输入 | RT-*.yaml（exit=article + conversion_type=公众号文章）+ POL 源；options.writing_mode（auto 默认）/ length_target（long\|short\|int）/ draft_path（续写/重写必给）/ voice_profile |
+| 输出 | `_PKOS/_Export/article/<route-id>-article/`：article.md + titles.md + qc-report.json + manifest.json（schema pkos-wenzhang-article:1） |
+| 前置 | 承接 conversion_type=公众号文章（唯一，强绑定）；status≥polished；qc lint fails==0 才算成稿（≤2 轮定点修复） |
+| 设计来源 | 吸收 SpaceZephyr/creator-buddy 写作三件套方法论（2026-08-31），红线与 PKOS 不编造事实公理对齐 |
+| 边界 | 不做排版（外部 gzh-design）、不做选题监控（外部 API 禁用）、不混装其他出口产物 |
+
+### 2.6 pkos.gptimage2use — 原子出图工具（utility，非出口层）
 
 | 项 | 内容 |
 |---|---|
@@ -111,7 +126,7 @@ Provider: hy3 (chat, hunyuan-direct) · gpt-image-2 (image, PKOS_IMG_API_KEY)
 | 已知 | 网关部分通道忽略 size 参数（尺寸遵循度不稳）；`quality/background="auto"` 不可下发（503） |
 | 边界 | 与外部 567-image-generation 分工：**PKOS 流水线内一律走本工具**（manifest 溯源 + 白名单 + telemetry） |
 
-### 2.6 pkos.weak_check.verify — 独立弱审核（验证层，非内容产出）
+### 2.7 pkos.weak_check.verify — 独立弱审核（验证层，非内容产出）
 
 | 项 | 内容 |
 |---|---|
@@ -127,16 +142,17 @@ Provider: hy3 (chat, hunyuan-direct) · gpt-image-2 (image, PKOS_IMG_API_KEY)
 | 做个 PPT/演示 | ppt | 同上四选一 | video_script | exit.ppt.compose | 无 |
 | 出漫画/漫画分镜 | comic | 公众号漫画（唯一） | comic_storyboard | exit.comic.compose | **人物资产 + options 三必填** |
 | 写小说/章节/连载 | novel | 小说（唯一） | novel_chapter | exit.gzhxiaoshuo.compose | persona/genre 必问 |
+| 写公众号文章/长文/深度文 | article | 公众号文章（唯一） | gzh_article | exit.wenzhang.compose | writing_mode 诊断确认；续写/重写需 draft_path |
 | 单独生成一张图 | —（不走出口） | — | — | gptimage2use 直接调 | prompt 原样透传 |
 | 检查这篇 AI 味重不重 | —（上游） | — | 按目标出口定 | polish.refine → weak_check | 发现表 |
 
-**非法组合速查**：comic 只接"公众号漫画"，novel 只接"小说"，html/ppt 不接这两者——其余组合见 router SKILL.md v3.3 合法性矩阵（10/24）。
+**非法组合速查**：comic 只接"公众号漫画"，novel 只接"小说"，article 只接"公众号文章"，html/ppt 不接这三者——其余组合见 router SKILL.md 合法性矩阵（v4.5 起 11/35）。
 
 ## 4. 调用关系一句话总表
 
 ```
 ingest 产条目 → analysis 产 POL → polish 产 DerivedDraft → weak_check 放行
-  → router 产 RT → html|ppt|comic|novel 四出口消费 RT
+  → router 产 RT → html|ppt|comic|novel|article 五出口消费 RT
     → comic 出图统一调 gptimage2use；ppt v2.0 原生渲染（--images 插图时才调 gptimage2use）
     → gzhxiaoshuo 的场景切片可回流给 comic/video（多模态中继）
   → 全部产物 ExportArtifact 白名单落盘 → 全过程 telemetry.jsonl 单写者记录

@@ -7,6 +7,7 @@ description: 入口分拣：扫描 _PKOS/INBOX/ 收件箱与现有落点，识�
 
 ```yaml
 capability_id: "pkos.intake.scan"
+required_capability: "llm_chat{reasoning:high,context:large}"  # v4.2.1 U3 批A 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: intake

@@ -215,7 +215,7 @@ def parse_dialogues_inline(s: str) -> dict[int, str]:
 def load_route(route_path: Path) -> dict:
     if not route_path.exists():
         raise FileNotFoundError(f"路由单不存在: {route_path}")
-    with open(route_path, "r", encoding="utf-8") as f:
+    with open(route_path, "r", encoding="utf-8-sig") as f:
         return yaml_safe_load(f.read())
 
 
@@ -283,7 +283,7 @@ def resolve_source(route: dict) -> Path | None:
 
 
 def parse_pol_content(path: Path) -> dict:
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8-sig")
     if text.startswith("---"):
         parts = text.split("---", 2)
         fm_lines = parts[1].splitlines() if len(parts) > 1 else []
@@ -407,6 +407,9 @@ SAFE_OUT_RELATIVE_PREFIXES = (
     "skills/personal-knowledge-os/_PKOS/outputs/",
     "skills/personal-knowledge-os/_PKOS/_Export/",
     "skills/personal-knowledge-os/_PKOS/reports/",
+    "_PKOS/outputs/",
+    "_PKOS/_Export/",
+    "_PKOS/reports/",
 )
 
 
@@ -470,7 +473,7 @@ def compose(
         }
 
     # 4. 校验 POL status
-    pol_text = pol_path.read_text(encoding="utf-8")
+    pol_text = pol_path.read_text(encoding="utf-8-sig")
     fm_match = re.search(r"^status:\s*(\S+)", pol_text, re.M)
     if fm_match and fm_match.group(1) != "polished":
         event_bus.emit_validation_fail(
@@ -564,21 +567,21 @@ def compose(
             ],
         }
 
-    # 10. 写产物(prototype 阶段不调真实出图 API,degraded_success)
+    # 10. 写产物(脚本阶段;出图由 render_panels.py 二段完成,密钥在则自动接续)
     output_dir = PKOS_PKOS / "outputs" / f"{route_id}-comic-script"
     assert_safe_out(output_dir)
     paths = render_script.write_outputs(
         output_dir=output_dir,
         route_id=route_id,
         rendered=rendered,
-        degraded=True,  # prototype 阶段:出图渠道未实接
-        fallback_reason="prototype 阶段:未接真实出图 API,manifest + 完整脚本 + 每格 prompt 已交付",
+        degraded=True,  # 脚本阶段交付;render_panels.py 渲染成功后会改写 manifest degraded=false
+        fallback_reason="脚本已交付;出图需运行: python pkos-comic/scripts/render_panels.py --manifest <本manifest>",
     )
 
     # 11. EventBus emit (degraded_success = export.fallback)
     event_bus.emit_export_fallback(
         route_id=route_id,
-        reason="prototype 阶段:未接真实出图 API",
+        reason="脚本阶段交付;出图走 render_panels.py 二段",
         panels_count=len(rendered["panels"]),
     )
 

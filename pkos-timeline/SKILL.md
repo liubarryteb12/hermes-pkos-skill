@@ -7,6 +7,7 @@ description: 知识库演化时间线：汇总历次审计报告 JSON，生成�
 
 ```yaml
 capability_id: "pkos.maintenance.timeline"
+required_capability: "none"  # v4.2.1 U3 批E 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=2.1.0"
 stage: maintenance

@@ -16,12 +16,12 @@ import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SPEC = json.loads((Path(__file__).resolve().parents[1] / "triggers.json").read_text(encoding="utf-8"))
+SPEC = json.loads((Path(__file__).resolve().parents[1] / "triggers.json").read_text(encoding="utf-8-sig"))
 BUDGET = SPEC["budget"]
 
 
 def load_fm(path: Path) -> tuple[dict | None, str]:
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8-sig")
     m = re.match(r"^---\n(.*?)\n---\n", text, re.S)
     if not m:
         return None, text
@@ -53,7 +53,7 @@ def run_registry() -> list[str]:
     if not reg_path.is_file():
         return ["pipeline/registry.json 缺失"]
     try:
-        data = json.loads(reg_path.read_text(encoding="utf-8"))
+        data = json.loads(reg_path.read_text(encoding="utf-8-sig"))
     except json.JSONDecodeError as e:
         return [f"registry 不可解析: {e}"]
     fails: list[str] = []
@@ -92,7 +92,7 @@ def run_validate() -> list[str]:
             fails.append(f"{mod}: description 超预算 ({desc_chars(fm['description'])}>{BUDGET['description_max_chars']})")
         if size > BUDGET["skill_md_max_bytes"]:
             fails.append(f"{mod}: SKILL.md 超预算 ({size}>{BUDGET['skill_md_max_bytes']}B)")
-        body = p.read_text(encoding="utf-8")
+        body = p.read_text(encoding="utf-8-sig")
         if not any(mk in body for mk in BUDGET["boundary_markers"]):
             fails.append(f"{mod}: 缺边界标记（不做/只做/铁律/职责边界）")
     return fails

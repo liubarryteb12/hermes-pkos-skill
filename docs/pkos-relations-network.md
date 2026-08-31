@@ -130,8 +130,8 @@ RawEntry ──commit──► FactCore ──analysis/polish──► DerivedDr
 ```
                  ┌────────── 治理横切面：EventBus / MAX_RETRY / 白名单 / TTL / PITFALLS ──────────┐
                  │                                                                               │
-外部输入 → intake → ingest → [commit] ⇒ FactCore ⇒ analysis ⇒ polish ⇒ weak_check ⇒ router ⇒ {html|ppt|comic|novel}
-                                        （D-6 唯一写入）                    （10/24 矩阵）      │
+外部输入 → intake → ingest → [commit] ⇒ FactCore ⇒ analysis ⇒ polish ⇒ weak_check ⇒ router ⇒ {html|ppt|comic|novel|article}
+                                        （D-6 唯一写入）                    （11/35 矩阵）      │
                                                                                                  ▼
              maintenance(index/fanout/timeline) + governance(tick/audit/lint) ← 全程观测    ExportArtifact
                                                                                                  

@@ -48,6 +48,19 @@ FRONT_MATTER_RE = re.compile(r"^(---\n)(.*?)(\n---\n)(.*)$", re.S)
 VALID_STATES = {"triaged", "analyzed", "polished", "routed", "exported", "published"}
 EXCLUDE_DIRS = {"_PKOS", ".staging", "node_modules", ".git", "skills"}
 
+def _load_exempt_dirs(vault: Path | None = None) -> set:
+    """R2 豁免区：vault/_PKOS/exempt-zones.json 里登记的目录动态并入排除集（数据驱动，不改词表）。"""
+    extra = set()
+    try:
+        cand = (vault or Path.cwd()) / "_PKOS" / "exempt-zones.json"
+        if cand.is_file():
+            for z in json.loads(cand.read_text(encoding="utf-8-sig")).get("zones", []):
+                extra.add(str(z.get("path", "")).strip())
+    except Exception:
+        pass
+    return {e for e in extra if e}
+
+
 ALL_RULES = [
     "fm-missing-fields", "fm-default-status", "status-machine", "tag-coverage",
     "dangling-backlinks", "orphan-promotion", "cross-domain-recommend",
@@ -201,13 +214,20 @@ def apply_fixes(target: Path, fm: dict, header: str, body: str, applied: dict) -
 
 
 def lint(vault: Path, mode: str, rules: set[str], max_fix: int, dry_run: bool, master_index_path: Path | None) -> dict:
+    # R2 豁免区：动态并入 vault/_PKOS/exempt-zones.json 登记的目录
+    global EXCLUDE_DIRS
+    exempt_dirs = _load_exempt_dirs(vault)
+    excl = EXCLUDE_DIRS | exempt_dirs
     # 1. 跑 v0 audit 拿基础数据
     audit_data = audit.audit(vault)
     notes = []  # [(path, fm, header, body), ...]
     for p in vault.rglob("*.md"):
-        if audit.excluded(p.relative_to(vault).parts):
+        rel_parts = p.relative_to(vault).parts
+        if audit.excluded(rel_parts):
             continue
-        text = p.read_text(encoding="utf-8", errors="replace")
+        if exempt_dirs & set(rel_parts):
+            continue
+        text = p.read_text(encoding="utf-8-sig", errors="replace")
         parsed = parse_fm_block(text)
         if parsed is None:
             continue
@@ -218,7 +238,7 @@ def lint(vault: Path, mode: str, rules: set[str], max_fix: int, dry_run: bool, m
     master_index = None
     if master_index_path and master_index_path.exists():
         try:
-            master_index = json.loads(master_index_path.read_text(encoding="utf-8"))
+            master_index = json.loads(master_index_path.read_text(encoding="utf-8-sig"))
         except (OSError, json.JSONDecodeError):
             master_index = None
 
@@ -278,6 +298,11 @@ def lint(vault: Path, mode: str, rules: set[str], max_fix: int, dry_run: bool, m
         reported_list.extend(rule_cross_domain(audit_data, master_index))
     if "status-retrograde-blocked" in rules:
         reported_list.extend(rule_retrograde_blocked(audit_data))
+    if "stale-after-expired" in rules:
+        for p, fm, header, body in notes:
+            r = rule_stale_after(p, fm)
+            if r:
+                reported_list.append(r)
 
     return {
         "generated_at": now_iso(),

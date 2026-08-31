@@ -7,6 +7,7 @@ description: 诊断驱动的文本净化：只处理上游分析有条目的发�
 
 ```yaml
 capability_id: "pkos.polish.refine"
+required_capability: "llm_chat{reasoning:high,context:large}"  # v4.2.1 U3 批C 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: process
@@ -487,7 +488,7 @@ analysis_finding:
 # 输出 (v3.1 强类型)
 derived_draft:
   type: "derived_draft"
-  target_skill: "html_article | comic_storyboard | video_script | novel_chapter"
+  target_skill: "html_article | comic_storyboard | video_script | novel_chapter | gzh_article"
   derived_from_fact_core: "<sha256>"
   style_adapter: "<one of target_skill>"
   entities: [实体名列表]              # 重提取（用于弱审）

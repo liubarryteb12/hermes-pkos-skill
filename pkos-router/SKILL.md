@@ -1,6 +1,6 @@
 ---
 name: pkos-router
-description: v4.0 策略消费者（Smart Router 纯调度）：读取 Policy Engine 产出的 Execution Strategy（pkos-execution-strategy:1），经 strategy_gate.py 校验后分发执行，写 RT-* 路由单（exit ∈ {html|ppt|comic|novel} + conversion_type 六值词表 + style_adapter + adaptive_polish_policy + moc_links + strategy 溯源块）。自己不做业务判断——exit/转化类型/style_adapter 全部来自策略变量（Hook 1；决策逻辑见 contracts/policy-engine.md）。非法/缺失策略载荷 fail loud → ambiguous。触发语：「这篇做成什么好」「出 HTML 还是 PPT」「排一个输出计划」「给我一条路由建议」。**v2/v3/v4 多重身份**：保留 v0/v2 pkos-router（deprecated）兼容入口（同样要求策略载荷）；新会话用 pkos.router.decide。
+description: v4.0 策略消费者（Smart Router 纯调度）：读取 Policy Engine 产出的 Execution Strategy（pkos-execution-strategy:1），经 strategy_gate.py 校验后分发执行，写 RT-* 路由单（exit ∈ {html|ppt|comic|novel|article} + conversion_type 七值词表 + style_adapter + adaptive_polish_policy + moc_links + strategy 溯源块）。自己不做业务判断——exit/转化类型/style_adapter 全部来自策略变量（Hook 1；决策逻辑见 contracts/policy-engine.md）。非法/缺失策略载荷 fail loud → ambiguous。触发语：「这篇做成什么好」「出 HTML 还是 PPT」「排一个输出计划」「给我一条路由建议」。**v2/v3/v4 多重身份**：保留 v0/v2 pkos-router（deprecated）兼容入口（同样要求策略载荷）；新会话用 pkos.router.decide。
 ---
 
 # Capability 身份 (v2 契约 C-1)
@@ -47,7 +47,7 @@ inputs:
     required: false
     schema:
       user_intent: "<string>"                              # 用户原话或场景（采集进 Decision Context，不据此判断）
-      exit_hint: "html | ppt | comic | novel | null"       # null = 由 Policy Engine 决策（v0 启发式已移交 contracts/policy-engine.md §2.1）
+      exit_hint: "html | ppt | comic | novel | article | null"   # null = 由 Policy Engine 决策（v0 启发式已移交 contracts/policy-engine.md §2.1）
       audience_hint: "<string>"                            # null = 由 Policy Engine 决策
       confirmation_strength: "interactive-one-step | batch-post-gate | first-screen-sample"  # 默认 interactive-one-step
       dual_exit: bool                                      # 同素材出双出口（两 RT-*）
@@ -66,8 +66,8 @@ outputs:
       created: "YYYY-MM-DD"
       source_entry: "[[条目名]]"
       user_intent: "<string>"
-      exit: "html | ppt | comic | novel"   # v0 词表（v2.3+ 新增 comic,承接 pkos.exit.comic.compose；v3.2+ 新增 novel,承接 pkos.exit.gzhxiaoshuo.compose）
-      conversion_type: "wiki百科条目 | 实战操作指南 | 避坑风险清单 | 学习路径 | 公众号漫画 | 小说"  # v0 四值词表,v2.3 扩展为五值（增 公众号漫画）,v3.2 扩展为六值（增 小说,承接 pkos.exit.gzhxiaoshuo.compose）
+      exit: "html | ppt | comic | novel | article"   # v0 词表（v2.3+ 新增 comic,承接 pkos.exit.comic.compose；v3.2+ 新增 novel,承接 pkos.exit.gzhxiaoshuo.compose；v4.5+ 新增 article,承接 pkos.exit.wenzhang.compose）
+      conversion_type: "wiki百科条目 | 实战操作指南 | 避坑风险清单 | 学习路径 | 公众号漫画 | 小说 | 公众号文章"  # v0 四值词表,v2.3 扩展为五值（增 公众号漫画）,v3.2 扩展为六值（增 小说）,v4.5 扩展为七值（增 公众号文章,承接 pkos.exit.wenzhang.compose）
       topic_suggestion: "<一句话主题>"
       audience: "<给谁看 什么场合>"
       confirmation_strength: "interactive-one-step | batch-post-gate | first-screen-sample"
@@ -88,7 +88,7 @@ failures:
   not_found:                          # 业务事实：目标出口/路径不可用
     meaning: "目标 exit 在当前实例未启用 / POL 落点路径不可达"
     when:
-      - "目标 exit ∈ {html, ppt, comic, novel} 但未在 _PKOS/config.json → modules.enabled 启用（v0 锁死：fail loud；novel 为 v3.2+ 新增槽位）"
+      - "目标 exit ∈ {html, ppt, comic, novel, article} 但未在 _PKOS/config.json → modules.enabled 启用（v0 锁死：fail loud；novel 为 v3.2+、article 为 v4.5+ 新增槽位）"
       - "POL-* 落点路径不可达（库根未初始化 / _PKOS/ 未建）"
       - "conversion_type 候选词汇空（v0 锁死：不得临场发明）"
     caller_action: ["continue", "report"]
@@ -100,6 +100,7 @@ failures:
       - "源条目未 polished（status≠polished）→ 无可路由对象"
       - "exit_hint=null 且无 Execution Strategy / 策略载荷非法（v4.0：启发式已移交 Policy Engine，见 contracts/policy-engine.md）→ 决策单"
       - "exit_hint=comic 但未配置 art_style/grid 等 comic 必问项"
+      - "exit_hint=article 且 writing_mode=auto 且素材/意图无法映射到六写法之一（承接单元 ambiguous 语义）"
       - "audience_hint=null 且无库内惯例可循"
       - "dual_exit=true 但双出口其一未启用 → 部分可路由，部分挂起"
     caller_action: ["add_constraint", "ask_user"]
@@ -109,9 +110,9 @@ failures:
     meaning: "路由单 schema 不齐 / 词表越界 / IO 故障"
     when:
       - "schema 必填字段缺失（source_entry/exit/conversion_type/audience/rationale 五键）"
-      - "conversion_type 越出 v0 六值词表（含 公众号漫画、小说）"
+      - "conversion_type 越出 v0 七值词表（含 公众号漫画、小说、公众号文章）"
       - "confirmation_strength 越出 v0 三值"
-      - "exit 越出 {html, ppt, comic, novel}"
+      - "exit 越出 {html, ppt, comic, novel, article}"
       - "Execution Strategy 结构合法但 routing 组合非法（exit×conversion_type 矩阵 / style_adapter 交叉 / style_theme 非空；v4.0 经 strategy_gate.py 拦截）"
       - "rationale 空（v0 强约束：决策理由可追溯）"
       - "style_theme 非 null（v0 锁死：恒不填；v3.1 由 style_adapter 取代）"
@@ -140,9 +141,9 @@ failures:
 verification:
   success_predicate:
     - "RT-* 落盘且 schema 五键齐全（source_entry/exit/conversion_type/audience/rationale）"
-    - "conversion_type ∈ v0 五值词表（含 公众号漫画）"
+    - "conversion_type ∈ v0 七值词表（含 公众号漫画、小说、公众号文章）"
     - "confirmation_strength ∈ v0 三值"
-    - "exit ∈ {html, ppt, comic, novel}"
+    - "exit ∈ {html, ppt, comic, novel, article}"
     - "style_theme == null（v0 锁死）"
     - "rationale 非空数组"
     - "源 POL front_matter.status=polished 校验通过"
@@ -184,7 +185,7 @@ route_id: RT-YYYYMMDD-NNN
 created: YYYY-MM-DD
 source_entry: "[[条目名]]"
 user_intent: "用户原话或场景描述"
-exit: html | ppt | comic | novel
+exit: html | ppt | comic | novel | article
 conversion_type: 学习路径
 topic_suggestion: "一句话主题"
 audience: "给谁看，什么场合"
@@ -241,13 +242,13 @@ strategy:                          # v4.0 新增: 溯源块（v4.0 起强制携�
     "created": {"type": "string", "format": "date"},
     "source_entry": {"type": "string"},
     "user_intent": {"type": "string", "minLength": 5},
-    "exit": {"type": "string", "enum": ["html", "ppt", "comic", "novel"]},
-    "conversion_type": {"type": "string", "enum": ["学习路径", "实战操作指南", "避坑风险清单", "wiki百科条目", "公众号漫画", "小说"]},
+    "exit": {"type": "string", "enum": ["html", "ppt", "comic", "novel", "article"]},
+    "conversion_type": {"type": "string", "enum": ["学习路径", "实战操作指南", "避坑风险清单", "wiki百科条目", "公众号漫画", "小说", "公众号文章"]},
     "topic_suggestion": {"type": "string"},
     "audience": {"type": "string", "minLength": 5},
     "confirmation_strength": {"type": "string", "enum": ["batch-post-gate", "interactive-one-step", "first-screen-sample"]},
     "style_theme": {"type": "null", "deprecated": true, "note": "v3.3 废弃: 恒 null, 样式选择统一走 style_adapter"},
-    "style_adapter": {"type": ["string", "null"], "enum": ["html_article", "video_script", "comic_storyboard", "novel_chapter", null], "note": "v3.0 新增"},
+    "style_adapter": {"type": ["string", "null"], "enum": ["html_article", "video_script", "comic_storyboard", "novel_chapter", "gzh_article", null], "note": "v3.0 新增；v4.5 增 gzh_article"},
     "adaptive_polish_policy": {"type": "object", "note": "v3.0 新增: weak_check_runs + on_fail"},
     "moc_links": {"type": "array", "items": {"type": "string"}, "note": "v2.3.1 新增"},
     "meta": {"type": "object", "note": "v2.3 sanitization 元数据"},
@@ -290,7 +291,7 @@ strategy:                          # v4.0 新增: 溯源块（v4.0 起强制携�
 传给 router LLM 的 payload **只含**：
 - `content`: 净化稿正文
 - `user_intent`: 用户原话
-- `available_exits`: 出口白名单 (html | ppt | comic | novel)
+- `available_exits`: 出口白名单 (html | ppt | comic | novel | article)
 - `available_themes`: 主题 ID 列表
 
 **不传**：
@@ -371,7 +372,7 @@ moc_links:
        ▼
 [策略变量注入: exit + style_adapter ← Execution Strategy (v4.0, 决策在 Policy Engine)]
        │
-       ├──→ 风格调: html_article / comic_storyboard / video_script / novel_chapter
+       ├──→ 风格调: html_article / comic_storyboard / video_script / novel_chapter / gzh_article
        │
        ▼
 [调度 polish.refine 按 style_adapter 二次精修] ←─── v3.0 增量
@@ -425,6 +426,7 @@ moc_links:
 | `comic_storyboard` | exit.comic.compose | 每段 50-100 字、视觉引导符号、对话独立 |
 | `video_script` | exit.video.compose | 口语化、NOTES 段 150-300 字 |
 | `novel_chapter` | exit.novel.compose | 文学化、对话独立、场景描写 |
+| `gzh_article` | exit.article.compose (v4.5+) | 公众号文章化：手机屏短段、小节导航、单一 CTA、去 AI 腔 |
 | `null` (默认) | exit.* 通用 | 不做风格化，走 v2.3.1 通用净化 |
 
 **v3.3 收敛**：`style_theme` 废弃（schema 恒 null）。样式选择统一由 `style_adapter` 承担（v3.0 引入的 5 选 1 词表），消费者不应读取 style_theme。
@@ -538,7 +540,7 @@ fact_core:
 # 输出 DerivedDraft 必填字段
 derived_draft:
   type: "derived_draft"
-  target_skill: "html_article | comic_storyboard | video_script | novel_chapter"
+  target_skill: "html_article | comic_storyboard | video_script | novel_chapter | gzh_article"
   derived_from_fact_core: "<sha256>"
   style_adapter: "<one of target_skill>"
   weak_check:
@@ -681,11 +683,49 @@ moc_links:
 ```
 
 **下游消费**：gzhxiaoshuo 产出三层结构（JSON schema 层 + Markdown 正文层 + manifest），可继续被 comic/video Skill 解析复用（多模态中继）。
+
+---
+
+# v4.5 article 出口调度（承接 pkos.exit.wenzhang.compose）
+
+> **v4.5 增量**：exit 词表第五槽位 `article`，由 `pkos.exit.wenzhang.compose`（added_in 4.5）承接。消费 conversion_type=公众号文章（强绑定），style_adapter=gzh_article。
+
+## article 决策启发式（归 Policy Engine 语义域）
+
+| 信号 | 权重 | 说明 |
+|---|---|---|
+| conversion_type=公众号文章 | 决定 | 直派 article |
+| 用户意图含"写公众号文章/长文/深度文/推文" | 强 | article 候选 |
+| 素材为单篇 POL 且叙事/观点密度高 | 中 | article 适配 |
+| 用户要"排版贴进编辑器" | 反向 | article 产成稿后仍走外部 gzh-design（v2.25 边界不变），不改派 html |
+| 素材是纯数据/步骤且读者要自包含阅读页 | 反向 | 转 html |
+
+## article 必问项（interactive 确认强度时）
+
+- `writing_mode`：诊断结论确认（六写法 auto 路由后一步确认，或用户直接点名）
+- `length_target`：long（1500-4000）/ short（≤1000）/ 自定义字数
+- `voice_profile`：generic 或 `_PKOS/assets/my-voice.md`（档案存在时须确认是否启用）
+
+## 路由单 article 示例
+
+```yaml
+route_id: RT-20260831-001
+exit: article
+conversion_type: 公众号文章
+style_adapter: gzh_article
+adaptive_polish_policy:
+  weak_check_runs: 2
+  on_fail: raw_fallback
+moc_links:
+  - "[[MOC:XXX]]"
+```
+
+**下游消费**：wenzhang 产出四件（article.md + titles.md + qc-report.json + manifest）落 `_PKOS/_Export/article/`；成稿可被外部 gzh-design 排版（只读消费，体系外辅助）。
 ---
 
 # 下游能力目录（Dispatch Catalog, v3.3）
 
-> **决策前必读（v4.0 起由 Policy Engine 在决策阶段读取；router 分发阶段按需查阅）**：`contracts/skill-dispatch-catalog.md` —— 五个内容输出 skill（html/ppt/comic/novel + utility 出图）的能力卡片、输入输出契约、用户命令触发特征、调用关系全图。本文件只管决策词表与矩阵；下游选择细节以该目录为准。
+> **决策前必读（v4.0 起由 Policy Engine 在决策阶段读取；router 分发阶段按需查阅）**：`contracts/skill-dispatch-catalog.md` —— 六个内容输出 skill（html/ppt/comic/novel/article + utility 出图）的能力卡片、输入输出契约、用户命令触发特征、调用关系全图。本文件只管决策词表与矩阵；下游选择细节以该目录为准。
 
 # v3.3 合法性路由矩阵（Compatibility Matrix）
 
@@ -693,18 +733,19 @@ moc_links:
 
 ## 矩阵
 
-| exit \ conversion_type | wiki百科条目 | 实战操作指南 | 避坑风险清单 | 学习路径 | 公众号漫画 | 小说 |
-|---|---|---|---|---|---|---|
-| **html** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| **ppt** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| **comic** | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| **novel** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| exit \ conversion_type | wiki百科条目 | 实战操作指南 | 避坑风险清单 | 学习路径 | 公众号漫画 | 小说 | 公众号文章 |
+|---|---|---|---|---|---|---|---|
+| **html** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **ppt** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **comic** | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **novel** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| **article** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 
 ## 判定规则
 
-- 合法组合 10 / 全组合 24（10 = html 4 + ppt 4 + comic 1 + novel 1）
-- 漫画与小说是**强绑定出口**：conversion_type 必须精确匹配（公众号漫画→comic、小说→novel）
-- html/ppt 是**通用内容出口**：承接四种文本型 conversion_type；"公众号漫画/小说"意图必须分派给专属出口
+- 合法组合 11 / 全组合 35（11 = html 4 + ppt 4 + comic 1 + novel 1 + article 1；v4.5 前为 10/24）
+- 漫画、小说与公众号文章是**强绑定出口**：conversion_type 必须精确匹配（公众号漫画→comic、小说→novel、公众号文章→article）
+- html/ppt 是**通用内容出口**：承接四种文本型 conversion_type；"公众号漫画/小说/公众号文章"意图必须分派给专属出口
 - 非法组合处理：产出 `{status: unavailable, reason: "illegal exit/conversion_type combination", combination: "<exit>+<type>"}` + 决策单，不猜测改派（fail loud）
 
 ## style_theme 强制收敛（v3.3 升维）
@@ -722,6 +763,7 @@ moc_links:
 | ppt | video_script / null |
 | comic | comic_storyboard / null |
 | novel | novel_chapter / null |
+| article | gzh_article / null |
 
 style_adapter 与 exit 不匹配 → 同样按非法组合拦截（如 exit=html + style_adapter=novel_chapter 应改派 novel 或改 style_adapter）。
 

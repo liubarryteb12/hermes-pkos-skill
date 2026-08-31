@@ -84,7 +84,7 @@ def _load_art_style_tokens(art_style: str, chinese_text: bool) -> tuple[str, str
     theme_path = THEMES_DIR / theme_file_map[art_style]
     if not theme_path.exists():
         raise RenderError("ERR_IO_UNWRITABLE", f"theme file missing: {theme_path}")
-    text = theme_path.read_text(encoding="utf-8")
+    text = theme_path.read_text(encoding="utf-8-sig")
 
     # 选 中文模式或净图模式 prefix
     if chinese_text:

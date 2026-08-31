@@ -233,7 +233,7 @@ def raw_fallback(
     safe_out_fn(fallback)
     fallback.parent.mkdir(parents=True, exist_ok=True)
     fallback.write_text(
-        source_path.read_text(encoding="utf-8"),
+        source_path.read_text(encoding="utf-8-sig"),
         encoding="utf-8",
     )
     emit_render(

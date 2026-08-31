@@ -97,7 +97,7 @@ def cmd_dedup(url: str, vault: str) -> int:
     scanned = 0
     for p in _iter_vault_md(vroot):
         try:
-            text = p.read_text(encoding="utf-8", errors="ignore")
+            text = p.read_text(encoding="utf-8-sig", errors="ignore")
         except OSError:
             continue
         scanned += 1

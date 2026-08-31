@@ -32,7 +32,20 @@ _spec = _ilu.spec_from_file_location("validate_entry", _CONTRACTS)
 ve = _ilu.module_from_spec(_spec)
 _spec.loader.exec_module(ve)
 
-EXCLUDE_DIRS = {"skills", "账户密码"}
+EXCLUDE_DIRS = {"_PKOS", "skills", "账户密码", ".staging", "node_modules", ".git"}
+
+def _load_exempt_dirs(vault) -> set:
+    """R2 豁免区：vault/_PKOS/exempt-zones.json 登记的目录动态并入排除集（数据驱动）。"""
+    extra = set()
+    try:
+        cand = Path(vault) / "_PKOS" / "exempt-zones.json"
+        if cand.is_file():
+            for z in json.loads(cand.read_text(encoding="utf-8-sig")).get("zones", []):
+                extra.add(str(z.get("path", "")).strip())
+    except Exception:
+        pass
+    return {e for e in extra if e}
+
 LINK_RE = re.compile(r"(!?)\[\[([^\[\]]+)\]\]")
 CODE_FENCE_RE = re.compile(r"```.*?(?:```|\Z)", re.S)
 INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
@@ -149,15 +162,18 @@ def resolve_target(target: str, notes_by_stem, files_by_name, files_by_stemless,
 
 
 def audit(vault: Path):
+    global EXCLUDE_DIRS
+    EXCLUDE_DIRS = EXCLUDE_DIRS | _load_exempt_dirs(vault)  # R2 豁免区
     md_files, notes_by_stem, files_by_name, files_by_stemless, files_by_relpath, files_by_pathsuffix = build_indexes(vault)
     notes = []          # (path, fm, fm_broken, body)
     for p in md_files:
-        try:
-            text = p.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            continue
-        fm, broken, body, head = split_fm(text)
-        notes.append((p, fm, broken, body, head))
+        if not excluded(p.relative_to(vault).parts):
+            try:
+                text = p.read_text(encoding="utf-8-sig", errors="replace")
+            except OSError:
+                continue
+            fm, broken, body, head = split_fm(text)
+            notes.append((p, fm, broken, body, head))
 
     total = len(notes)
     fm_ok = sum(1 for _, fm, _, _, _ in notes if fm is not None)
@@ -353,7 +369,7 @@ def main(argv=None) -> int:
     data = audit(vroot)
     prev = None
     if args.prev and Path(args.prev).is_file():
-        prev = json.loads(Path(args.prev).read_text(encoding="utf-8"))
+        prev = json.loads(Path(args.prev).read_text(encoding="utf-8-sig"))
     diff = diff_against_prev(data, prev)
 
     stamp = data["run_at"][:10]

@@ -41,7 +41,7 @@ def _load(path: Path) -> dict[str, Any]:
     if not path.exists():
         _die(f"file not found: {path}")
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8-sig"))
     except json.JSONDecodeError as e:
         _die(f"invalid JSON in {path}: {e}")
 
@@ -225,7 +225,7 @@ def cmd_slice(args: list[str]) -> int:
 def check_wikilinks(md_path: Path) -> list[str]:
     if not md_path.exists():
         return [f"file not found: {md_path}"]
-    text = md_path.read_text(encoding="utf-8")
+    text = md_path.read_text(encoding="utf-8-sig")
     errors: list[str] = []
     lines = text.splitlines()
     for lineno, line in enumerate(lines, start=1):

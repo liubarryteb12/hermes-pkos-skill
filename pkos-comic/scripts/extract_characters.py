@@ -81,7 +81,7 @@ def _read_character_detail(character_id: str, base_dir: Path) -> dict:
             f"详细人物文件不存在: {detail_path}",
             character_id,
         )
-    text = detail_path.read_text(encoding="utf-8")
+    text = detail_path.read_text(encoding="utf-8-sig")
     detailed = _extract_anchor_block(text)
     if not detailed:
         raise CharacterExtractError(

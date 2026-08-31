@@ -1,0 +1,19 @@
+{
+  "_comment": "PKOS 出图统一规格口径 (U-F5)。所有出口（ppt/comic/gptimage2use）共用此 spec；任何单元不得私自定义 API 白名单外尺寸。来源：image-api 网关 quirks.size_alias + 2026-08-29 用户统一口径指令。",
+  "version": "1.0.0",
+  "api_allowed_sizes": ["1024x1024", "1536x1024", "1024x1536"],
+  "roles": {
+    "ppt_slide_16x9": { "size": "1536x1024", "ratio": "3:2", "note": "PPT 横版（网关无精确 16:9，最近横版）" },
+    "ppt_slide_3x4": { "size": "1024x1536", "ratio": "2:3", "note": "PPT 竖版" },
+    "comic_panel": { "size": "1024x1536", "ratio": "2:3", "note": "漫画分镜竖版（原 29:47 超白名单，就近映射）" },
+    "comic_cover": { "size": "1536x1024", "ratio": "3:2", "note": "漫画/文章封面横版" },
+    "generic_square": { "size": "1024x1024", "ratio": "1:1", "note": "通用方图" }
+  },
+  "remap_table": {
+    "1200x1880": "1024x1536",
+    "1200x675": "1536x1024",
+    "1792x1024": "1536x1024",
+    "1792x672": "1536x1024"
+  },
+  "policy": "非白名单尺寸必须经 remap_table 映射，映射事件写入产物 manifest（[remap] 记录）。新增出口先在此登记 role，再写代码。"
+}

@@ -15,7 +15,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-PKOS_BASE = Path(r"D:\00.AIagent\pkos\skills\personal-knowledge-os")
+PKOS_BASE = Path(__file__).resolve().parents[2]  # hermes-pkos-skill: 套件根 = 技能根（pkos-meta/scripts 上两级）
 TELEMETRY = PKOS_BASE / "_PKOS" / "execution" / "telemetry.jsonl"
 
 FALLBACK_EVENTS = {"export.fallback", "weak_check.degraded", "router.degraded", "polish.fail"}
@@ -26,7 +26,7 @@ def load_events() -> list[dict]:
     if not TELEMETRY.exists():
         return []
     out = []
-    for line in TELEMETRY.read_text(encoding="utf-8").splitlines():
+    for line in TELEMETRY.read_text(encoding="utf-8-sig").splitlines():
         line = line.strip()
         if not line:
             continue

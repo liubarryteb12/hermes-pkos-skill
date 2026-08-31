@@ -21,7 +21,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-PKOS_BASE = Path(r"D:\00.AIagent\pkos\skills\personal-knowledge-os")
+PKOS_BASE = Path(__file__).resolve().parents[2]  # hermes-pkos-skill: 套件根 = 技能根（pkos-meta/scripts 上两级）
 INBOX_DIR = PKOS_BASE / "_PKOS" / "INBOX"
 DRAFTS_DIR = PKOS_BASE / "_PKOS" / "_drafts"
 QUARANTINE_DIR = PKOS_BASE / "_PKOS" / "_quarantine"
@@ -94,6 +94,27 @@ def sweep_pycache(apply: bool) -> dict:
     return {"found": len(found), "deleted": len(deleted), "paths": [str(p) for p in found[:5]]}
 
 
+DEGRADATION_GATE = PKOS_BASE / "scripts" / "degradation_gate.py"
+
+
+def check_degradation() -> dict:
+    """U5.1 闭环：心跳巡检消费 telemetry 降级回路（G3）。只报告，不自动改路由。"""
+    if not DEGRADATION_GATE.exists():
+        return {"degradation": "skipped (gate missing)"}
+    try:
+        r = subprocess.run(
+            [sys.executable, str(DEGRADATION_GATE), "--emit"],
+            capture_output=True, text=True, encoding="utf-8", timeout=60,
+        )
+        import json as _json
+        data = _json.loads(r.stdout)
+        props = data.get("proposals", [])
+        return {"events": data.get("events_analyzed", 0), "proposals": len(props),
+                "caps": [p["cap_id"] for p in props]}
+    except Exception as e:  # noqa: BLE001
+        return {"degradation_error": str(e)[:80]}
+
+
 def run_incremental_lint() -> dict:
     if not LINT_SCRIPT.exists():
         return {"lint": "skipped (script missing)"}
@@ -119,6 +140,7 @@ def main(argv: list[str]) -> int:
         "sweep": sweep_expired(apply=apply),
         "pycache": sweep_pycache(apply=apply),
         "lint": run_incremental_lint(),
+        "degradation": check_degradation(),
         "ttl": {"draft_hours": DRAFT_TTL_HOURS, "quarantine_days": QUARANTINE_TTL_DAYS},
     }
     report["latency_ms"] = int((time.time() - t0) * 1000)
@@ -147,6 +169,8 @@ def main(argv: list[str]) -> int:
         print(f"  deleted: {len(sw['deleted'])} (apply={apply})")
         print(f"  pycache dirs: {report['pycache']['found']} found, {report['pycache']['deleted']} deleted (apply={apply})")
         print(f"  lint: {report['lint']}")
+        dg = report["degradation"]
+        print(f"  degradation: {dg.get('proposals', 0)} 提案 / {dg.get('events', 0)} 事件" + (f"  ⚠ {dg['caps']}" if dg.get("caps") else ""))
         print(f"  latency: {report['latency_ms']}ms")
     return 0
 

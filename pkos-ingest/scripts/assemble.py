@@ -58,7 +58,7 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     src = Path(args.fetched)
-    text = src.read_text(encoding="utf-8", errors="replace")
+    text = src.read_text(encoding="utf-8-sig", errors="replace")
     title, published, body = parse_reader_output(text)
     title = title or src.stem
     desc = args.description or f"{title}——网络剪藏原文"

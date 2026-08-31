@@ -158,7 +158,7 @@ def setup_test_vault(case: dict) -> tuple[Path, Path]:
     if src_status:
         target_path = vault / "alpha.md"
         if target_path.exists():
-            body = target_path.read_text(encoding="utf-8")
+            body = target_path.read_text(encoding="utf-8-sig")
             new_body = re.sub(r"^status:.*$", f"status: {src_status}", body, count=1, flags=re.M)
             target_path.write_text(new_body, encoding="utf-8")
 
@@ -180,7 +180,7 @@ def setup_test_vault(case: dict) -> tuple[Path, Path]:
                 if not src.exists():
                     src.write_text(f"---\ntitle: {src.stem}\ntype: note\nstatus: triaged\ndomain: tech\n---\n\n# body\n\n[[{dst.stem}]]\n", encoding="utf-8")
                 else:
-                    cur = src.read_text(encoding="utf-8")
+                    cur = src.read_text(encoding="utf-8-sig")
                     src.write_text(cur + f"\n[[{dst.stem}]]\n", encoding="utf-8")
             except Exception:
                 pass
@@ -200,8 +200,8 @@ def _run_script(cmd: list[str], timeout: int = 60) -> tuple[int, str]:
     try:
         with open(out_p, "wb") as fo, open(err_p, "wb") as fe:
             proc = subprocess.run(cmd, stdout=fo, stderr=fe, timeout=timeout)
-        out = out_p.read_text(encoding="utf-8", errors="replace")
-        err = err_p.read_text(encoding="utf-8", errors="replace")
+        out = out_p.read_text(encoding="utf-8-sig", errors="replace")
+        err = err_p.read_text(encoding="utf-8-sig", errors="replace")
         return proc.returncode, out + err
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -263,14 +263,14 @@ def run_commit(case: dict, vault: Path) -> tuple[int, str]:
         from_state = mocks["actual_status"]
     if mocks.get("source_status"):
         if target_path.exists():
-            body = target_path.read_text(encoding="utf-8")
+            body = target_path.read_text(encoding="utf-8-sig")
             new_body = re.sub(r"^status:.*$", f"status: {mocks['source_status']}", body, count=1, flags=re.M)
             target_path.write_text(new_body, encoding="utf-8")
         from_state = mocks["source_status"]
     else:
         # success case 默认：把 front matter status 设为 from_state 避免 ambiguous
         if failure_mode == "success" and target_path.exists():
-            body = target_path.read_text(encoding="utf-8")
+            body = target_path.read_text(encoding="utf-8-sig")
             new_body = re.sub(r"^status:.*$", f"status: {from_state}", body, count=1, flags=re.M)
             target_path.write_text(new_body, encoding="utf-8")
 
@@ -413,7 +413,7 @@ def main(argv: list[str] | None = None) -> int:
         if not test_file.exists():
             print(f"SKIP {cap}: {test_file.name} not found")
             continue
-        cases = parse_yaml(test_file.read_text(encoding="utf-8")).get("cases", [])
+        cases = parse_yaml(test_file.read_text(encoding="utf-8-sig")).get("cases", [])
         cap_pass = cap_fail = cap_skip = 0
         print(f"\n=== {cap} ({len(cases)} cases) ===")
         for case in cases:

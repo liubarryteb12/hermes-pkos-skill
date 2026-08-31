@@ -63,7 +63,7 @@ def docx_md(inp: Path, outdir: Path) -> int:
               file=sys.stderr)
         return 1
     out_md = outdir / f"{inp.stem}.md"
-    text = out_md.read_text(encoding="utf-8")
+    text = out_md.read_text(encoding="utf-8-sig")
     # 兜底：任何被写成绝对路径的媒体引用改写为 attachments/ 相对形式
     att_prefix = str(outdir / "attachments")
     if att_prefix in text:
@@ -79,7 +79,7 @@ def docx_md(inp: Path, outdir: Path) -> int:
 
 def wrap(body_path: Path, title: str, key: str, created: str, outdir: Path,
          ntype: str, status: str, domain: str | None, own_product: bool) -> int:
-    body = body_path.read_text(encoding="utf-8")
+    body = body_path.read_text(encoding="utf-8-sig")
     fm = [
         "---",
         f'title: "{title}"',

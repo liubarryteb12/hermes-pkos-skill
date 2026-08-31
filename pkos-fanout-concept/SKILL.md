@@ -7,6 +7,7 @@ description: 概念扇出：从一个核心概念发散到 N 个相关方向，�
 
 ```yaml
 capability_id: "pkos.fanout.concept"
+required_capability: "llm_chat{reasoning:medium,context:large}"  # v4.2.1 U3 批E 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=2.1.0"
 stage: maintenance

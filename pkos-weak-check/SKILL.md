@@ -7,6 +7,7 @@ description: 独立弱审核模块（v3.1 Verification Matrix）：接收 Derive
 
 ```yaml
 capability_id: "pkos.weak_check.verify"
+required_capability: "llm_chat{reasoning:high,context:large}"  # v4.2.1 U3 批C 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=3.1.0"
 stage: verify

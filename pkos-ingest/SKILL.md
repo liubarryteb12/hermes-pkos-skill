@@ -7,6 +7,7 @@ description: 把外部输入变成通过 pkos-schema:1 校验的合规知识条�
 
 ```yaml
 capability_id: "pkos.ingest.extract"
+required_capability: "llm_chat{reasoning:high,context:large}"  # v4.2.1 U3 批A 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: process

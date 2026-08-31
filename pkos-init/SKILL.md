@@ -7,6 +7,7 @@ description: 知识库工作区初始化：确定库路径 + 三种架构模式�
 
 ```yaml
 capability_id: "pkos.governance.bootstrap"   # v2 新 ID
+required_capability: "llm_chat{reasoning:medium,context:medium}"  # v4.2.1 U3 批B 铺开
 version: "1.0.0"                            # 独立 SemVer
 compatible_pkos_schema: ">=2.0.0"
 stage: governance

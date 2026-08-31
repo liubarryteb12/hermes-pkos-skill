@@ -38,7 +38,7 @@ def main(argv=None) -> int:
     tj = {}
     if tj_path.is_file():
         try:
-            tj = json.loads(tj_path.read_text(encoding="utf-8"))
+            tj = json.loads(tj_path.read_text(encoding="utf-8-sig"))
             for k in REQUIRED_KEYS:
                 if k not in tj:
                     errors.append(f"E002 theme.json 缺键: {k}")
@@ -48,13 +48,13 @@ def main(argv=None) -> int:
 
     pv = d / "preview.html"
     if pv.is_file():
-        anchors = re.findall(r'data-block="([^"]+)"', pv.read_text(encoding="utf-8"))
+        anchors = re.findall(r'data-block="([^"]+)"', pv.read_text(encoding="utf-8-sig"))
         if len(anchors) < 6:
             errors.append(f"E003 preview 锚点不足 6 个（现 {len(anchors)}）")
 
     ref_p = d / "reference.html"
     if ref_p.is_file() and tj:
-        ref = ref_p.read_text(encoding="utf-8")
+        ref = ref_p.read_text(encoding="utf-8-sig")
         style_id = tj.get("id", "")
         if f'data-style="{style_id}"' not in ref:
             errors.append(f"E004 reference 根元素缺 data-style=\"{style_id}\"")
@@ -71,13 +71,13 @@ def main(argv=None) -> int:
             warnings.append(f"W006 reference 中 pk-* 类仅 {len(pk_classes)} 种")
 
     prof = d / "profile.md"
-    if prof.is_file() and len(prof.read_text(encoding="utf-8")) < 300:
+    if prof.is_file() and len(prof.read_text(encoding="utf-8-sig")) < 300:
         warnings.append("W007 profile.md 短于 300 字符，约束可能不够 AI 落地")
 
     css = d / "theme.css"
     if tj and css.is_file():
         for tok in tj.get("tokens", {}):
-            if tok not in css.read_text(encoding="utf-8"):
+            if tok not in css.read_text(encoding="utf-8-sig"):
                 warnings.append(f"W008 token {tok} 未在 theme.css 使用")
 
     for e in errors:

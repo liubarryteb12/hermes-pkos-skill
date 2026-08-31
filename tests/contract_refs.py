@@ -44,7 +44,7 @@ def extract_depends(block: str) -> list[str]:
 
 def check_skill(skill: Path) -> list[str]:
     """返回错误列表。"""
-    text = skill.read_text(encoding="utf-8")
+    text = skill.read_text(encoding="utf-8-sig")
     errs: list[str] = []
     rel = skill.relative_to(ROOT)
     skill_dir = skill.parent

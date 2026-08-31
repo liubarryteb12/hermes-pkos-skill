@@ -394,7 +394,7 @@ DerivedDraft:
   source: ["pkos.polish.refine (产出)"]
   mutability: "EPHEMERAL"          # 临时态，不入库
   consumed_by: ["pkos.exit.html.render", "pkos.exit.ppt.compose", "pkos.exit.comic.compose"]
-  target_skill: "<string>"         # 强制：html_article / comic_storyboard / video_script / novel_chapter
+  target_skill: "<string>"         # 强制：html_article / comic_storyboard / video_script / novel_chapter / gzh_article
   weak_check:
     pass_criteria: "与 FactCore entity_inventory 一致性 ≥ 90%"
     retry_max: 2

@@ -272,9 +272,9 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     tdir = Path(args.theme)
-    tj = json.loads((tdir / "theme.json").read_text(encoding="utf-8"))
-    css = (tdir / "theme.css").read_text(encoding="utf-8")
-    md_text = Path(args.content).read_text(encoding="utf-8")
+    tj = json.loads((tdir / "theme.json").read_text(encoding="utf-8-sig"))
+    css = (tdir / "theme.css").read_text(encoding="utf-8-sig")
+    md_text = Path(args.content).read_text(encoding="utf-8-sig")
 
     # v3.0 [Self-check A 前置]: 渲染前记录源文件 SHA256
     source_path = Path(args.content)

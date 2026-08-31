@@ -7,6 +7,7 @@ description: HTML 出口层：消费路由单，从主题注册库取组件，�
 
 ```yaml
 capability_id: "pkos.exit.html.render"
+required_capability: "llm_chat{reasoning:medium,context:large}"  # v4.2.1 U3 批D 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: exit

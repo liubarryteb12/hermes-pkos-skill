@@ -52,8 +52,8 @@ def run_step(name: str, cmd: list[str], timeout: int = 300) -> dict:
             "step": name,
             "cmd": " ".join(str(c) for c in cmd),
             "exit_code": proc.returncode,
-            "stdout": out_p.read_text(encoding="utf-8", errors="replace")[:5000],
-            "stderr": err_p.read_text(encoding="utf-8", errors="replace")[:5000],
+            "stdout": out_p.read_text(encoding="utf-8-sig", errors="replace")[:5000],
+            "stderr": err_p.read_text(encoding="utf-8-sig", errors="replace")[:5000],
             "elapsed_s": round(elapsed, 2),
         }
     except subprocess.TimeoutExpired:

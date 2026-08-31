@@ -48,7 +48,13 @@ constraints:
   confirmation_strength: "interactive-one-step | batch-post-gate | first-screen-sample"
   dual_exit: false
   forbidden_exits: []          # 本任务禁用的出口
+explicit_directives:           # G1 显式规则绝对优先（v4.2.1 增量扩展，2026-08-29 Gemini 评审采纳）
+  exit: "html | ppt | comic | novel | article | null"      # 用户显式指定的出口；非 null 时语义候选被覆盖
+  conversion_type: "四值词表之一 | null"           # 用户显式指定的转化类型
+  style_adapter: "<词表值 | null>"                 # 用户显式指定的风格适配器
 ```
+
+> **G1 显式规则绝对优先（pkos-policy 1.1 增补）**：`explicit_directives` 任一字段非 null 时，Policy Engine 的语义候选（IntentPolicy 等）**必须被覆盖**，产出的 `routing` 对应字段必须等于显式值；`strategy_gate` 校验显式值与 routing 不一致 → `unavailable`（用户意图被篡改 = 最高优先级违规，不得 LLM 裁决）。字段全 null = 无显式指令，走既有语义路由，行为不变。
 
 | # | 字段 | 必填 | 来源 | 说明 |
 |---|---|---|---|---|
@@ -72,8 +78,8 @@ constraints:
 - **输入**：`intent` / `requested_output` / `knowledge_context`。
 - **职责**：把用户意图映射为路由候选（exit + conversion_type + style_adapter + rationale 种子）。
 - **权威词表出处（v0 启发式移交，v4.0 起本契约是唯一裁决处）**：
-  - 出口映射：内容是「过程/讲稿/演示」→ ppt；「查阅/自包含阅读」→ html；「公众号漫画脚本/分镜/出图 prompt」→ comic；「小说/章节/连载」→ novel。同一素材要演讲版时出第二张路由单（dual_exit）。
-  - 转化类型映射：概念解释→wiki百科条目；步骤可复现→实战操作指南；教训与反例密集→避坑风险清单；入门顺序明确→学习路径；漫画分镜诉求→公众号漫画；故事化诉求→小说。
+  - 出口映射：内容是「过程/讲稿/演示」→ ppt；「查阅/自包含阅读」→ html；「公众号漫画脚本/分镜/出图 prompt」→ comic；「小说/章节/连载」→ novel；「公众号文章/长文/深度文（成稿导向，非排版页）」→ article。同一素材要演讲版时出第二张路由单（dual_exit）。
+  - 转化类型映射：概念解释→wiki百科条目；步骤可复现→实战操作指南；教训与反例密集→避坑风险清单；入门顺序明确→学习路径；漫画分镜诉求→公众号漫画；故事化诉求→小说；公众号成稿诉求→公众号文章。
   - novel 信号表（v3.2 移交，原文逐字收录）：
 
     | 信号 | 权重 | 说明 |
@@ -94,7 +100,7 @@ constraints:
 ### 2.3 WorkflowPolicy（工作流策略）
 
 - **输入**：`task_type` / `constraints.dual_exit` / `knowledge_context`。
-- **职责**：编排多步链（如 分析→净化→弱审→出口；dual_exit 出两张 RT；adaptive_polish_policy 弱审双轨声明 `weak_check_runs`/`on_fail`）。v4.1 起两条演化约束（权威 = `evolution-policy.md` §4/§5）：嵌套 DAG 超级节点须在加载期静态展开并缓存（`evolution_gate.py --expand`，运行时禁止递归解释）；系统自动合成的 DAG 须过共现阈值门 + Git 语义人类确权，未 merge 不得被本策略选用。
+- **职责**：编排多步链（如 分析→净化→弱审→出口；dual_exit 出两张 RT；adaptive_polish_policy 弱审双轨声明 `weak_check_runs`/`on_fail`）。
 - **不做**：不越过 `knowledge_service.commit` 写 vault；不在 workflow 片段里内嵌验证评分（验证归 VerificationPolicy）。
 
 ### 2.4 ProviderPolicy（提供者策略）
@@ -106,7 +112,7 @@ constraints:
 ### 2.5 VerificationPolicy（验证策略）
 
 - **输入**：`verification_requirements` / `task_type` / `history`。
-- **职责**：产出策略的 `verification` 块（threshold、dimensions、cross_validation、requirement 清单），作为 `pkos.weak_check.verify`（v2.0 验证框架）的验收要求来源。v4.1 起还须产出 **`content_tier`** 字段（`fact_dense | format_only | unknown`，词表与分级→验证要求映射的唯一权威 = `evolution-policy.md` §3）：`format_only` 产出走纯代码 lint 兜底、`cross_validation` 强制 false；`fact_dense` 产出维持全强度交叉验证；缺省 `unknown` 保持 v4.0 行为。v4.2 起策略还携带 **`required_persona`** 字段（调用方子人格声明，词表权威 = `operator-policy.md` §2；缺省 `null` = meta_auditor 兜底语义）。
+- **职责**：产出策略的 `verification` 块（threshold、dimensions、cross_validation、requirement 清单），作为 `pkos.weak_check.verify`（v2.0 验证框架）的验收要求来源。
 - **不做**：不打分（打分在 Verifier）；不在生成节点内安置自评（Hook 2）。
 
 ### 2.6 FallbackPolicy（回退策略）
@@ -114,7 +120,6 @@ constraints:
 - **输入**：`history` / `system_state` / 各 Policy 片段的降级选项。
 - **职责**：为策略声明 `fallback` 块：失败分类（provider / skill / verification / ambiguous）到处置动作的映射。处置动作继承 v0 锁死语义：Raw Fallback、ambiguous 决策单、切 provider 档。
 - **Adaptive Loop 接入点**：`Observe → Assess → Decide → Execute → Verify → Classify Failure(provider/skill/verification/ambiguous) → Re-plan/Re-select → Execute`。本策略只声明映射表；循环由调用方驱动。**MAX_RETRY=2 硬锁不变**（P-05，`pkos_v31_lib.MAX_RETRY` 唯一来源）——升级的是"失败后的动作"：从无脑重试改为分类驱动的 re-plan / re-select provider / re-select skill。
-- **审计不变量（v4.1，`evolution-policy.md` §6）**：Adaptive Loop 自动修改路由权重/执行策略时，每笔变更必须先 append 一条 `pkos-weight-audit:1` 审计行到 `_PKOS/audits/weight_audit.jsonl`（schema 七字段 / reason 非空 / before≠after），**先落日志后生效**；审计写失败 = 变更不生效（fail loud）。机器守卫：`evolution_gate.py --validate-audit`。
 
 ## 3. Execution Strategy（pkos-execution-strategy:1）
 
@@ -134,9 +139,9 @@ policies:                 # 六类全在场（组合完整性检查）
   verification: {threshold: 0.9, dimensions: [...], cross_validation: true, requirements: [...]}
   fallback:    {on_provider_fail: reselect_provider, on_verification_fail: replan_polish, on_skill_fail: reselect_exit, on_ambiguous: decision_card}
 routing:                  # 唯一分发指令；必须过 router 合法性矩阵（10/24）
-  exit: "html | ppt | comic | novel"
-  conversion_type: "wiki百科条目 | 实战操作指南 | 避坑风险清单 | 学习路径 | 公众号漫画 | 小说"
-  style_adapter: "html_article | video_script | comic_storyboard | novel_chapter | null"
+  exit: "html | ppt | comic | novel | article"
+  conversion_type: "wiki百科条目 | 实战操作指南 | 避坑风险清单 | 学习路径 | 公众号漫画 | 小说 | 公众号文章"
+  style_adapter: "html_article | video_script | comic_storyboard | novel_chapter | gzh_article | null"
   confirmation_strength: "interactive-one-step | batch-post-gate | first-screen-sample"
   topic_suggestion: "<一句话主题>"
   audience: "<给谁看 什么场合>"

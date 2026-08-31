@@ -7,6 +7,7 @@ description: 知识库全局索引：构建可机读的 MASTER_INDEX.md 索引�
 
 ```yaml
 capability_id: "pkos.maintenance.index"
+required_capability: "none"  # v4.2.1 U3 批E 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: maintenance
@@ -182,19 +183,6 @@ replaces: []
 - `incremental=true` + `since=<ISO>`：仅扫描 since 之后变更的条目（用文件 mtime 判定）
 - `incremental=false`（默认）：全量重建
 - 增量失败（如 MASTER_INDEX.json 缺失）→ 降级全量重建
-
-# 对账分级（pkos-evolution:1 §1，v4.1）
-
-> **裁决**：vault 是开放系统（Obsidian/外部脚本可绕过 commit 闸门改文件），纯增量会累积"幽灵节点"，周期性全量对账是唯一熵减保底——**不砍掉，但降频**，日常由 mtime 廉价探测兜底。
-
-| 层级 | 机制 | 频率/触发 | 成本 |
-|---|---|---|---|
-| L1 增量 | 入库后仅对新条目 `+1`（即本节 incremental 模式） | 每次 commit 后 | 毫秒级 |
-| L2 mtime 探测 | 全库文件 mtime 与 `MASTER_INDEX.json` 记录比对，仅差异条目重扫 | 每次 governance.tick | O(文件数) stat，无 front matter 解析 |
-| L3 全量对账 | 全量重建 + diff + 幽灵节点清除 + emit `index.reconcile` | `index_reconcile_cadence_days`（默认 7 天，governance.tick 判定到期触发） | 一次性全库扫描 |
-
-- 配置源：`_PKOS/config/evolution_policy.json`（`index_reconcile_cadence_days` / `mtime_probe_enabled`），缺省用上表默认值。
-- 幽灵节点自愈顺序不变：任何一层发现 404 → 移除索引记录 + 触发反向修复信号；`knowledge_service.commit` 物理验真仍是最后防线。
 
 # 与 v0 兼容性
 

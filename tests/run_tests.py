@@ -37,8 +37,8 @@ def run_cli(*paths, extra=()):
     with open(out_p, "wb") as fo, open(err_p, "wb") as fe:
         proc = subprocess.run([sys.executable, str(MOD), *paths, *extra],
                               stdout=fo, stderr=fe)
-    out = out_p.read_text(encoding="utf-8", errors="replace")
-    err = err_p.read_text(encoding="utf-8", errors="replace")
+    out = out_p.read_text(encoding="utf-8-sig", errors="replace")
+    err = err_p.read_text(encoding="utf-8-sig", errors="replace")
     return proc.returncode, out, err
 
 

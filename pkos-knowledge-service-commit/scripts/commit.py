@@ -107,7 +107,7 @@ def render_front_matter(fm: dict, header_marker: str, body: str) -> str:
 def read_status(target: Path) -> tuple[dict, str, str, str] | tuple[None, None, None, None]:
     """读 target front matter + body。"""
     try:
-        text = target.read_text(encoding="utf-8")
+        text = target.read_text(encoding="utf-8-sig")
     except OSError as e:
         return None, None, None, str(e)
     parsed = parse_front_matter(text)
@@ -228,6 +228,14 @@ def main(argv: list[str] | None = None) -> int:
     new_fm = dict(fm)
     new_fm["status"] = args.to_state
     new_fm["last_commit_at"] = now_iso()
+    # pkos-okf:1 trust 签名（Phase 1）：generated 记 agent 写入；verified 追加 process 确认（human 确权由用户侧动作追加 human: 前缀条目）
+    new_fm["generated"] = {"by": "agent/dsh-pkos-skill", "at": now_iso()}
+    _vf = new_fm.get("verified")
+    _vf_list = _vf if isinstance(_vf, list) else ([_vf] if isinstance(_vf, dict) else [])
+    _entry = {"by": "process:pkos.knowledge_service.commit", "at": now_iso()}
+    if not _vf_list or _vf_list[-1] != _entry:
+        _vf_list.append(_entry)
+    new_fm["verified"] = _vf_list if len(_vf_list) > 1 else _vf_list[0]
     new_text = render_front_matter(new_fm, header, body)
     if not atomic_write(target, new_text):
         return _emit(args.json, 4, "atomic_write_failed", f"backup={backup_path}")
@@ -260,7 +268,7 @@ def _do_rollback(vault: Path, rollback_target: Path, json_mode: bool) -> int:
     if not rollback_target.exists():
         return _emit(json_mode, 2, "rollback_record_missing", str(rollback_target))
     try:
-        rec = json.loads(rollback_target.read_text(encoding="utf-8"))
+        rec = json.loads(rollback_target.read_text(encoding="utf-8-sig"))
     except (OSError, json.JSONDecodeError) as e:
         return _emit(json_mode, 1, "rollback_record_unparseable", str(e))
     backup_p = vault / rec["backup_path"]
@@ -268,9 +276,9 @@ def _do_rollback(vault: Path, rollback_target: Path, json_mode: bool) -> int:
     if not backup_p.exists():
         return _emit(json_mode, 2, "backup_missing", str(backup_p))
     # 恢复
-    fm = json.loads(backup_p.read_text(encoding="utf-8"))
+    fm = json.loads(backup_p.read_text(encoding="utf-8-sig"))
     # 读现 front matter / body
-    parsed = parse_front_matter(target_p.read_text(encoding="utf-8"))
+    parsed = parse_front_matter(target_p.read_text(encoding="utf-8-sig"))
     if parsed is None:
         return _emit(json_mode, 2, "current_fm_unparseable", str(target_p))
     _, header, body = parsed

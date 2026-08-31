@@ -44,8 +44,11 @@ vault_clean = (before == after)
 print(f"\nAfter all tests: {len(after)} source .md files")
 print(f"Vault source SHA256 0-change: {vault_clean}")
 
-# 删 MASTER_INDEX 留作下一轮 baseline
-(vault / "_PKOS" / "MASTER_INDEX.md").unlink(missing_ok=True)
-(vault / "_PKOS" / "MASTER_INDEX.json").unlink(missing_ok=True)
+# 删 MASTER_INDEX 留作下一轮 baseline（Windows 下新写入文件可能被 AV/Obsidian 瞬时锁住，容忍失败不判 fail）
+for _f in ("MASTER_INDEX.md", "MASTER_INDEX.json"):
+    try:
+        (vault / "_PKOS" / _f).unlink(missing_ok=True)
+    except PermissionError:
+        print(f"[warn] {_f} 被占用，留作下轮清理（不影响完整性结论）")
 
 sys.exit(0 if vault_clean else 1)

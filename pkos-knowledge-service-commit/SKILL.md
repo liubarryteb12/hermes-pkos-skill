@@ -7,6 +7,7 @@ description: Knowledge Service 单点裁定（D-6 公理）：集中处理六值
 
 ```yaml
 capability_id: "pkos.knowledge_service.commit"
+required_capability: "llm_chat{reasoning:high,context:large}"  # v4.2.1 U3 批B 铺开
 version: "1.0.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: knowledge_service

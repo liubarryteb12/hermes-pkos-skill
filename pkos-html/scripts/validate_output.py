@@ -60,7 +60,7 @@ def main(argv=None) -> int:
     ap.add_argument("--sink", required=True, choices=sorted(CHECKSETS))
     args = ap.parse_args(argv)
 
-    text = Path(args.file).read_text(encoding="utf-8")
+    text = Path(args.file).read_text(encoding="utf-8-sig")
     results = CHECKSETS[args.sink](text)
     fails = 0
     for ok, name in results:

@@ -1,0 +1,19 @@
+{
+  "model": "qwen3.8-flash",
+  "base_url": "http://47.108.25.114:1519/v1",
+  "epochs": [
+    {
+      "epoch": 1,
+      "train": 4,
+      "failures": 0,
+      "candidate_val": 1.0,
+      "best_val": 1.0,
+      "accepted": true
+    }
+  ],
+  "gate": {
+    "seed_val": 1.0,
+    "best_val": 1.0,
+    "improved": false
+  }
+}

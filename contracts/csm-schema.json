@@ -1,0 +1,37 @@
+{
+  "schema": "pkos-csm:1",
+  "_comment": "CSM（Canonical Script Model）交换契约 v1.0 —— 小说引擎为唯一生产者，article/comic/deck 三类出口为消费者。2026-08-29 定稿，来源：Hermes×Gemini 断点A/B 收敛（workspace/pkos-e2e/Gemini三断点收敛-实体粒度-一致性-分流.md）。",
+  "version": "1.0.0",
+  "required_fields": ["schema", "version", "source_id", "entities", "beats"],
+  "source_id": {
+    "_doc": "生产时填：产出该 CSM 的源条目引用（[[条目名]] 或 story_node_xxx）",
+    "type": "string"
+  },
+  "entities": {
+    "characters": {
+      "_doc": "人物卡：id 全局唯一；visual_anchor 只写核心英文 Tag（极简，禁长句描述）；persona 中文一句话性格。垫图方案下 visual_anchor 会被进一步压缩。",
+      "required": ["id", "name", "visual_anchor", "persona"],
+      "id_pattern": "^char_[0-9]{2,4}$"
+    },
+    "relations": {
+      "_doc": "角色平行线关系边。relation 用中文短语。source/target 必须引用 characters[].id。",
+      "required": ["source", "target", "relation"]
+    }
+  },
+  "beats": {
+    "_doc": "叙事节拍。active_entities 只放 ID 引用，禁止内联人物描述；narrative_text 中文自然语言（喂 article 链，经 humanizer-zh 洗）；visual_prompt 英文 Tag 极简（喂 Gemini 出图链，定妆垫图模式下不含人物外貌）；summary_points 数组 2-5 条（喂 PPT/工作汇报链）。",
+    "required": ["beat_idx", "active_entities", "narrative_text", "visual_prompt", "summary_points"],
+    "active_entities_ref_only": true
+  },
+  "consumers": {
+    "article": "读 narrative_text → humanizer-zh → gzh-design（无视 visual 字段）",
+    "comic": "读 active_entities → 顶层检索 visual_anchor + 垫图 → OpenCLI 串行队列出图；narrative_text 注气泡",
+    "deck": "读 summary_points + 实体关系图 → html-anything 渲染"
+  },
+  "routing_rule": {
+    "_doc": "article/novel 分流（断点C，机器可判，禁语义猜测）。知识条目关系边类型决定引擎：事件脉络型走 novel，结构化拓扑型直出 article。",
+    "novel_edges": ["followed_by", "caused_by", "conflict_with"],
+    "article_edges": ["is_a", "contains", "compare_to"],
+    "fallback": "边类型混杂或缺失 → 生成决策单挂用户裁决（ambiguous），禁止 LLM 临场判定"
+  }
+}
