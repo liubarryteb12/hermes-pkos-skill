@@ -97,6 +97,10 @@ def main() -> int:
                 continue
             if rel.as_posix() == "pipeline/registry.json":
                 continue
+            # 环境自指配置（本机 output_dir 绝对路径）不算旧路径漂移：
+            # 主库/Hermes 副本各持一份，指向自身 _PKOS/outputs 属合法（b819ef1 起两树分置）
+            if rel.as_posix().endswith("shared/image-api/config.json"):
+                continue
             scanned += 1
             try:
                 if LEGACY_RE.search(p.read_text(encoding="utf-8-sig", errors="ignore")):
