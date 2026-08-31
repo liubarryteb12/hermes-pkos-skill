@@ -1,27 +1,23 @@
 #!/usr/bin/env python3
 """
-compose.py — pkos.exit.ppt.compose 核心实现
+compose.py — pkos.exit.ppt.compose v2.0 编排层
 
-消费 RT-* (exit=ppt) 路由单 + POL-* 净化稿，逐页生成投屏演示图像。
+2026-08-31 用户裁定：PPT 出口转向**原生可编辑 PPTX**（吸收 ppt-master 设计），
+v0.2 出图制裁定作废。gptimage2 降级为可选插图通道（--images）。
 
-v0.2 出图制（2026-08-23 用户裁定）：
-  - 直接出图（不调 render_deck.py HTML 路径）
-  - 比例三选一必问（不得默认）
-  - 两出口不混装
-  - provider 铁律（manifest 声明）
-  - manifest 完整可复现
-  - API 不可用 → degraded_success（交付 prompt 清单 + 占位说明）
+流水线（Plan → Do → Check）：
+  RT-*(exit=ppt) + POL-* → deck_spec.build_deck_spec → design_spec.json
+  → build_pptx.build → <route-id>.pptx（原生文本框/形状，PowerPoint 可编辑）
+  → 校验门（重开 pptx 数页 + hash）→ manifest.json（可复现）
 
-CLI 用法：
-  python compose.py --route _PKOS/routes/RT-XXX.yaml [--ratio 16:9] [--slides N] [--auto]
-  python compose.py --help
+契约保留：比例三选一必问 / 三态失败 / manifest 完整 / provider 铁律 /
+degraded_success（插图失败但 deck 与 prompt 清单完整交付）。
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
-import os
 import re
 import sys
 import time
@@ -30,39 +26,43 @@ from typing import Any
 
 # ── 路径解析 ────────────────────────────────────────────────────────────────
 
-# 多个可能的工作空间路径，按优先级排列
 def _find_workspace_root() -> Path:
-    """自动探测工作空间根目录（平铺布局：pkos-ppt-skill/scripts 的上两级即套件根）。"""
+    """平铺布局：pkos-ppt-skill/scripts 的上两级即套件根。"""
     return Path(__file__).resolve().parents[2]
 
 WORKSPACE_ROOT = _find_workspace_root()
 SKILL_DIR = WORKSPACE_ROOT / "pkos-ppt-skill"
-POLICY_PATH = WORKSPACE_ROOT / "_PKOS" / "contracts" / "artifact-integrity-policy.md"
 
-# 注入 shared/image-api/client
+sys.path.insert(0, str(SKILL_DIR / "scripts"))
 _img_api_path = SKILL_DIR / "shared" / "image-api"
 if str(_img_api_path) not in sys.path:
     sys.path.insert(0, str(_img_api_path))
-try:
-    import client as img_client  # type: ignore
-except ImportError as e:
-    print(f"ERROR: shared/image-api/client.py 导入失败: {e}", file=sys.stderr)
-    sys.exit(2)
 
-# ── 比例映射（v0 锁死）───────────────────────────────────────────────────────
+import deck_spec  # noqa: E402
+import build_pptx  # noqa: E402
+
+try:
+    import client as img_client  # type: ignore  # noqa: E402
+except ImportError:
+    img_client = None  # 插图通道缺失不影响原生 deck
+
+# ── 比例映射（v0 锁死继承：三选一必问）─────────────────────────────────────
 
 RATIO_SIZES: dict[str, str] = {
-    "16:9": "1536x1024",
-    "4:3": "1536x1024",       # 网关无精确 4:3，用最近横版
+    "16:9": "1536x1024",   # 插图槽位用（image-size-spec 白名单）
+    "4:3": "1536x1024",
     "3:4": "1024x1536",
 }
 DEFAULT_RATIO = "16:9"
 
+# conversion_type 承接子集：对齐 router v3.3 兼容性矩阵（ppt 行 4 值全合法）。
+# 旧实现只放 2 值且与 router 漂移，2026-08-31 修正。
+PPT_ACCEPTS = {"实战操作指南", "wiki百科条目", "避坑风险清单", "学习路径"}
 
-# ── YAML 解析（最小实现）─────────────────────────────────────────────────────
+
+# ── YAML 解析（最小实现，避免 pyyaml 依赖）──────────────────────────────────
 
 def yaml_safe_load(text: str) -> dict:
-    """最小 YAML 子集解析（避免依赖 pyyaml）。"""
     result: dict[str, Any] = {}
     current_list_key: str | None = None
     for line in text.splitlines():
@@ -81,14 +81,11 @@ def yaml_safe_load(text: str) -> dict:
         if m:
             key, val = m.group(1), m.group(2).strip()
             current_list_key = key
-            if val == "" or val is None:
+            if val == "":
                 result[key] = []
             elif val.startswith("[") and val.endswith("]"):
-                inner = val[1:-1]
-                result[key] = [
-                    v.strip().strip('"').strip("'")
-                    for v in inner.split(",") if v.strip()
-                ]
+                result[key] = [v.strip().strip('"').strip("'")
+                               for v in val[1:-1].split(",") if v.strip()]
             else:
                 val = val.strip('"').strip("'")
                 if val.lower() == "true":
@@ -105,23 +102,18 @@ def yaml_safe_load(text: str) -> dict:
 def load_route(route_path: Path) -> dict:
     if not route_path.exists():
         raise FileNotFoundError(f"路由单不存在: {route_path}")
-    with open(route_path, "r", encoding="utf-8") as f:
+    with open(route_path, "r", encoding="utf-8-sig") as f:
         return yaml_safe_load(f.read())
 
 
-# ── 路由单验证 ──────────────────────────────────────────────────────────────
-
 def validate_route(route: dict) -> list[str]:
-    """验证路由单；返回拒绝原因列表（空 = 合法）。v0 锁死：只消费 exit=ppt。"""
     rejections: list[str] = []
     if route.get("exit") != "ppt":
-        rejections.append(f"v0 锁死：本单元只消费 exit=ppt，路由单 exit={route.get('exit')}")
+        rejections.append(f"本单元只消费 exit=ppt，路由单 exit={route.get('exit')}")
     conv = route.get("conversion_type", "")
-    accepted = {"实战操作指南", "wiki百科条目"}
-    if conv and conv not in accepted:
-        rejections.append(f"conversion_type '{conv}' 不在 ppt 承接子集 {accepted}")
-    source = route.get("source_entry", "")
-    if not source:
+    if conv and conv not in PPT_ACCEPTS:
+        rejections.append(f"conversion_type '{conv}' 不在 ppt 承接子集 {sorted(PPT_ACCEPTS)}")
+    if not route.get("source_entry"):
         rejections.append("路由单缺少 source_entry")
     return rejections
 
@@ -129,14 +121,12 @@ def validate_route(route: dict) -> list[str]:
 # ── POL 源解析 ──────────────────────────────────────────────────────────────
 
 def resolve_source(route: dict) -> Path | None:
-    """从 source_entry [[name]] 解析出 POL 文件路径。"""
     source = route.get("source_entry", "")
     m = re.search(r"\[\[(.+?)\]\]", source)
     if not m:
         return None
     name = m.group(1)
-    # _PKOS 位于 <workspace>/skills/personal-knowledge-os/_PKOS/
-    analysis_dir = WORKSPACE_ROOT / "skills" / "personal-knowledge-os" / "_PKOS" / "analysis"
+    analysis_dir = WORKSPACE_ROOT / "_PKOS" / "analysis"
     if not analysis_dir.exists():
         return None
     candidates = list(analysis_dir.glob(f"*{name}*"))
@@ -147,8 +137,7 @@ def resolve_source(route: dict) -> Path | None:
 
 
 def parse_pol_content(path: Path) -> dict:
-    """解析 POL 文件：提取 frontmatter + 结构化章节。"""
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8-sig")
     if text.startswith("---"):
         parts = text.split("---", 2)
         fm_lines = parts[1].splitlines() if len(parts) > 1 else []
@@ -158,153 +147,161 @@ def parse_pol_content(path: Path) -> dict:
         body = text
     fm: dict[str, str] = {}
     for line in fm_lines:
-        m = re.match(r"^(\w+):\s*(.*)$", line.strip())
+        m = re.match(r"^(\w[\w-]*):\s*(.*)$", line.strip())
         if m:
             fm[m.group(1)] = m.group(2).strip().strip('"')
-    sections = re.split(r"^## ", body, flags=re.M)
-    slides_data = []
-    for sec in sections:
+    # 正文首个 H1 = deck 标题（frontmatter title 常是 POL 机器 ID，不可用作标题）
+    h1 = re.search(r"^# (.+)$", body, re.M)
+    deck_title = h1.group(1).strip() if h1 else ""
+    # 元信息编号不入标题（用户规则：EP/章节号前缀剥离）
+    deck_title = re.sub(r"^\d+(?:[-.]\d+)*\s*", "", deck_title)
+    # "POL-xxx —— 真实标题" 形态：取破折号后段
+    if "——" in deck_title:
+        deck_title = deck_title.split("——")[-1].strip()
+    deck_title = re.sub(r"\s*·\s*润色净本\s*$", "", deck_title)
+    sections = []
+    for sec in re.split(r"^## ", body, flags=re.M):
         sec = sec.strip()
         if not sec:
             continue
         lines = sec.splitlines()
         title = lines[0].strip() if lines else ""
-        body_text = "\n".join(lines[1:]).strip() if len(lines) > 1 else ""
-        slides_data.append({"title": title, "body": body_text})
-    return {"frontmatter": fm, "sections": slides_data, "raw": body}
+        sec_body = "\n".join(lines[1:]).strip() if len(lines) > 1 else ""
+        # H3 子节展开为独立页（吸收 ppt-master：一页一个主张，不做大杂烩页）
+        subs = list(re.finditer(r"^### (.+)$", sec_body, re.M))
+        if len(subs) >= 2:
+            for j, sm in enumerate(subs):
+                end = subs[j + 1].start() if j + 1 < len(subs) else len(sec_body)
+                sub_body = sec_body[sm.end():end].strip()
+                st = sm.group(1).strip()
+                st = re.sub(r"^[一二三四五六七八九十]+、", "", st)  # 去中文序号
+                sections.append({"title": st, "body": sub_body})
+            pre = sec_body[: subs[0].start()].strip()
+            if pre:
+                sections.insert(len(sections) - len(subs), {"title": title, "body": pre})
+        else:
+            sections.append({"title": title, "body": sec_body})
+    # 段落式净本兜底：无 ## 分节的 POL（digest 型），按段落分组分页
+    if not any(not s["title"].startswith("#") for s in sections):
+        main = re.split(r"\n-{3,}\n", body)[0]  # 去掉尾部评分卡/改动追溯元信息段
+        paras = [p.strip() for p in re.split(r"\n\s*\n", main)
+                 if p.strip() and not p.strip().startswith("#")]
+        paras = [p for p in paras if "五维评分卡" not in p and "改动追溯" not in p]
+        if paras:
+            cn = "一二三四五六七八九十"
+            n_groups = min(max(len(paras) // 2, 2), 5)
+            chunk = -(-len(paras) // n_groups)
+            for gi in range(0, len(paras), chunk):
+                g = gi // chunk
+                sections.append({"title": f"要点{cn[g] if g < 10 else g + 1}",
+                                 "body": "\n\n".join(paras[gi: gi + chunk])})
+    return {"frontmatter": fm, "deck_title": deck_title,
+            "sections": sections, "raw": body}
 
 
 # ── 美学主题 ────────────────────────────────────────────────────────────────
 
 def load_aesthetics() -> dict:
-    aesthetics_path = SKILL_DIR / "themes" / "aesthetics.json"
-    if aesthetics_path.exists():
-        with open(aesthetics_path, "r", encoding="utf-8") as f:
+    p = SKILL_DIR / "themes" / "aesthetics.json"
+    if p.exists():
+        with open(p, "r", encoding="utf-8-sig") as f:
             return json.load(f)
-    return {"themes": {}, "fallback_theme": {}, "slide_templates": {}}
+    return {"themes": {}, "fallback_theme": {}, "typography_scale": {}}
 
 
-def resolve_theme(route: dict) -> str:
-    # v3.3: style_theme 已废弃（恒 null），样式统一走 style_adapter
+def resolve_theme(route: dict, aesthetics: dict) -> str:
     style = route.get("style_adapter") or route.get("style_theme")
-    if style and str(style).strip() and str(style) != "null":
+    if style and str(style).strip() and str(style) != "null" and str(style) in aesthetics.get("themes", {}):
         return str(style)
     return "paper-ink"
 
 
-# ── 提示词生成 ──────────────────────────────────────────────────────────────
-
-def extract_keywords(text: str, max_len: int = 15) -> str:
-    cleaned = re.sub(r"[#*`>\-\[\]()]", " ", text)
-    cleaned = re.sub(r"\s+", " ", cleaned).strip()
-    return cleaned[:max_len].strip()
-
-
-def classify_slide(index: int, total: int) -> str:
-    if index == 1:
-        return "cover"
-    if index == total:
-        return "closing"
-    return "content"
-
-
-def build_prompt(
-    theme_id: str,
-    slide_index: int,
-    total_slides: int,
-    title: str,
-    body_text: str,
-    aesthetics: dict,
-    ratio: str,
-) -> str:
-    theme = aesthetics.get("themes", {}).get(theme_id, aesthetics.get("fallback_theme", {}))
-    base_tokens = theme.get("prompt_tokens", "")
-    templates = aesthetics.get("slide_templates", {})
-    slide_type = classify_slide(slide_index, total_slides)
-    template = templates.get(slide_type, {})
-    suffix = template.get("prompt_suffix", "")
-
-    short_title = title[:10] if len(title) > 10 else title
-    keywords = extract_keywords(body_text)
-
-    parts = [
-        base_tokens,
-        f"presentation slide {slide_index}/{total_slides}",
-        f"'{short_title}'",
-    ]
-    if keywords:
-        parts.append(f"key concept: {keywords}")
-    if suffix:
-        parts.append(suffix)
-
-    return ", ".join(parts)
-
-
-# ── 比例确认 ────────────────────────────────────────────────────────────────
+# ── 比例确认（v0 锁死：必问，不得默认）──────────────────────────────────────
 
 class RatioRequiredError(Exception):
-    """ratio 未确认，需用户交互。"""
     pass
 
 
-def ask_ratio(ratio_input: str | None, auto_mode: bool) -> tuple[str, str, str | None]:
-    if ratio_input and ratio_input in RATIO_SIZES:
-        return ratio_input, RATIO_SIZES[ratio_input], None
-
+def ask_ratio(ratio_input: str | None, auto_mode: bool) -> tuple[str, str | None]:
+    if ratio_input and ratio_input in deck_spec.CANVAS:
+        return ratio_input, None
     if auto_mode:
-        return DEFAULT_RATIO, RATIO_SIZES[DEFAULT_RATIO], "auto_mode: 默认 16:9"
-
+        return DEFAULT_RATIO, "auto_mode: 默认 16:9"
     raise RatioRequiredError(
-        "v0 锁死铁律：生图比例未确认，必须从以下三选一：\n"
-        "  1. 16:9 横版宽屏（1536x1024）—— 推荐\n"
-        "  2. 4:3 横版标准（1536x1024 网关近似）\n"
-        "  3. 3:4 竖版（1024x1536）\n"
+        "生图比例未确认（v0 锁死铁律），三选一：\n"
+        "  1. 16:9 横版宽屏（推荐，投屏最通用）\n"
+        "  2. 4:3  横版标准\n"
+        "  3. 3:4  竖版\n"
         "回复数字或比例（如 '16:9' / '竖版'）。"
     )
 
 
-# ── Manifest 与兜底 ─────────────────────────────────────────────────────────
+# ── 插图槽位（可选，gptimage2）──────────────────────────────────────────────
 
-def write_manifest(
-    output_dir: Path,
-    route_id: str,
-    slides: list[dict],
-    ratio: str,
-    degraded: bool,
-    decision_note: str | None = None,
-) -> Path:
-    manifest = {
-        "route_id": route_id,
-        "schema": "pkos-ppt-deck:1",
-        "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-        "ratio": ratio,
-        "degraded": degraded,
-        "decision_note": decision_note,
-        "slides": slides,
-    }
-    manifest_path = output_dir / "manifest.json"
-    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
-    return manifest_path
+def fill_image_slots(spec: dict, aesthetics: dict, out_dir: Path,
+                     max_images: int = 3) -> tuple[list[dict], list[dict]]:
+    """把最多 max_images 个内容页升级为 image-right 并生成插图。
+    返回 (done[{slide,file,prompt}], failed[{slide,prompt,error}])。"""
+    theme = aesthetics.get("themes", {}).get(spec["theme"], aesthetics.get("fallback_theme", {}))
+    tokens = theme.get("prompt_tokens", "")
+    size = RATIO_SIZES.get(spec["canvas"]["ratio"], "1536x1024")
+    candidates = [s for s in spec["slides"]
+                  if s["role"] in ("bullets", "two-column") and not s.get("emphasis")][::2]
+    candidates = candidates[:max_images]
+    done, failed = [], []
+    if candidates and img_client is None:
+        for s in candidates:
+            failed.append({"slide": s["index"], "error": "image-api client 不可导入",
+                           "prompt": ""})
+        return done, failed
+    cfg = None
+    if candidates:
+        try:
+            cfg = img_client.load_config()
+        except Exception as e:
+            for s in candidates:
+                failed.append({"slide": s["index"], "error": f"config 不可读: {e}", "prompt": ""})
+            return done, failed
+    for s in candidates:
+        prompt = f"{tokens}, editorial illustration for a slide titled '{s['title']}', no text, no letters"
+        try:
+            r = img_client.call_generate(cfg=cfg, prompt=prompt, size=size, output_dir=out_dir)
+            dest = out_dir / f"illustration-{s['index']:02d}.png"
+            src = Path(r["file"])
+            if src.resolve() != dest.resolve():
+                if dest.exists():
+                    dest.unlink()
+                src.rename(dest)
+            s["role"] = "image-right"
+            s["image_slot"] = {"file": str(dest), "prompt": prompt,
+                               "provider": r["provider"], "size": size}
+            done.append({"slide": s["index"], "file": str(dest), "prompt": prompt,
+                         "provider": r["provider"], "size": size})
+        except Exception as e:
+            failed.append({"slide": s["index"], "prompt": prompt, "error": str(e)})
+    return done, failed
 
 
-def write_degraded_readme(output_dir: Path, route_id: str, ratio: str, slides: list[dict]) -> None:
-    output_dir.mkdir(parents=True, exist_ok=True)
-    lines = [
-        f"# {route_id} — PPT 出图（API 不可用，兜底模式）",
-        "",
-        f"**比例**: {ratio}",
-        f"**状态**: degraded_success（image_api 不可用，prompt 清单完整可重放）",
-        "",
-        "## 提示词清单",
-        "",
-    ]
-    for s in slides:
-        lines.append(f"### Slide {s['index']}")
-        lines.append(f"- **标题**: {s.get('title', '')}")
-        lines.append(f"- **提示词**: `{s['prompt']}`")
-        lines.append("")
-    lines.extend(["---", "网关恢复后运行：`python compose.py --route <route> --ratio <ratio>` 重放。"])
-    (output_dir / "README.md").write_text("\n".join(lines), encoding="utf-8")
+# ── 校验门（Check）──────────────────────────────────────────────────────────
+
+def verify_pptx(pptx_path: Path, expected_slides: int) -> list[str]:
+    """gate_2_integrity 的原生 deck 版：重开文件数页、非空、可解析。"""
+    errs: list[str] = []
+    if not pptx_path.exists() or pptx_path.stat().st_size < 10_000:
+        errs.append(f"pptx 缺失或异常小: {pptx_path}")
+        return errs
+    try:
+        from pptx import Presentation
+        prs = Presentation(str(pptx_path))
+        if len(prs.slides) != expected_slides:
+            errs.append(f"页数不符: 期望 {expected_slides}，实际 {len(prs.slides)}")
+    except Exception as e:
+        errs.append(f"pptx 无法重新打开: {e}")
+    return errs
+
+
+def sha256(p: Path) -> str:
+    return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
 # ── 主流程 ──────────────────────────────────────────────────────────────────
@@ -314,129 +311,151 @@ def compose(
     ratio: str | None = None,
     slides_count: int | None = None,
     auto_mode: bool = False,
+    theme: str | None = None,
+    with_images: bool = False,
+    out_dir: str | None = None,
 ) -> dict:
     route_file = Path(route_path)
     if not route_file.is_absolute():
         route_file = WORKSPACE_ROOT / route_path
 
-    # 1. 读路由单
     route = load_route(route_file)
     route_id = route.get("route_id", "unknown")
 
-    # 2. 验证路由单
     rejections = validate_route(route)
     if rejections:
-        return {"failure_mode": "not_found", "route_id": route_id, "rejections": rejections, "status": "rejected"}
+        return {"failure_mode": "not_found", "route_id": route_id,
+                "rejections": rejections, "status": "rejected"}
 
-    # 3. 解析源 POL
     pol_path = resolve_source(route)
     if not pol_path:
-        return {
-            "failure_mode": "not_found", "route_id": route_id,
-            "rejections": [f"源条目不可达: {route.get('source_entry')}"],
-            "status": "rejected",
-        }
+        return {"failure_mode": "not_found", "route_id": route_id,
+                "rejections": [f"源条目不可达: {route.get('source_entry')}"],
+                "status": "rejected"}
 
-    # 4. 校验 POL status
-    pol_text = pol_path.read_text(encoding="utf-8")
+    pol_text = pol_path.read_text(encoding="utf-8-sig")
     fm_match = re.search(r"^status:\s*(\S+)", pol_text, re.M)
-    if fm_match and fm_match.group(1) != "polished":
-        return {
-            "failure_mode": "not_found", "route_id": route_id,
-            "rejections": [f"源条目 status={fm_match.group(1)}，早于 polished"],
-            "status": "rejected",
-        }
+    if fm_match and fm_match.group(1) not in ("polished", "routed", "exported"):
+        return {"failure_mode": "not_found", "route_id": route_id,
+                "rejections": [f"源条目 status={fm_match.group(1)}，早于 polished"],
+                "status": "rejected"}
 
-    # 5. 解析内容
-    pol_data = parse_pol_content(pol_path)
-    sections = pol_data["sections"]
-    if slides_count is None or slides_count <= 0:
-        slides_count = min(max(len(sections) + 1, 3), 15)
-
-    # 6. 美学主题
-    theme_id = resolve_theme(route)
-    aesthetics = load_aesthetics()
-
-    # 7. 比例确认
     try:
-        final_ratio, final_size, decision_note = ask_ratio(ratio, auto_mode)
+        final_ratio, decision_note = ask_ratio(ratio, auto_mode)
     except RatioRequiredError as e:
-        return {"failure_mode": "ambiguous", "route_id": route_id, "decision_card": str(e), "status": "blocked"}
+        return {"failure_mode": "ambiguous", "route_id": route_id,
+                "decision_card": str(e), "status": "blocked"}
 
-    # 8. 生成提示词
-    output_dir = WORKSPACE_ROOT / "_PKOS" / "outputs" / f"{route_id}-deck-images"
-    cover_title = pol_data["frontmatter"].get("title", route.get("topic_suggestion", "PPT"))
-    slide_prompts: list[dict] = []
-    for i in range(1, slides_count + 1):
-        section = pol_data["sections"][min(i - 2, len(pol_data["sections"]) - 1)] if i > 1 else None
-        title = section["title"] if section else (cover_title if i == 1 else f"第{i}页")
-        body = section["body"] if section else ""
-        prompt = build_prompt(theme_id, i, slides_count, title, body, aesthetics, final_ratio)
-        slide_prompts.append({"index": i, "title": title, "prompt": prompt, "size": final_size, "ratio": final_ratio})
+    pol_data = parse_pol_content(pol_path)
+    aesthetics = load_aesthetics()
+    theme_id = theme if theme in aesthetics.get("themes", {}) else resolve_theme(route, aesthetics)
 
-    # 9. 调 image-api
-    cfg = img_client.load_config()
-    out_dir_cfg = cfg.get("defaults", {}).get("output_dir", str(WORKSPACE_ROOT / "_PKOS" / "outputs"))
-    actual_out = Path(out_dir_cfg) / f"{route_id}-deck-images"
-    actual_out.mkdir(parents=True, exist_ok=True)
+    try:
+        spec = deck_spec.build_deck_spec(route, pol_data, final_ratio, slides_count,
+                                         theme_id, aesthetics)
+    except Exception as e:
+        return {"failure_mode": "unavailable", "route_id": route_id,
+                "errors": [f"design_spec 生成失败: {e}"], "status": "failed"}
+    if len(spec["slides"]) < 2:
+        return {"failure_mode": "unavailable", "route_id": route_id,
+                "errors": ["POL 素材不足，无法成册（至少封面+1 内容页）"], "status": "failed"}
+    for i, s in enumerate(spec["slides"], 1):
+        s["index"] = i
 
-    results: list[dict] = []
-    errors: list[dict] = []
-    for sp in slide_prompts:
-        try:
-            result = img_client.call_generate(cfg=cfg, prompt=sp["prompt"], size=sp["size"], output_dir=actual_out)
-            dest = actual_out / f"slide-{sp['index']:02d}-{Path(result['file']).name}"
-            if Path(result["file"]).resolve() != dest.resolve():
-                Path(result["file"]).rename(dest)
-            results.append({
-                "slide": sp["index"], "prompt": sp["prompt"],
-                "provider": result["provider"], "size": sp["size"],
-                "ratio": sp["ratio"], "file": str(dest), "hash": result["hash"],
-            })
-        except Exception as e:
-            errors.append({"slide": sp["index"], "prompt": sp["prompt"], "error": str(e)})
+    out = Path(out_dir) if out_dir else WORKSPACE_ROOT / "_PKOS" / "outputs" / f"{route_id}-deck"
+    out.mkdir(parents=True, exist_ok=True)
 
-    # 10. 判定结果（v2 失败三态）
-    # 关键：prompt 已生成即视为 degraded_success，不算 unavailable
-    # unavailable = prompt 也未生成（生成源故障）
-    degraded = True  # 至少有一页失败即降级
-    manifest_slides = results if results else [
-        {"slide": sp["index"], "prompt": sp["prompt"], "ratio": sp["ratio"],
-         "provider": "image-api:none", "size": sp["size"], "file": "", "hash": "", "status": "pending"}
-        for sp in slide_prompts
-    ]
-    manifest_path = write_manifest(actual_out, route_id, manifest_slides, final_ratio, degraded, decision_note)
-    write_degraded_readme(actual_out, route_id, final_ratio, slide_prompts)
+    # 插图槽位（可选通道；失败只降级，不阻塞原生 deck）
+    img_done, img_failed = ([], [])
+    if with_images:
+        img_done, img_failed = fill_image_slots(spec, aesthetics, out)
 
-    # v2 契约：prompt 已生成即走 degraded_success（宁要无图完整方案）
-    # 只有 prompt 也未生成才是 unavailable（生成源故障）
-    return {
+    # design_spec 落盘（可审计、可手改后重渲染）
+    spec_path = out / "design_spec.json"
+    spec_path.write_text(json.dumps(spec, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # 渲染
+    pptx_path = out / f"{route_id}.pptx"
+    theme_native = aesthetics.get("themes", {}).get(theme_id, aesthetics.get("fallback_theme", {}))["native"]
+
+    def resolver(sl: dict):
+        slot = sl.get("image_slot")
+        return slot["file"] if slot and slot.get("file") else None
+
+    try:
+        build_info = build_pptx.build(spec, theme_native, pptx_path, image_resolver=resolver)
+    except Exception as e:
+        return {"failure_mode": "unavailable", "route_id": route_id,
+                "errors": [f"pptx 渲染失败: {e}"], "status": "failed"}
+
+    # 校验门
+    verify_errs = verify_pptx(pptx_path, len(spec["slides"]))
+    if verify_errs:
+        return {"failure_mode": "unavailable", "route_id": route_id,
+                "errors": verify_errs, "status": "failed"}
+
+    # manifest（可复现：spec 输入 + 每页角色/要点/讲稿 + 插图 provider）
+    manifest = {
         "route_id": route_id,
-        "status": "degraded_success",
-        "failure_mode": "degraded_success",
-        "total_slides": slides_count,
-        "generated": len(results),
-        "failed": len(errors),
+        "schema": "pkos-ppt-deck:2",
+        "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "ratio": final_ratio,
-        "size": final_size,
-        "output_dir": str(actual_out),
-        "manifest": str(manifest_path),
-        "degraded": True,
-        "results": results,
-        "errors": errors,
+        "theme": theme_id,
+        "degraded": bool(img_failed),
+        "decision_note": decision_note,
+        "pptx": str(pptx_path),
+        "pptx_sha256": sha256(pptx_path),
+        "design_spec": str(spec_path),
+        "source": {"route": str(route_file), "pol": str(pol_path),
+                   "pol_sha256": sha256(pol_path)},
+        "provider": {"deck": "python-pptx:native",
+                     "illustrations": [d["provider"] for d in img_done] or "none"},
+        "slides": [{
+            "slide": s["index"], "role": s["role"], "title": s["title"],
+            "bullets": s.get("bullets", []), "notes": s.get("notes"),
+            "image": s.get("image_slot"),
+        } for s in spec["slides"]],
+        "illustrations_failed": img_failed,
     }
+    manifest_path = out / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    status = "degraded_success" if img_failed else "success"
+    result = {
+        "route_id": route_id,
+        "status": status,
+        "total_slides": len(spec["slides"]),
+        "pptx": str(pptx_path),
+        "sha256": manifest["pptx_sha256"],
+        "design_spec": str(spec_path),
+        "manifest": str(manifest_path),
+        "output_dir": str(out),
+        "ratio": final_ratio,
+        "theme": theme_id,
+        "images_placed": len(img_done),
+        "images_failed": len(img_failed),
+        "degraded": bool(img_failed),
+    }
+    if img_failed:
+        result["failure_mode"] = "degraded_success"
+        result["errors"] = img_failed
+    return result
 
 
-# ── CLI 入口 ────────────────────────────────────────────────────────────────
+# ── CLI ─────────────────────────────────────────────────────────────────────
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="pkos.exit.ppt.compose — 消费路由单，逐页生成投屏演示图像")
+    ap = argparse.ArgumentParser(
+        description="pkos.exit.ppt.compose v2.0 — 路由单+POL → 原生可编辑 PPTX")
     ap.add_argument("--route", required=True, help="路由单路径（相对或绝对）")
-    ap.add_argument("--ratio", default=None, help="生图比例: 16:9 / 4:3 / 3:4")
-    ap.add_argument("--slides", type=int, default=None, help="幻灯片数量（null=自动）")
-    ap.add_argument("--auto", action="store_true", help="自主轮次：不经用户交互")
-    ap.add_argument("--theme", default=None, help="强制指定美学主题 ID")
-    ap.add_argument("--dry-run", action="store_true", help="只生成提示词，不调 API")
+    ap.add_argument("--ratio", default=None, help="画布比例: 16:9 / 4:3 / 3:4（必问）")
+    ap.add_argument("--slides", type=int, default=None, help="页数（null=按内容自动）")
+    ap.add_argument("--auto", action="store_true", help="自主轮次：默认 16:9 留痕")
+    ap.add_argument("--theme", default=None, help="强制美学主题 ID")
+    ap.add_argument("--images", action="store_true",
+                    help="启用 gptimage2 插图槽位（默认纯原生不出图）")
+    ap.add_argument("--out", default=None, help="输出目录覆盖")
+    ap.add_argument("--dry-run", action="store_true", help="只出 design_spec，不渲染")
     args = ap.parse_args(argv)
 
     try:
@@ -445,39 +464,36 @@ def main(argv: list[str] | None = None) -> int:
             if not route_file.is_absolute():
                 route_file = WORKSPACE_ROOT / route_file
             route = load_route(route_file)
-            rejections = validate_route(route)
-            if rejections:
-                print(json.dumps({"status": "rejected", "rejections": rejections}, ensure_ascii=False, indent=2))
+            rej = validate_route(route)
+            if rej:
+                print(json.dumps({"status": "rejected", "rejections": rej},
+                                 ensure_ascii=False, indent=2))
                 return 1
-            pol_path = resolve_source(route)
-            if not pol_path:
-                print(json.dumps({"status": "rejected", "error": f"源不可达: {route.get('source_entry')}"}, ensure_ascii=False))
+            pol = resolve_source(route)
+            if not pol:
+                print(json.dumps({"status": "rejected",
+                                  "error": f"源不可达: {route.get('source_entry')}"},
+                                 ensure_ascii=False))
                 return 1
-            pol_data = parse_pol_content(pol_path)
-            sc = args.slides or min(max(len(pol_data["sections"]) + 1, 3), 15)
+            pol_data = parse_pol_content(pol)
             aesthetics = load_aesthetics()
-            theme_id = args.theme or resolve_theme(route)
+            theme_id = args.theme or resolve_theme(route, aesthetics)
             ratio = args.ratio or DEFAULT_RATIO
-            size = RATIO_SIZES.get(ratio, RATIO_SIZES[DEFAULT_RATIO])
-            prompts = []
-            cover_title = pol_data["frontmatter"].get("title", "PPT")
-            for i in range(1, sc + 1):
-                section = pol_data["sections"][min(i - 2, len(pol_data["sections"]) - 1)] if i > 1 else None
-                title = section["title"] if section else (cover_title if i == 1 else f"第{i}页")
-                body = section["body"] if section else ""
-                prompt = build_prompt(theme_id, i, sc, title, body, aesthetics, ratio)
-                prompts.append({"index": i, "title": title, "prompt": prompt, "size": size, "ratio": ratio})
-            print(json.dumps({"dry_run": True, "ratio": ratio, "size": size, "slides_count": sc, "prompts": prompts}, ensure_ascii=False, indent=2))
+            spec = deck_spec.build_deck_spec(route, pol_data, ratio, args.slides,
+                                             theme_id, aesthetics)
+            print(json.dumps(spec, ensure_ascii=False, indent=2))
             return 0
 
-        result = compose(args.route, args.ratio, args.slides, args.auto)
+        result = compose(args.route, args.ratio, args.slides, args.auto,
+                         theme=args.theme, with_images=args.images, out_dir=args.out)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0 if result.get("status") in ("success", "degraded_success") else 1
     except FileNotFoundError as e:
-        print(json.dumps({"error": str(e)}, ensure_ascii=False, indent=2), file=sys.stderr)
+        print(json.dumps({"error": str(e)}, ensure_ascii=False), file=sys.stderr)
         return 1
     except Exception as e:
-        print(json.dumps({"error": str(e), "traceback": repr(e)}, ensure_ascii=False, indent=2), file=sys.stderr)
+        print(json.dumps({"error": str(e), "traceback": repr(e)}, ensure_ascii=False),
+              file=sys.stderr)
         return 1
 
 

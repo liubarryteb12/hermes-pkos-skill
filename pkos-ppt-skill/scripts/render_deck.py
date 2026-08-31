@@ -197,7 +197,8 @@ def render_slide_body(slide: dict) -> str:
             out.append(f"<li>{inline(ln[2:])}")
             continue
         if re.match(r"^\d+\.\s+", ln):
-            out.append(f"<li>{inline(re.sub(r'^\d+\.\s+', '', ln))}")
+            item_text = re.sub(r"^\d+\.\s+", "", ln)  # py3.11: 正则提到 f-string 外（f-string 内不能含反斜杠）
+            out.append(f"<li>{inline(item_text)}")
             continue
         out.append(f"<p>{inline(ln)}</p>")
     # 包裹相邻 li 为 ul
@@ -234,9 +235,9 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     tdir = Path(args.theme)
-    css = (tdir / "tokens.css").read_text(encoding="utf-8")
+    css = (tdir / "tokens.css").read_text(encoding="utf-8-sig")
     theme_id = tdir.name
-    md_text = Path(args.slides).read_text(encoding="utf-8")
+    md_text = Path(args.slides).read_text(encoding="utf-8-sig")
     # v3.0 [Self-check A 前置]: 记录源文件 SHA256
     source_path = Path(args.slides)
     pre_hash = hashlib.sha256(source_path.read_bytes()).hexdigest()

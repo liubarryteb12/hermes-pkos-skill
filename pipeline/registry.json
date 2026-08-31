@@ -1,8 +1,8 @@
 {
   "schema": "pkos-pipeline:2",
   "version": 2,
-  "pkos_semver": "4.0.0",
-  "updated_at": "2026-08-28",
+  "pkos_semver": "4.4.0",
+  "updated_at": "2026-08-31",
   "changelog": [
     {
       "version": 4.0,
@@ -787,6 +787,79 @@
         "pkos-init",
         "pkos.governance.bootstrap"
       ]
+    },
+    {
+      "version": "4.1",
+      "date": "2026-08-30",
+      "author": "hermes (U2 账本收敛：11 别名补 superseded_by 指针 + alias_ledger 顶层声明；website-kit 4.0 同步)",
+      "summary": "registry 31 units = 20 有效 + 11 已收编别名；别名机读指向现役 capability_id；不做任何历史行修改",
+      "breaking_changes": false,
+      "affected_units": []
+    },
+    {
+      "version": 4.2,
+      "date": "2026-08-29",
+      "author": "host (v4.2: operator-policy 调用方人格守卫落地——Meta-Auditor底座/动态子人格/断路器/陷阱预警/Code-as-Persona)",
+      "summary": "与外部模型(Gemini)五轮人格架构评审收敛后落地调用侧对称守卫：新建 contracts/operator-policy.md (pkos-operator:1, 9 节)——职责边界(制片厂模型: PKOS产出层persona=演员/调用方子人格=导演/meta_auditor=永远在线元人格, Actor-Critic串行对抗)、调度子人格四值词表(archivist/reader_advocate/meta_auditor/null)、required_persona静态声明(切换决策权在PKOS路由单,禁止调用方自行猜人格)、断路器二值(STRICT|AUTO_MERGE; AER>=0.8健康线/连续5次绿灯免检/积压>=10拥塞低危放行/高危死守/自动执行失败信任清零)、三查守卫(人格越界persona_violation/断路器抗命breaker_defiance/拦截理由教条dogma_loop·SequenceMatcher>=0.8)、四陷阱预警(overreaching_butler/paranoia/dogmatic/rubber_stamp各带telemetry前兆)、动态拼装头([SYS_ROLE|SUB_ROLE|BREAKER|WARNING_TRAP]调用前1ms注入,防Prompt漂移)。新增 pkos-operator skill (pkos.operator.audit, stage governance 8b) + scripts/auditor_gate.py (--assemble/--persona-violation/--breaker-state/--check-defiance/--check-dogma/--selftest, 22用例ALL PASS, P-07/P-15/Hook3继承, stdlib only)。policy-engine.md §2.5 补 required_persona 载体声明。遥测事件: operator.head.assembled/operator.persona.violation/operator.breaker.trip/operator.breaker.release/operator.dogma.detected/operator.audit.suspended/operator.audit.auto_released",
+      "breaking_changes": false,
+      "affected_units": [
+        "pkos.operator.audit（新）",
+        "pkos.router.decide",
+        "pkos.governance.tick"
+      ],
+      "source_review": "gemini.google.com/app/4c1498338dc32e7a (PKOS架构模块化与优化设计, 2026-08-29 五轮人格评审: Meta-Auditor定位/断路器量化/动态切换vs统一/两层人格边界/Code-as-Persona三层固化)",
+      "operator_design": {
+        "meta_persona": "克制元认知审计员(永远在线底座): 守系统引擎telemetry/成本/死循环/越权, 不碰.md内容层(knowledge_architect领空)",
+        "sub_personas": "archivist(入库先验:输入皆脏)/reader_advocate(出口先验:读者缺背景,事实兜底在meta_auditor)/meta_auditor(自迭代先验:系统默认自利)/null",
+        "breaker": "事前拦截->事后追溯动态退让: AER/MTTI/提案死亡率量化; 连续绿灯免检+拥塞低危auto-merged-by-breaker; 高危(registry/删笔记/核心代码)死守; 失败信任清零",
+        "traps": "overreaching_butler(自动merge幻觉补链)/paranoia(AER<0.3断崖)/dogmatic(方差归零毫秒级同质拦截)/rubber_stamp(高危亚秒级审批)",
+        "code_as_persona": "三层固化: 运行时状态层(纯Python算BREAKER_STATE)/契约配置层(required_persona随路由单流转)/动态拼装层(硬核指令头); 对等守卫auditor_gate.py查越界/抗命/教条"
+      },
+      "self_check": "auditor_gate --selftest 22/22 ALL PASS; 4命令端到端实跑全通(violation/breaker/defiance/dogma正负例); contract_refs 20 SKILL.md 0 错; run_tests 19 项 0 失败; evolution_gate 13/13; verify 11/11"
+    },
+    {
+      "version": 4.3,
+      "date": "2026-08-29",
+      "author": "host (v4.3: OpenCLI 外部能力三件套入库——gemini chat/image 已实现 + video 骨架)",
+      "summary": "Gemini 网页通道（零 API 成本，OpenCLI 驱动登录态 Chrome）固化为 PKOS 正式能力：新增 pkos-gemini-chat (pkos.gemini.chat, utility.external-llm: 发 prompt→轮询→抓回复→落盘 workspace)、pkos-gemini-image (pkos.gemini.image, utility.image: 出图→Downloads→归档 workspace→sha256/魔数校验，gptimage2use 对位低价通道，实测 1024px 出图全链路通过)、pkos-gemini-video (pkos.gemini.video v0.1.0 骨架，接口锁死 fail loud ERR_NOT_IMPLEMENTED，实现清单见 SKILL.md)。产出物铁律契约化：三单元 sinks=workspace-outputs，产出只落用户工作目录（--out-dir 必须已存在），绝不写 skill/套件目录。实测沉淀 3 坑入 SKILL.md：文案残留不可信（须查 blob 大图 naturalWidth>400）/下载按钮 ref 漂移（aria-label 现场定位）/Downloads 落盘延迟轮询",
+      "breaking_changes": false,
+      "affected_units": [
+        "pkos.gemini.chat（新）",
+        "pkos.gemini.image（新）",
+        "pkos.gemini.video（新，骨架）"
+      ],
+      "workspace_rule": "用户铁律：产出物绝不放 skill/套件目录；一律落 workspace（pkos-outputs/<类别>/），并在回复中记录完整路径",
+      "self_check": "py_compile 3/3; gemini_image 真实端到端跑通（下载→归档→sha256 一致→视觉验收）; registry JSON 合法"
+    },
+    {
+      "version": "4.2.2",
+      "date": "2026-08-30",
+      "change": "新增 utility 单元 pkos-skillopt（capability pkos.skillopt.train）：microsoft/SkillOpt 微型训练循环适配（rollout→reflect→edit→validation gate），后端走网关 OpenAI-compatible；配套 AMAP-ML/SkillClaw 作采集分发面"
+    },
+    {
+      "version": "4.3.1",
+      "date": "2026-08-30",
+      "author": "hermes (自进化轮: U0 演化件同步 + registry 三方合并 + BOM 防线 90 点 + tick 接线降级回路)",
+      "summary": "①同步主库 v4.2/v4.3 演化件入 Hermes 副本（pkos-operator/auditor_gate、operator-policy、evolution-policy、evolution_gate，selftest 全过）；②registry 三方合并：并入 pkos.gemini.chat/image/video（主库 v4.3）+ pkos.operator.audit，保留副本 U2 成果（superseded_by×11、alias_ledger）与 pkos.skillopt.train；③全套件 41 文件 90 个读取点 utf-8→utf-8-sig（R4 BOM 教训机制化，元循环②步首例全量）；④tick.py 接线 degradation_gate（U5.1 闭环）",
+      "breaking_changes": false,
+      "affected_units": [
+        "registry",
+        "validate_entry",
+        "全部读取侧脚本",
+        "pkos.governance.tick"
+      ]
+    },
+    {
+      "version": "4.4.0",
+      "date": "2026-08-31",
+      "author": "hermes (pkos-ppt 出口 v2.0 原生 PPTX 改版，用户裁定)",
+      "summary": "pkos.exit.ppt.compose v2.0：吸收 hugohe3/ppt-master(MIT) 设计骨架，PPT 出口从 v0.2 出图制转向**原生可编辑 PPTX**（python-pptx 原生文本框/形状），gptimage2 降级为 --images 可选插图通道。落地：①新增 scripts/deck_spec.py（POL→design_spec.json 中间层：8 页型角色确定性分类/要点拆页/整册节奏/讲稿提炼/封底结论回显）②新增 scripts/build_pptx.py（主题 native token 渲染：中西文双字体、悬挂缩进、两级要点、CJK 标点归一）③compose.py 重写为编排层并修复「永远 degraded_success」bug（旧实现全成功也标降级）④conversion_type 承接子集对齐 router v3.3 矩阵 ppt 行 4 值（旧实现 2 值属漂移）⑤aesthetics.json 升 :2 双轨（native 渲染 token + prompt_tokens 插图描述）⑥产物 schema 升 pkos-ppt-deck:2，输出目录 <route-id>-deck/。元信息不上屏规则内置（五维评分卡/R29 实测过滤、EP 编号剥离、钩子/CTA 映射演示用语）。单测 16 用例全绿；RT-20260827-ppt-test-001 端到端实跑（8 页 + 3 插图，PowerPoint COM 导出视觉验收通过）。",
+      "breaking_changes": true,
+      "affected_units": [
+        "pkos.exit.ppt.compose",
+        "pkos-ppt-skill"
+      ],
+      "supersedes": "v0.2 出图制裁定（2026-08-23 用户裁定，2026-08-31 用户裁定作废）"
     }
   ],
   "description": "pkos 流水线单元注册表 v2：role ∈ intake|process|governance|decision|exit|maintenance|knowledge_service；含 v0 兼容条目（status=deprecated）。D-7 公理要求每次新增/修改/弃用均记 changelog。",
@@ -851,7 +924,8 @@
       "deprecated_reason": "已迁移至 pkos.governance.bootstrap；v0 入口保留以兼容老会话",
       "alias_of": "pkos.governance.bootstrap",
       "test_suite": null,
-      "added_in_version": 1
+      "added_in_version": 1,
+      "superseded_by": "pkos.governance.bootstrap"
     },
     {
       "id": "pkos.intake.scan",
@@ -951,7 +1025,8 @@
       "deprecated_since": "2026-08-27",
       "deprecated_reason": "已迁移至 pkos.intake.scan；v0 入口保留兼容",
       "alias_of": "pkos.intake.scan",
-      "added_in_version": 1
+      "added_in_version": 1,
+      "superseded_by": "pkos.intake.scan"
     },
     {
       "id": "pkos.ingest.extract",
@@ -996,7 +1071,8 @@
       "deprecated_since": "2026-08-27",
       "deprecated_reason": "已迁移至 pkos.ingest.extract；v0 入口保留兼容",
       "alias_of": "pkos.ingest.extract",
-      "added_in_version": 1
+      "added_in_version": 1,
+      "superseded_by": "pkos.ingest.extract"
     },
     {
       "id": "pkos.analysis.structure",
@@ -1042,7 +1118,8 @@
       "deprecated_since": "2026-08-27",
       "deprecated_reason": "已迁移至 pkos.analysis.structure；v0 入口保留兼容",
       "alias_of": "pkos.analysis.structure",
-      "added_in_version": 1
+      "added_in_version": 1,
+      "superseded_by": "pkos.analysis.structure"
     },
     {
       "id": "pkos.polish.refine",
@@ -1091,7 +1168,8 @@
       "deprecated_since": "2026-08-27",
       "deprecated_reason": "已迁移至 pkos.polish.refine；v0 入口保留兼容",
       "alias_of": "pkos.polish.refine",
-      "added_in_version": 1
+      "added_in_version": 1,
+      "superseded_by": "pkos.polish.refine"
     },
     {
       "id": "pkos.router.decide",
@@ -1144,7 +1222,8 @@
       "deprecated_since": "2026-08-27",
       "deprecated_reason": "已迁移至 pkos.router.decide；v0 入口保留兼容（v4.0 起同样要求策略载荷）",
       "alias_of": "pkos.router.decide",
-      "added_in_version": 1
+      "added_in_version": 1,
+      "superseded_by": "pkos.router.decide"
     },
     {
       "id": "pkos.exit.html.render",
@@ -1210,19 +1289,20 @@
       "deprecated_since": "2026-08-27",
       "deprecated_reason": "已迁移至 pkos.exit.html.render；v0 入口保留兼容",
       "alias_of": "pkos.exit.html.render",
-      "added_in_version": 1
+      "added_in_version": 1,
+      "superseded_by": "pkos.exit.html.render"
     },
     {
       "id": "pkos.exit.ppt.compose",
       "capability_id": "pkos.exit.ppt.compose",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "compatible_pkos_schema": ">=2.0.0",
       "role": "exit",
       "stage": 5,
       "stage_label": "exit.ppt",
-      "consumes": "TargetConstraint(by_route_artifact: exit=ppt) + options(ratio,slides,auto_mode,provider)",
-      "produces": "_PKOS/outputs/<route-id>-deck-images/（N 张 slide-*.png + manifest.json 五键齐全）",
-      "semantic_goal": "消费 RT-* (exit=ppt) + 源 POL-* 条目，按出图比例三选一逐页生成投屏演示图像，manifest 完整可复现",
+      "consumes": "TargetConstraint(by_route_artifact: exit=ppt) + options(ratio,slides,auto_mode,theme,with_images)",
+      "produces": "_PKOS/outputs/<route-id>-deck/（<route-id>.pptx 原生可编辑 + design_spec.json + manifest.json；--images 时另含 illustration-*.png）",
+      "semantic_goal": "消费 RT-*(exit=ppt) + 源 POL-* 条目，经 design_spec.json 中间层渲染为原生可编辑 .pptx（页型角色系统+主题token+讲稿），manifest 完整可复现；gptimage2 为可选插图通道",
       "not_actions": [
         "click",
         "type",
@@ -1239,7 +1319,10 @@
         "ppt-export"
       ],
       "conversion_types": [
-        "实战操作指南"
+        "实战操作指南",
+        "wiki百科条目",
+        "避坑风险清单",
+        "学习路径"
       ],
       "replaces": [
         "pkos-ppt-skill"
@@ -1258,12 +1341,14 @@
       "depends_on_providers": [
         "gptimage2-image"
       ],
-      "required_capability": {
-        "image_gen": {}
-      },
+      "required_capability": {},
       "failure_modes_declared": true,
       "test_suite": "tests/capabilities/pkos.exit.ppt.compose.test.yaml",
-      "added_in_version": 2.8
+      "added_in_version": 2.8,
+      "depends_on_python": [
+        "python-pptx>=1.0"
+      ],
+      "updated_in_version": "4.4.0"
     },
     {
       "id": "pkos.exit.comic.compose",
@@ -1495,10 +1580,11 @@
         "公众号漫画"
       ],
       "required": false,
-      "status": "registered",
+      "status": "deprecated",
       "note": "v1 原生入口；v0 deprecated alias 由 pkos.exit.comic.compose 直接覆盖,本条仅作语义化命名",
       "test_suite": null,
-      "added_in_version": 2.24
+      "added_in_version": 2.24,
+      "superseded_by": "pkos.exit.comic.compose"
     },
     {
       "id": "pkos-ppt-skill",
@@ -1517,7 +1603,8 @@
       "deprecated_since": "2026-08-27",
       "deprecated_reason": "已迁移至 pkos.exit.ppt.compose；v0 入口保留兼容",
       "alias_of": "pkos.exit.ppt.compose",
-      "added_in_version": 1
+      "added_in_version": 1,
+      "superseded_by": "pkos.exit.ppt.compose"
     },
     {
       "id": "pkos.maintenance.index",
@@ -1613,7 +1700,8 @@
       "deprecated_since": "2026-08-27",
       "deprecated_reason": "已迁移至 pkos.governance.audit；v0 入口保留兼容",
       "alias_of": "pkos.governance.audit",
-      "added_in_version": 1
+      "added_in_version": 1,
+      "superseded_by": "pkos.governance.audit"
     },
     {
       "id": "pkos.audit.lint",
@@ -1814,7 +1902,8 @@
       "deprecated_since": "2026-08-27",
       "deprecated_reason": "已迁移至 pkos.maintenance.timeline；v0 入口保留兼容",
       "alias_of": "pkos.maintenance.timeline",
-      "added_in_version": 1
+      "added_in_version": 1,
+      "superseded_by": "pkos.maintenance.timeline"
     },
     {
       "id": "pkos.exit.gzhxiaoshuo.compose",
@@ -1882,6 +1971,149 @@
       "failure_modes_declared": true,
       "test_suite": "tests/capabilities/pkos.exit.gzhxiaoshuo.compose.test.yaml",
       "added_in_version": 3.2
+    },
+    {
+      "id": "pkos.skillopt.train",
+      "capability_id": "pkos.skillopt.train",
+      "version": "0.1.0",
+      "compatible_pkos_schema": ">=2.0.0",
+      "role": "utility",
+      "stage": 0,
+      "stage_label": "utility.skillopt",
+      "consumes": "{task集(JSONL), seed_skill(MD), epochs?/train-size?/val-size?/edit-budget?/model?/base-url?}",
+      "produces": "pkos-skillopt/reports/skillopt/<slug>/best_skill.md + train_log.json（gate 判定溯源字段）",
+      "semantic_goal": "SkillOpt 式微型训练循环（rollout→score→reflect→edit→validation gate）：把一个技能文档当参数在微型任务集上定向优化，验证门保证改后不劣于改前（与 artifact-integrity-policy gate_1_no_retrograde 同构）；只做技能文本优化一件事，不改源条目、不直接覆盖任何单元 SKILL.md（A4 公理）",
+      "not_actions": [
+        "modify_source",
+        "commit_kb",
+        "decide_exit",
+        "compose_ppt",
+        "render_html",
+        "create_comic",
+        "polish_entry"
+      ],
+      "required": false,
+      "status": "registered",
+      "sinks": [
+        "skillopt-report"
+      ],
+      "replaces": [],
+      "integrity_policy": "contracts/artifact-integrity-policy.md",
+      "integrity_enforced": {
+        "gate_1_no_retrograde": true,
+        "gate_2_integrity": true,
+        "supports_degraded_success": false
+      },
+      "depends_on_capabilities": [],
+      "depends_on_providers": [
+        "hy3"
+      ],
+      "required_capability": {
+        "llm_chat": {}
+      },
+      "failure_modes_declared": true,
+      "added_in_version": "4.2.2",
+      "provenance": {
+        "upstream": "microsoft/SkillOpt (arXiv:2605.23904)",
+        "upstream_clone": "D:/00.AIagent/SkillOpt",
+        "adaptation": "单文件微型循环 skillopt_mini.py；后端=PKOS 网关 OpenAI-compatible；benchmark=用户任务集子串判分；验证门语义完整保留",
+        "companion": "AMAP-ML/SkillClaw（采集分发面）：Claw 收获/去重/分发 × 本单元定向训练，trained 产物入库仍走套件治理"
+      }
+    },
+    {
+      "compatible_pkos_schema": ">=2.0.0",
+      "required": false,
+      "status": "registered",
+      "replaces": [],
+      "integrity_policy": "contracts/artifact-integrity-policy.md",
+      "id": "pkos.gemini.chat",
+      "capability_id": "pkos.gemini.chat",
+      "version": "1.0.0",
+      "role": "utility",
+      "stage": 0,
+      "stage_label": "utility.external-llm",
+      "consumes": "{prompt | prompt_file} + out_dir(workspace) + session?/profile?/timeout?",
+      "produces": "<out_dir>/<ts>-<slug>.md + .manifest.json（schema pkos-gemini-chat:1, sha256 溯源）",
+      "semantic_goal": "外部 LLM 对话工作流：发 prompt→轮询→抓回复→落盘 workspace；OpenCLI -> 登录态 Chrome -> gemini.google.com（零 API 成本网页通道）",
+      "not_actions": [
+        "compose_ppt",
+        "render_html",
+        "polish",
+        "decide_exit",
+        "modify_source",
+        "merge_proposal"
+      ],
+      "sinks": [
+        "workspace-outputs"
+      ]
+    },
+    {
+      "compatible_pkos_schema": ">=2.0.0",
+      "required": false,
+      "status": "registered",
+      "replaces": [],
+      "integrity_policy": "contracts/artifact-integrity-policy.md",
+      "id": "pkos.gemini.image",
+      "capability_id": "pkos.gemini.image",
+      "version": "1.0.0",
+      "role": "utility",
+      "stage": 0,
+      "stage_label": "utility.image",
+      "consumes": "{prompt | prompt_file} + out_dir(workspace) + timeout?/dl_timeout?/keep_in_downloads?",
+      "produces": "<out_dir>/<ts>-<slug>.<jpg|png> + .manifest.json（sha256 归档校验 + JPEG/PNG 魔数检查）",
+      "semantic_goal": "原子出图（gptimage2use 对位低价通道）：出图→下载→归档 workspace→校验；OpenCLI -> 登录态 Chrome -> gemini.google.com（零 API 成本网页通道）",
+      "not_actions": [
+        "compose_ppt",
+        "render_html",
+        "create_comic",
+        "polish",
+        "decide_exit",
+        "modify_source"
+      ],
+      "sinks": [
+        "workspace-outputs"
+      ]
+    },
+    {
+      "compatible_pkos_schema": ">=2.0.0",
+      "required": false,
+      "status": "skeleton",
+      "replaces": [],
+      "integrity_policy": "contracts/artifact-integrity-policy.md",
+      "id": "pkos.gemini.video",
+      "capability_id": "pkos.gemini.video",
+      "version": "0.1.0",
+      "role": "utility",
+      "stage": 0,
+      "stage_label": "utility.video",
+      "consumes": "{prompt} + out_dir(workspace)（接口面已锁死）",
+      "produces": "（预留）<out_dir>/<ts>-<slug>.mp4 + .manifest.json",
+      "semantic_goal": "外部视频生成骨架占位（fail loud ERR_NOT_IMPLEMENTED）：接口锁死待填实现；OpenCLI -> 登录态 Chrome -> gemini.google.com（零 API 成本网页通道）",
+      "not_actions": [
+        "compose_ppt",
+        "render_html",
+        "create_comic",
+        "polish",
+        "decide_exit",
+        "modify_source",
+        "generate_video"
+      ],
+      "sinks": [
+        "workspace-outputs"
+      ]
+    },
+    {
+      "id": "pkos.operator.audit",
+      "capability_id": "pkos.operator.audit",
+      "version": "1.0.0",
+      "compatible_pkos_schema": ">=2.0.0",
+      "role": "调用方人格守卫（Meta-Auditor 机器执行面）",
+      "stage": "governance",
+      "status": "registered",
+      "required": false,
+      "integrity_policy": "contracts/artifact-integrity-policy.md",
+      "contract": "contracts/operator-policy.md",
+      "guard": "pkos-operator/scripts/auditor_gate.py"
     }
   ],
   "infra_non_units": [
@@ -1897,5 +2129,13 @@
     "round": "25/25",
     "last_updated": "2026-08-28",
     "note": "梯次 0.3 收口：15 = 15 registered v2 capability（v2.0 9 + v2.1 c 线 4 + v2.3 1 comic + v3.2 1 novel）；8 deprecated v0 alias；novel_tools.py 4 命令就位；本轮 v2.25 评审,comic skill 6 项决议全量落地(manifest 升 production)。round-26 规划: comic x novel 中继 / comic x weak-check 弱审 / 真实出图 API 接入。"
+  },
+  "alias_ledger": {
+    "schema": "pkos-alias-ledger:1",
+    "updated": "2026-08-30",
+    "note": "U2 账本收敛：11 个 deprecated 别名全部携带 superseded_by 指针，机读可解析到现役单元",
+    "total_units": 36,
+    "valid": 25,
+    "aliases": 11
   }
 }

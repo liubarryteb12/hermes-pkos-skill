@@ -1,115 +1,119 @@
-# pkos-ppt-skill 实操手册
+# pkos-ppt-skill 实操手册（v2.0 原生 PPTX 线）
+
+> 2026-08-31 改版：产物从「每页一张 gptimage2 图片」转为**真·可编辑 PowerPoint**。
+> 吸收 ppt-master 设计骨架（design_spec 中间层 + 页型角色 + 字号锚点 + 节奏检查）。
 
 ## 快速开始
 
 ```bash
-# 1. 确保 config.json 已配置（复制 config.example.json → config.json，设置 PKOS_IMG_API_KEY 环境变量）
-# 2. 准备一条 exit=ppt 的路由单
-# 3. 运行 compose.py
+cd <套件根>   # C:/Users/18765/AppData/Local/hermes/skills/note-taking/hermes-pkos-skill
 
-python scripts/compose.py --route _PKOS/routes/RT-XXX.yaml --ratio 16:9
+# 1. 准备一条 exit=ppt 的路由单（conversion_type ∈ 4 值承接子集）
+# 2. 跑 compose.py（比例必问——交互场景先问用户再传 --ratio）
+python pkos-ppt-skill/scripts/compose.py --route _PKOS/routes/RT-XXX.yaml --ratio 16:9
 ```
+
+依赖：`pip install python-pptx`（仅此一项；默认路径零网络）。
 
 ## 参数说明
 
 | 参数 | 必填 | 说明 |
 |---|---|---|
 | `--route` | ✅ | 路由单 YAML 路径（相对或绝对） |
-| `--ratio` | ❌ | 生图比例：`16:9` / `4:3` / `3:4`；`auto` 模式下可省略 |
-| `--slides` | ❌ | 幻灯片数量；null=从 POL 内容自动决定 |
-| `--auto` | ❌ | 自主轮次标志；答案取自路由单，不经用户交互 |
-| `--theme` | ❌ | 强制指定美学主题（覆盖路由单推断） |
-| `--dry-run` | ❌ | 只输出提示词清单，不调 API |
-
-## 比例三选一（v0 锁死铁律）
-
-未指定 `--ratio` 且非 `--auto` 时，脚本会抛出 `RatioRequiredError`，需用户明确选择：
-
-- **16:9** → 1536x1024（推荐，投屏最通用）
-- **4:3** → 1536x1024（网关无精确 4:3，用最近横版近似）
-- **3:4** → 1024x1536（竖版）
-
-`--auto` 模式下默认 16:9，manifest 中留 `decision_note` 记录决策来源。
+| `--ratio` | ⚠️ | 画布比例：`16:9` / `4:3` / `3:4`；未给且非 `--auto` → ambiguous 决策单 |
+| `--slides` | ❌ | 页数；null=按 POL 内容自动（封顶 15） |
+| `--auto` | ❌ | 自主轮次：默认 16:9，manifest 留 decision_note |
+| `--theme` | ❌ | 强制美学主题（paper-ink/mo-xian/kan-shi/guang-shu/night-desk） |
+| `--images` | ❌ | 启用 gptimage2 插图槽位（默认关；需 `PKOS_IMG_API_KEY`） |
+| `--out` | ❌ | 输出目录覆盖 |
+| `--dry-run` | ❌ | 只输出 design_spec.json，不渲染 |
 
 ## 输出结构
 
 ```
-_PKOS/outputs/<route-id>-deck-images/
-├── slide-01-xxxxxxxx.png   # 每张图
-├── slide-02-xxxxxxxx.png
-├── ...
-├── manifest.json           # 完整可复现记录（prompt/provider/size/ratio/file/hash）
-└── README.md               # degraded_success 模式下的占位说明 + prompt 清单
+_PKOS/outputs/<route-id>-deck/
+├── <route-id>.pptx        # 原生可编辑演示文稿（文本框/形状/图片）
+├── design_spec.json       # 设计规格（deck 唯一事实源，可手改后重渲染）
+├── manifest.json          # 可复现记录（sha256 链 + 每页角色/要点/讲稿/插图 provider）
+└── illustration-*.png     # 仅 --images 时的插图
 ```
+
+## 页型角色（deck_spec 确定性分类）
+
+| 角色 | 触发条件 | 版式 |
+|---|---|---|
+| cover | 固定第 1 页 | 大标题+受众副题+主题色条 |
+| bullets | 要点 ≤5 | 标题+两级列表（主点加粗/说明缩进灰） |
+| two-column | 要点 ≥6 | 双栏分组 |
+| quote | 正文含短引用 | 大引文+竖线锚点 |
+| hero-number | 显著数字+短说明 | 居中大数字 |
+| image-right | --images 选中的页 | 左文右图（图槽失败画占位框） |
+| closing | 固定末页 | 核心结论回显（禁空洞谢谢页） |
+
+规则：单页要点 >5 自动拆页（续页标"（续）"）；连续同版式 ≥3 触发节奏强调；
+五维评分卡/R29 实测等质检节不入 deck；EP 编号前缀剥离；「钩子/CTA」映射为「引言/行动建议」。
 
 ## 失败三态
 
 | 状态 | 含义 | 处理 |
 |---|---|---|
-| `not_found` | 路由单 exit≠ppt / conversion_type 不承接 / 源不可达 | 拒绝执行，返回 rejection 清单 |
-| `ambiguous` | ratio=null 且 auto_mode=false | 抛出决策单，需用户交互 |
-| `unavailable` | API 全部失败 + prompt 未生成 | retry/abort，返回错误详情 |
-| `degraded_success` | API 部分失败或全失败但 prompt 已生成 | manifest.degraded=true，写 README.md 兜底 |
-| `success` | 全部出图成功 | 正常输出 |
+| `not_found` | exit≠ppt / 子集不承接 / status 早于 polished / 源不可达 | 拒绝，返回 rejections |
+| `ambiguous` | ratio 未确认且非 auto | 决策单（三选一） |
+| `unavailable` | spec 生成失败 / 素材不足 / 渲染或校验门命中 | retry/abort，不出坏产物 |
+| `degraded_success` | 仅 --images：deck 完整但插图部分失败 | manifest.degraded=true，prompt 可重放 |
+| `success` | 全部就位 | 正常输出 |
 
-## 美学主题映射
+## 比例 → 画布/插图尺寸
 
-| html 主题 | ppt 生图风格 |
-|---|---|
-| paper-ink（纸墨） | 暖纸底色/朱砂点缀/大量留白/扁平插画 |
-| mo-xian（墨线） | 深色背景/电蓝线条/高对比信息图 |
-| kan-shi（刊式） | 象牙白杂志封面/粗黑标题/高端印刷气质 |
-| guang-shu（光栅） | 白底蓝线/橙点列表/明快技术博客风 |
-| night-desk（夜案） | 深棕暗调/琥珀锚点/深夜书桌氛围 |
+| 比例 | 画布 | body 锚点 | 插图槽位尺寸（白名单） |
+|---|---|---|---|
+| 16:9 | 13.33×7.5 in | 18pt | 1536x1024 |
+| 4:3 | 10×7.5 in | 17pt | 1536x1024 |
+| 3:4 | 7.5×10 in | 15pt | 1024x1536 |
 
-## 常见场景
+## 美学主题（aesthetics.json v2 双轨）
 
-### 场景 1：手动触发（交互式）
+每主题含 `native`（pptx 渲染 token：色板+中西文字体分工）与 `prompt_tokens`（插图描述，与 html 主题同源）。
+纸墨=暖纸底/朱砂条/楷体标题；墨线=深底电蓝；刊式=象牙底金色点缀黑体；光栅=白底蓝橙；夜案=深棕琥珀。
+
+## 精修工作流（spec 手改后重渲染）
+
 ```bash
-python scripts/compose.py --route _PKOS/routes/RT-20260827-XXX.yaml
-# → 脚本会询问比例选择
+# 1. dry-run 出 spec 或直接改输出目录里的 design_spec.json（改标题/删页/换角色）
+# 2. 用 build_pptx 单独重渲染（SKILL.md 实现路径节有一行式命令）
 ```
 
-### 场景 2：自主轮次（定时任务 / agent loop）
-```bash
-python scripts/compose.py --route _PKOS/routes/RT-20260827-XXX.yaml --auto
-# → 自动 16:9，不经用户交互
+## 视觉验收（交付前）
+
+本机装有 PowerPoint 时用 COM 导出逐页 PNG 过一遍（溢出/重叠/字距）：
+
+```python
+import win32com.client, os
+app = win32com.client.Dispatch("PowerPoint.Application")
+pres = app.Presentations.Open(os.path.abspath("<pptx>"), WithWindow=False)
+for i, s in enumerate(pres.Slides, 1):
+    s.Export(os.path.join("<preview_dir>", f"slide-{i:02d}.png"), "PNG", 1280, 720)
+pres.Close()
 ```
 
-### 场景 3：调试提示词
-```bash
-python scripts/compose.py --route _PKOS/routes/RT-20260827-XXX.yaml --ratio 16:9 --dry-run
-# → 只输出提示词 JSON，不生成图片
-```
-
-### 场景 4：指定主题
-```bash
-python scripts/compose.py --route _PKOS/routes/RT-20260827-XXX.yaml --ratio 3:4 --theme mo-xian
-```
-
-## 环境变量
+## 环境变量（仅 --images 需要）
 
 | 变量 | 说明 |
 |---|---|
-| `PKOS_IMG_API_KEY` | 图像 API 密钥（替代 config.json 中的 auth_env） |
-| `PKOS_IMG_CONFIG` | config.json 路径（默认 `shared/image-api/config.json`） |
+| `PKOS_IMG_API_KEY` | gptimage2 密钥 |
+| `PKOS_IMG_CONFIG` | image-api config 路径（默认 `pkos-ppt-skill/shared/image-api/config.json`） |
 
-## 集成到 Agent 工作流
+## Agent 集成
 
 ```python
-from pkos_ppt.scripts.compose import compose
+import sys; sys.path.insert(0, "pkos-ppt-skill/scripts")
+from compose import compose
 
-result = compose(
-    route_path="_PKOS/routes/RT-20260827-XXX.yaml",
-    ratio="16:9",
-    auto_mode=True,
-)
+result = compose(route_path="_PKOS/routes/RT-XXX.yaml", ratio="16:9", with_images=False)
 if result["status"] == "success":
-    print(f"✅ {result['generated']}/{result['total_slides']} 张出图成功")
-    print(f"📁 输出目录: {result['output_dir']}")
+    print(f"✅ {result['total_slides']} 页 → {result['pptx']}")
 elif result["status"] == "degraded_success":
-    print(f"⚠️ {result['generated']}/{result['total_slides']} 张成功，{result['failed']} 张失败")
-    print(f"📋 提示词清单见: {result['output_dir']}/README.md")
+    print(f"⚠️ deck 完整，{result['images_failed']} 张插图失败（prompt 在 manifest 可重放）")
 else:
     print(f"❌ {result['failure_mode']}: {result.get('rejections', result.get('errors'))}")
 ```

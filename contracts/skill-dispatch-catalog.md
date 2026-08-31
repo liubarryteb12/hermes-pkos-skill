@@ -64,17 +64,17 @@ Provider: hy3 (chat, hunyuan-direct) · gpt-image-2 (image, PKOS_IMG_API_KEY)
 | 前置 | analysis → polish 完成；路由单 exit=html |
 | 特点 | 四出口中最轻；不需要 options 必问项；公众号内容可粘贴其输出 |
 
-### 2.2 exit.ppt.compose — 演示出口（出图制）
+### 2.2 exit.ppt.compose — 演示出口（v2.0 原生 PPTX 制，2026-08-31 用户裁定改版）
 
 | 项 | 内容 |
 |---|---|
-| 功能 | 消费路由单生成**逐页出图提示词**（出图制 PPT，非 HTML deck），再经 gptimage2use 出每页图 |
+| 功能 | 消费路由单，POL 素材经 **design_spec.json 中间层**（页型角色/拆页/节奏/讲稿）渲染为**原生可编辑 .pptx**（python-pptx 文本框/形状）；gptimage2 为 `--images` 可选插图通道 |
 | 用户命令特征 | "做个 PPT / 出演示文稿 / 投屏用的 slides" |
-| 输入 | RT-*.yaml（exit=ppt）+ `_PKOS/analysis/` 的 POL 源 |
-| 输出 | prompts JSON（每页 prompt+size+ratio）→ `slide-NN.png` |
-| 前置 | 路由单 style_adapter ∈ {video_script, null}；`--auto` 自主轮 / `--dry-run` 只出提示词 |
-| 主题 | resolve_theme 读 style_adapter；未指定回退 paper-ink |
-| 已知 | render_deck.py（HTML deck）已 DEPRECATED，主链=compose.py |
+| 输入 | RT-*.yaml（exit=ppt）+ `_PKOS/analysis/` 的 POL 源；比例三选一必问（v0 锁死继承） |
+| 输出 | `_PKOS/outputs/<route-id>-deck/`：`<route-id>.pptx` + design_spec.json + manifest.json（schema pkos-ppt-deck:2）→ 插图时另含 illustration-*.png |
+| 前置 | 承接子集=router v3.3 矩阵 ppt 行 4 值；status≥polished；`--auto` 自主轮 / `--dry-run` 只出 spec |
+| 主题 | resolve_theme 读 style_adapter/style_theme；未指定回退 paper-ink；aesthetics.json v2 双轨（native token + prompt_tokens） |
+| 已知 | render_deck.py（HTML deck）已 DEPRECATED，主链=compose.py；v0.2 出图制已作废（见单元 SKILL.md 变更记录） |
 
 ### 2.3 exit.comic.compose — 公众号漫画出口
 
@@ -137,7 +137,7 @@ Provider: hy3 (chat, hunyuan-direct) · gpt-image-2 (image, PKOS_IMG_API_KEY)
 ```
 ingest 产条目 → analysis 产 POL → polish 产 DerivedDraft → weak_check 放行
   → router 产 RT → html|ppt|comic|novel 四出口消费 RT
-    → ppt/comic 的出图环节统一调 gptimage2use
+    → comic 出图统一调 gptimage2use；ppt v2.0 原生渲染（--images 插图时才调 gptimage2use）
     → gzhxiaoshuo 的场景切片可回流给 comic/video（多模态中继）
   → 全部产物 ExportArtifact 白名单落盘 → 全过程 telemetry.jsonl 单写者记录
 ```

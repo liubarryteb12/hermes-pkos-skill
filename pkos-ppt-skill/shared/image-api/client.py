@@ -47,7 +47,7 @@ def load_config() -> dict:
     cfg_path = Path(cfg_path_str)
     if not cfg_path.exists():
         raise FileNotFoundError(f"image-api config.json 不存在: {cfg_path}")
-    with open(cfg_path, "r", encoding="utf-8") as f:
+    with open(cfg_path, "r", encoding="utf-8-sig") as f:
         cfg = json.load(f)
     # 校验必填字段
     for key in ("active_provider", "providers"):

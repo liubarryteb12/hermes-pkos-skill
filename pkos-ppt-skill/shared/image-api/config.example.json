@@ -12,7 +12,7 @@
         "quality": "auto",
         "output_format": "png",
         "background": "auto",
-        "output_dir": "D:/00.AIagent/pkos/skills/personal-knowledge-os/_PKOS/outputs"
+        "output_dir": "C:/Users/18765/AppData/Local/hermes/skills/note-taking/hermes-pkos-skill/_PKOS/outputs"
       },
       "quirks": {
         "transparent_bg_param": "background",

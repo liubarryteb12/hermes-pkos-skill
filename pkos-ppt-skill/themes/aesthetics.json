@@ -1,69 +1,177 @@
 {
-  "_comment": "美学 token 映射：html 主题 → 生图 prompt 视觉描述。ppt 出口继承 html 主题美学。",
-  "_schema": "pkos-ppt-aesthetics:1",
-  "version": "1.0.0",
+  "_comment": "美学 token v2（2026-08-31 原生 PPTX 改版）：每个主题双轨——native=python-pptx 渲染 token（色板/字体/字号锚），prompt_tokens=AI 插图槽位仍走 gptimage2。html 主题美学继承不变。",
+  "_schema": "pkos-ppt-aesthetics:2",
+  "version": "2.0.0",
   "themes": {
     "paper-ink": {
       "name": "纸墨",
       "prompt_tokens": "warm beige paper background, minimal flat illustration style, deep ink-black text, cinnabar red accent highlights, generous whitespace, East Asian editorial aesthetic, clean geometric shapes, no gradients",
-      "color_palette": "#faf7f2 #2b2723 #a4443b #e4dcd0",
       "mood": "安静的图书馆，不是科技发布会",
-      "avoid": ["neon glow", "gradient backgrounds", "emoji decorations", "sans-serif body text"]
+      "avoid": [
+        "neon glow",
+        "gradient backgrounds",
+        "emoji decorations"
+      ],
+      "native": {
+        "background": "#faf7f2",
+        "surface": "#f1ebe1",
+        "text": "#2b2723",
+        "secondary_text": "#6b645c",
+        "accent": "#a4443b",
+        "secondary_accent": "#c98a7b",
+        "divider": "#e4dcd0",
+        "heading_font": "KaiTi",
+        "body_font": "Microsoft YaHei",
+        "heading_weight": "bold",
+        "heading_latin": "Georgia",
+        "body_latin": "Segoe UI"
+      }
     },
     "mo-xian": {
       "name": "墨线",
       "prompt_tokens": "dark charcoal background with electric blue accent lines, high contrast infographic style, clean skeleton structure, data visualization aesthetic, information-dense but orderly, neon-blue highlights on dark ground",
-      "color_palette": "#0d1117 #1f6feb #58a6ff #30363d",
       "mood": "骨架清晰的技术手册",
-      "avoid": ["warm tones", "soft shadows", "serif fonts in illustration"]
+      "avoid": [
+        "warm tones",
+        "soft shadows"
+      ],
+      "native": {
+        "background": "#0d1117",
+        "surface": "#161b22",
+        "text": "#e6edf3",
+        "secondary_text": "#8b949e",
+        "accent": "#58a6ff",
+        "secondary_accent": "#1f6feb",
+        "divider": "#30363d",
+        "heading_font": "Microsoft YaHei",
+        "body_font": "Microsoft YaHei",
+        "heading_weight": "bold",
+        "heading_latin": "Consolas",
+        "body_latin": "Segoe UI"
+      }
     },
     "kan-shi": {
       "name": "刊式",
       "prompt_tokens": "ivory magazine cover aesthetic, bold black editorial headlines, warm cream background, clean typography-forward composition, premium print journalism feel, strong visual hierarchy, minimal decoration",
-      "color_palette": "#fdf6e3 #1a1a1a #c9a227 #f5ebe0",
       "mood": "高端杂志封面，观点型短文气质",
-      "avoid": ["tech-blue palette", "dark mode", "pixel art"]
+      "avoid": [
+        "tech-blue palette",
+        "dark mode"
+      ],
+      "native": {
+        "background": "#fdf6e3",
+        "surface": "#f5ebe0",
+        "text": "#1a1a1a",
+        "secondary_text": "#5c564a",
+        "accent": "#c9a227",
+        "secondary_accent": "#8a6d1f",
+        "divider": "#e6dcc3",
+        "heading_font": "SimHei",
+        "body_font": "Microsoft YaHei",
+        "heading_weight": "bold",
+        "heading_latin": "Georgia",
+        "body_latin": "Segoe UI"
+      }
     },
     "guang-shu": {
       "name": "光栅",
       "prompt_tokens": "bright white background with blue left-border chapter dividers, orange bullet accents, modern clean layout, approachable tech-blog aesthetic, balanced information density, friendly color palette",
-      "color_palette": "#ffffff #2563eb #f97316 #f1f5f9",
       "mood": "明快友好的技术博客",
-      "avoid": ["dark backgrounds", "serif body text", "heavy ornamentation"]
+      "avoid": [
+        "dark backgrounds",
+        "heavy ornamentation"
+      ],
+      "native": {
+        "background": "#ffffff",
+        "surface": "#f1f5f9",
+        "text": "#1e293b",
+        "secondary_text": "#64748b",
+        "accent": "#2563eb",
+        "secondary_accent": "#f97316",
+        "divider": "#e2e8f0",
+        "heading_font": "Microsoft YaHei",
+        "body_font": "Microsoft YaHei",
+        "heading_weight": "bold",
+        "heading_latin": "Segoe UI",
+        "body_latin": "Segoe UI"
+      }
     },
     "night-desk": {
       "name": "夜案",
       "prompt_tokens": "dim warm desk lamp atmosphere, deep brownish-black background, amber accent anchors, nighttime coding session mood, low-luminance technical notes aesthetic, subtle texture, comfortable for long reading",
-      "color_palette": "#1a1410 #f59e0b #d97706 #2d2418",
       "mood": "深夜书桌，琥珀锚点的宁静技术空间",
-      "avoid": ["bright white", "neon colors", "cheerful pastels"]
+      "avoid": [
+        "bright white",
+        "neon colors"
+      ],
+      "native": {
+        "background": "#1a1410",
+        "surface": "#2d2418",
+        "text": "#ece3d4",
+        "secondary_text": "#a89a82",
+        "accent": "#f59e0b",
+        "secondary_accent": "#d97706",
+        "divider": "#3d3325",
+        "heading_font": "Microsoft YaHei",
+        "body_font": "Microsoft YaHei",
+        "heading_weight": "bold",
+        "heading_latin": "Consolas",
+        "body_latin": "Segoe UI"
+      }
     }
   },
   "fallback_theme": {
     "name": "neutral-minimal",
     "prompt_tokens": "clean minimalist slide design, lots of whitespace, subtle accent color, flat illustration style, professional presentation aesthetic, simple geometric accents",
-    "color_palette": "#f8f9fa #212529 #6c757d #dee2e6"
+    "native": {
+      "background": "#f8f9fa",
+      "surface": "#eef0f2",
+      "text": "#212529",
+      "secondary_text": "#6c757d",
+      "accent": "#495057",
+      "secondary_accent": "#adb5bd",
+      "divider": "#dee2e6",
+      "heading_font": "Microsoft YaHei",
+      "body_font": "Microsoft YaHei",
+      "heading_weight": "bold",
+      "heading_latin": "Segoe UI",
+      "body_latin": "Segoe UI"
+    }
+  },
+  "typography_scale": {
+    "_comment": "吸收 ppt-master 字号角色比例（相对 body 锚点）。body 锚点按画布：16:9/4:3=18pt，3:4=16pt。",
+    "cover_title": 2.6,
+    "section_title": 2.0,
+    "page_title": 1.6,
+    "subtitle": 1.2,
+    "body": 1.0,
+    "annotation": 0.78,
+    "footnote": 0.62
   },
   "slide_templates": {
     "cover": {
-      "description": "封面：大标题居中，副标题下方，极简背景装饰",
-      "prompt_suffix": "presentation cover slide, centered large title text, subtitle below, minimalist decorative elements"
+      "description": "封面：大标题+副题+主题色装饰条"
     },
-    "content": {
-      "description": "内容页：左侧标题，右侧要点列表，留白充足",
-      "prompt_suffix": "presentation content slide, left-aligned heading, right-side bullet points, clean layout"
+    "section": {
+      "description": "章节页：大号章节号+标题，留白"
     },
-    "diagram": {
-      "description": "图解页：流程图/架构图，简洁线条，少文字",
-      "prompt_suffix": "presentation diagram slide, flowchart or architecture diagram, clean lines, minimal text labels"
+    "bullets": {
+      "description": "要点页：标题+左对齐要点列表"
+    },
+    "two-column": {
+      "description": "双栏页：标题+左右两组要点"
     },
     "quote": {
-      "description": "引用页：大号引文，装饰性引用符，大量留白",
-      "prompt_suffix": "presentation quote slide, large centered quotation, decorative quote marks, generous whitespace"
+      "description": "引用页：大号引文+出处，大量留白"
+    },
+    "hero-number": {
+      "description": "数字页：单个大数字/结论+一行说明"
+    },
+    "image-right": {
+      "description": "图文页：左文右图（图槽可 AI 生成或占位）"
     },
     "closing": {
-      "description": "封底：总结要点或感谢页",
-      "prompt_suffix": "presentation closing slide, summary or thank you, clean minimalist finish"
+      "description": "封底：核心结论回显+行动号召"
     }
   }
 }
