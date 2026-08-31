@@ -1,0 +1,9 @@
+{
+  "schema": "pkos-evolution-config:1",
+  "_comment": "pkos-evolution:1 契约的可调配置（contracts/evolution-policy.md）。缺省值 = 契约默认；删除本文件 = 全部回落契约默认。",
+  "index_reconcile_cadence_days": 7,
+  "mtime_probe_enabled": true,
+  "proposal_mode": "git",
+  "min_cooccurrence": 5,
+  "max_expand_depth": 8
+}

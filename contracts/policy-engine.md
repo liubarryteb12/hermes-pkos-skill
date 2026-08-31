@@ -94,7 +94,7 @@ constraints:
 ### 2.3 WorkflowPolicy（工作流策略）
 
 - **输入**：`task_type` / `constraints.dual_exit` / `knowledge_context`。
-- **职责**：编排多步链（如 分析→净化→弱审→出口；dual_exit 出两张 RT；adaptive_polish_policy 弱审双轨声明 `weak_check_runs`/`on_fail`）。
+- **职责**：编排多步链（如 分析→净化→弱审→出口；dual_exit 出两张 RT；adaptive_polish_policy 弱审双轨声明 `weak_check_runs`/`on_fail`）。v4.1 起两条演化约束（权威 = `evolution-policy.md` §4/§5）：嵌套 DAG 超级节点须在加载期静态展开并缓存（`evolution_gate.py --expand`，运行时禁止递归解释）；系统自动合成的 DAG 须过共现阈值门 + Git 语义人类确权，未 merge 不得被本策略选用。
 - **不做**：不越过 `knowledge_service.commit` 写 vault；不在 workflow 片段里内嵌验证评分（验证归 VerificationPolicy）。
 
 ### 2.4 ProviderPolicy（提供者策略）
@@ -106,7 +106,7 @@ constraints:
 ### 2.5 VerificationPolicy（验证策略）
 
 - **输入**：`verification_requirements` / `task_type` / `history`。
-- **职责**：产出策略的 `verification` 块（threshold、dimensions、cross_validation、requirement 清单），作为 `pkos.weak_check.verify`（v2.0 验证框架）的验收要求来源。
+- **职责**：产出策略的 `verification` 块（threshold、dimensions、cross_validation、requirement 清单），作为 `pkos.weak_check.verify`（v2.0 验证框架）的验收要求来源。v4.1 起还须产出 **`content_tier`** 字段（`fact_dense | format_only | unknown`，词表与分级→验证要求映射的唯一权威 = `evolution-policy.md` §3）：`format_only` 产出走纯代码 lint 兜底、`cross_validation` 强制 false；`fact_dense` 产出维持全强度交叉验证；缺省 `unknown` 保持 v4.0 行为。v4.2 起策略还携带 **`required_persona`** 字段（调用方子人格声明，词表权威 = `operator-policy.md` §2；缺省 `null` = meta_auditor 兜底语义）。
 - **不做**：不打分（打分在 Verifier）；不在生成节点内安置自评（Hook 2）。
 
 ### 2.6 FallbackPolicy（回退策略）
@@ -114,6 +114,7 @@ constraints:
 - **输入**：`history` / `system_state` / 各 Policy 片段的降级选项。
 - **职责**：为策略声明 `fallback` 块：失败分类（provider / skill / verification / ambiguous）到处置动作的映射。处置动作继承 v0 锁死语义：Raw Fallback、ambiguous 决策单、切 provider 档。
 - **Adaptive Loop 接入点**：`Observe → Assess → Decide → Execute → Verify → Classify Failure(provider/skill/verification/ambiguous) → Re-plan/Re-select → Execute`。本策略只声明映射表；循环由调用方驱动。**MAX_RETRY=2 硬锁不变**（P-05，`pkos_v31_lib.MAX_RETRY` 唯一来源）——升级的是"失败后的动作"：从无脑重试改为分类驱动的 re-plan / re-select provider / re-select skill。
+- **审计不变量（v4.1，`evolution-policy.md` §6）**：Adaptive Loop 自动修改路由权重/执行策略时，每笔变更必须先 append 一条 `pkos-weight-audit:1` 审计行到 `_PKOS/audits/weight_audit.jsonl`（schema 七字段 / reason 非空 / before≠after），**先落日志后生效**；审计写失败 = 变更不生效（fail loud）。机器守卫：`evolution_gate.py --validate-audit`。
 
 ## 3. Execution Strategy（pkos-execution-strategy:1）
 
