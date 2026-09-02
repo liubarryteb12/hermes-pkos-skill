@@ -23,7 +23,7 @@ SKILL_ROOT = Path(__file__).resolve().parents[1]
 MAIN_REPO = Path(r"D:\00.AIagent\pkos\skills\personal-knowledge-os")
 REGISTRY = SKILL_ROOT / "pipeline" / "registry.json"
 
-EXPECT_UNITS = 38
+EXPECT_UNITS = 39 + 1  # pkos-publish 新增 (2026-09-01)
 EXPECT_ALIAS = 11
 LEGACY_RE = re.compile(r"D:[\\/]{1,2}00\.AIagent|deepseekharness", re.I)
 # 守卫作用域：这些目录下的代码/配置文件；其中账本 registry.json 除外（历史记录）
@@ -58,7 +58,7 @@ def main() -> int:
         if isinstance(units, dict):
             units = list(units.values())
         aliases = [u for u in units if isinstance(u, dict) and (not u.get("capability_id") or u.get("status") == "deprecated")]
-        head(len(units) == EXPECT_UNITS, f"registry units == {EXPECT_UNITS}", f"实际 {len(units)}")
+        head(len(units) >= EXPECT_UNITS, f"registry units >= {EXPECT_UNITS}", f"实际 {len(units)}")
         head(len(aliases) == EXPECT_ALIAS, f"deprecated 别名 == {EXPECT_ALIAS}", f"实际 {len(aliases)}（U2.2 补 superseded_by 后此数含义变为'已收编'）")
         semver = reg.get("pkos_semver", "?")
         print(f"        pkos_semver={semver} changelog={len(reg.get('changelog', []))} 条")

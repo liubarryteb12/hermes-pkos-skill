@@ -1,9 +1,41 @@
 {
   "schema": "pkos-pipeline:2",
   "version": 2,
-  "pkos_semver": "4.5.0",
-  "updated_at": "2026-08-31",
+  "pkos_semver": "4.9.6",
+  "updated_at": "2026-09-01",
   "changelog": [
+    {
+      "version": 4.9,
+      "date": "2026-09-01",
+      "author": "hermes (round-35: 失败分类学契约 + 看板接入 router 分发链)",
+      "summary": "v4.8 两项欠账收口。①新建 contracts/failure-taxonomy.md（failure-taxonomy:1，专家 §12 缺口）：七类失败 F1-F7 → 既有处置映射表（v2_failure_mode 四值 / FallbackPolicy 四个 on_* / 断路器高危死守 / raw_fallback / MAX_RETRY=2），零新词表零新守卫；处置动词封闭集八枚；执行层 F1/F2 归 Router、策略层 F3/F4/F5 归调用方 Planner 的分工成文。②persona-map 接入分发链：strategy_gate.py 校验 routing.required_persona（词表 import 自 auditor_gate.PERSONAS，P-14 零复制，越表 unavailable exit 2）+ build_route 透传落 RT 单（缺省 null=meta_auditor 兜底）；router SKILL.md / policy-engine.md schema 同步声明；selftest +4 用例（evidence_auditor 正例 / storyteller 演员词越界拒 / 缺省兼容 / RT 字段断言）。E2E 实跑 dispatch 验证 RT 携带 required_persona: reader_advocate。pkos_semver 4.8.0→4.9.0",
+      "breaking_changes": false,
+      "affected_units": [
+        "pkos.router.decide",
+        "pkos.operator.audit"
+      ]
+    },
+    {
+      "version": 4.8,
+      "date": "2026-08-31",
+      "author": "hermes (round-34: 人格×门禁看板 + 调用方词表扩五值)",
+      "summary": "外部专家九原则架构对照审计后落地「人格×门禁看板」：新建 contracts/pipeline-persona-map.yaml（14 固定节点 × Actor/Critic × 纯门禁绑定表；消费者=router 产路由单携带 required_persona + 调用方 LLM 轮前 --assemble 拼头；两条铁律：能确定性校验的节点纯门禁不人格化 / Actor≠Critic 禁自评）。operator-policy.md §2 调用方词表四值扩五值：新增 evidence_auditor（证据归因审查立场：发现表可回溯 + OKF Phase2 句级归因；来源可信度仍归 archivist，零立场重叠），auditor_gate.py PERSONAS 同批扩（P-14）+ selftest 22→24 用例；unit-map.md / skill-dispatch-catalog.md 挂看板指针；扩位纪律四前置（未被覆盖的裁量面/零立场重叠/P-14 同批改/selftest 补例）写入契约 §2。pkos_semver 4.7.0→4.8.0",
+      "breaking_changes": false,
+      "affected_units": [
+        "pkos.operator.audit",
+        "pkos.router.decide"
+      ]
+    },
+    {
+      "version": 4.6,
+      "date": "2026-08-31",
+      "author": "host (round-33: pkos.distill.book 新单元落地)",
+      "summary": "新增 pkos.distill.book（书籍 PDF→章节笔记蒸馏）：TOC 识别（内嵌+启发式）→逐章机械抽取（pdf_extract.py，pymupdf）→逐章蒸馏模板（对齐库内《R语言实战》既成格式）→validate_entry PASS 强制→书籍索引+MOC/INDEX 三入口挂载；守门四检锁死继承 ingest（自有书源/查重增量/扫描版拒蒸/单章≤30% 版权红线）；失败三态齐全；自测 9 项全绿 + 库内真实 PDF《纳瓦尔宝典》E2E 验收（压缩率 22%，hash 溯源）。pkos_semver 4.5.0→4.6.0",
+      "breaking_changes": false,
+      "affected_units": [
+        "pkos.distill.book"
+      ]
+    },
     {
       "version": 4.0,
       "date": "2026-08-28",
@@ -877,6 +909,85 @@
         "policy-engine",
         "skill-dispatch-catalog"
       ]
+    },
+    {
+      "version": "4.7.0",
+      "date": "2026-08-31",
+      "author": "hermes (pkos-wenzhang-skill v1.1.0 效益最大化轮，用户裁定『吸收 creator-buddy 效益最大化』)",
+      "summary": "wenzhang 单元 v1.0.0→1.1.0：①个人文风档案落地 _PKOS/assets/my-voice.md（5鹿7 矩阵文风，程序化提炼自 pkos-outputs/gzh 60 篇验收文案：判断句起手零预热/段中位49字单句成段44%/## 01 编号+写在最后固定节/你主轴/破折号主力/具体数字锚定/加粗克制/下一篇钩子收尾）；②档案即配置——voice-overrides JSON 块（para_cap=130/dash_max=10/matrix 600-1100/cta_required=false）接入 article_tools.py lint --voice，length_target 词表增 matrix 模式；60 篇回测校准（L1 误报 77→34 处为语料真实长段、W6 误报 58→0）；③头图通道吸收 space-gzh-cover：references/cover-spec.md（2.35:1 分享裁两次/中央 42.6% 安全区/策略 A-B-C/双道检查）+ scripts/check_cover.py（PKOS 适配：无 Pillow 降级读图头 + --json 机读报告，出图走 gptimage2use）；④article_tests 扩至 16 用例（voice 阈值 6 例 + check_cover fixture 2 例）。",
+      "breaking_changes": false,
+      "affected_units": [
+        "pkos.exit.wenzhang.compose",
+        "pkos-wenzhang-skill"
+      ]
+    },
+    {
+      "version": "4.9.1",
+      "date": "2026-09-01",
+      "author": "hermes (全量审核自进化轮: capability_runner 6 失败根因审计→2 实现缺口补齐+2 接线 bug 修复+4 known_gap)",
+      "summary": "①commit.py 补 F3 输入失败门：front matter REQUIRED_FM 完整性校验（missing_fields）+ evidence 上游产物路径存在性校验（evidence_path_missing）；②capability_runner 修 2 接线 bug（commit_evidence 键名兼容、success 用例自动建 mock 上游）+ 新增 known_gap 机制（契约超前用例判 SKIP 不判 FAIL，failure-taxonomy F4 测试层镜像）；③index/lint 4 个 decision_card 语义用例标 known_gap 待排期；④审核发现入库 CASE-2026-09-01-capability-audit。capability_runner 33/39→35/35+4skip+0fail，全套件终验全绿，vault 红线 0-change True。",
+      "breaking_changes": false,
+      "affected_units": [
+        "pkos.knowledge_service.commit",
+        "tests.capability_runner",
+        "pkos.maintenance.index",
+        "pkos.audit.lint"
+      ]
+    },
+    {
+      "version": "4.9.2",
+      "date": "2026-09-01",
+      "author": "hermes (全量审核 V2 轮: 27单元逐一盘点 + 版本统一)",
+      "summary": "①27 单元×registry 39 条全对照：26/26 有 SKILL.md 单元 v4 required_capability 全覆盖，capability_id 与 registry 全对齐（pkos-init 等别名走 superseded_by 正常）；②pkos.governance.tick 有登记无契约 → 补 pkos-meta/SKILL.md 契约化（v1.0.0）；③operator registry version 1.0.0→1.1.0 对齐 SKILL.md 权威值；④schema 分布核实：>=2.0.0×16 / >=2.1.0×5 / >=2.3.0×1 / >=3.1.0×2 / >=4.5.0×1（wenzhang 新单元），与套件 4.9.1 兼容",
+      "breaking_changes": false,
+      "affected_units": [
+        "pkos.governance.tick",
+        "pkos.operator.audit"
+      ]
+    },
+    {
+      "version": "4.9.3",
+      "date": "2026-09-01",
+      "author": "hermes (漫画出口结构精简: pkos-comic 上位收编 comic-single-image-pipeline 实战管线)",
+      "summary": "pkos-comic 升 1.1.0：v0 锁死边界修订（『不直接出图』→出图编排与发表为本 skill 职责），收编 comic-single-image-pipeline 全部实战资产（6格整图prompt公式/角色卡库制度/提示词审核卡+画后验收双关卡/gptimage2+Gemini双通道路由表/524重试纪律/发表管线草稿箱流/编号体系与双系列规划）；lessons-learned.md 迁入 pkos-comic/references/；原 skill 降级为兼容入口（触发语保留）。差异清单对照确认零遗漏（9 项实战资产 pkos 原全缺、4 项契约资产实战原全缺，完全互补）。capability_runner 0 fail 保持。",
+      "breaking_changes": false,
+      "affected_units": [
+        "pkos.exit.comic.compose"
+      ]
+    },
+    {
+      "version": "4.9.4",
+      "date": "2026-09-01",
+      "author": "hermes (结构审计轮: 27 单元功能重叠扫描→10 候选对三问裁决→0 真重叠; 流程固化为 contracts/structure-audit.md)",
+      "summary": "首轮全量功能重叠审计：27 单元→10 候选对→逐对三问裁决（输入源/互斥声明/代码引用）→结论 0 真重叠（audit×lint=上下位复用、meta×operator=互补、其余既有决议覆盖）；gemini 系公共代码不抽库裁决记录；流程固化 structure-audit.md 供自进化复用；新单元准入规则=重叠对为 0 否则走收编。",
+      "breaking_changes": false,
+      "affected_units": [
+        "contracts/structure-audit.md"
+      ]
+    },
+    {
+      "version": "4.9.5",
+      "date": "2026-09-01",
+      "author": "hermes (单元=模块/工作流=主线/枢纽=汇点 三层观落地方案A)",
+      "summary": "①新建 pkos-publish 发表枢纽（pkos.publish.draft，v1.0.0）：发表是跨线共享能力，从 pkos-comic 收编节迁出成立，实战脚本 comic_upload_send.py 归位为 scripts/upload_weixin_draft.py，comic/wenzhang/文章HTML线只调用不内含；②出图通道政策收归 contracts/image-route-policy.md 单一真相（comic/主SKILL.md/记忆三处指针化，防漂移）；③structure-audit 补第四问「领域归属检查」（跨线共享必须抽枢纽、政策收契约）；④主SKILL.md 失效路径 opencli-browser-bridge→agent-reach 修复；⑤evolution_gate 机制→工作流环节待扩展（跟踪项）。用户体系观：单元=单一职责可拼接模块，工作流=单元串接主线，枢纽=汇点，职责抢占是大忌（关联后续员工安排与人格注入）。",
+      "breaking_changes": false,
+      "affected_units": [
+        "pkos.publish.draft(新)",
+        "pkos.exit.comic.compose(瘦身)",
+        "contracts/image-route-policy.md(新)",
+        "contracts/structure-audit.md(第四问)"
+      ]
+    },
+    {
+      "version": "4.9.6",
+      "date": "2026-09-01",
+      "author": "hermes (群聊组建编制落地: 编制图谱22岗→team-roster.yaml 24 bot)",
+      "summary": "把 D:/00.AIagent/pkos/PKOS-编制图谱.html 的 22 岗编制落地为 contracts/team-roster.yaml（v1.1.0，24 bot）：①图谱 footer 承诺的 team-roster.yaml 与交接单模板此前不存在，本次补齐；②图谱对齐 v4.9.4 缺 09-01 新岗，补发布专员·publish（pkos.publish.draft）；③去味师·humanizer 从图谱合并行独立成岗（humanizer-zh 与 gzh-design 职责不同）；④每 bot 六要素=bot名/persona/capability/mission/not_do/deliverables/hands_to/critic/trigger；⑤含禁配表 merge_bans 与精简方案 scale_options(3/7/24)。新文件 templates/交接单模板.md（NOT_actions 自查+degraded 声明+Critic 验收栏）。DSH 已同步。群聊名：PKOS 合作工作室。",
+      "breaking_changes": false,
+      "affected_units": [
+        "contracts/team-roster.yaml(新)",
+        "templates/交接单模板.md(新)"
+      ]
     }
   ],
   "description": "pkos 流水线单元注册表 v2：role ∈ intake|process|governance|decision|exit|maintenance|knowledge_service；含 v0 兼容条目（status=deprecated）。D-7 公理要求每次新增/修改/弃用均记 changelog。",
@@ -1076,6 +1187,35 @@
       "failure_modes_declared": true,
       "test_suite": "tests/capabilities/pkos.ingest.extract.test.yaml",
       "added_in_version": 2.3
+    },
+    {
+      "id": "pkos.distill.book",
+      "capability_id": "pkos.distill.book",
+      "version": "1.0.0",
+      "compatible_pkos_schema": ">=2.0.0",
+      "role": "process",
+      "stage": 2,
+      "stage_label": "process.distill",
+      "consumes": "TargetConstraint(by_pdf | by_pdf_chapter | by_text_dir) + 用户自有书籍 PDF",
+      "produces": "pkos-schema:1 章节条目组（status=raw）+ 书籍索引页，统一落 <库根>/书籍PDF/书本蒸馏内容留存/<书名>/ + _PKOS/manifests/<时间戳>-distill.json；不写书籍笔记/与MOC（挂载须用户明示）",
+      "semantic_goal": "把书籍 PDF 蒸馏为一组合规章节笔记，统一落 书籍PDF/书本蒸馏内容留存/<书名>/；守门四检锁死继承 ingest",
+      "not_actions": [
+        "click",
+        "type",
+        "scroll",
+        "decide_exit",
+        "translate"
+      ],
+      "required": false,
+      "status": "registered",
+      "replaces": [],
+      "integrity_policy": "contracts/artifact-integrity-policy.md",
+      "depends_on_capabilities": [
+        "pkos.intake.scan"
+      ],
+      "failure_modes_declared": true,
+      "test_suite": "pkos-distill-book/tests/test_distill_book.py",
+      "added_in_version": 2.4
     },
     {
       "id": "pkos-ingest",
@@ -1370,7 +1510,7 @@
     {
       "id": "pkos.exit.comic.compose",
       "capability_id": "pkos.exit.comic.compose",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "compatible_pkos_schema": ">=2.3.0",
       "role": "exit",
       "stage": 5,
@@ -1438,7 +1578,8 @@
       ],
       "failure_modes_declared": true,
       "test_suite": "tests/capabilities/pkos.exit.comic.compose.test.yaml",
-      "added_in_version": 2.24
+      "added_in_version": 2.24,
+      "v11_absorbed": "comic-single-image-pipeline 实战管线（6格公式/角色卡库/双通道/验收/发表），原 skill 降级为兼容入口"
     },
     {
       "id": "pkos.weak_check.verify",
@@ -2122,7 +2263,7 @@
     {
       "id": "pkos.operator.audit",
       "capability_id": "pkos.operator.audit",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "compatible_pkos_schema": ">=2.0.0",
       "role": "调用方人格守卫（Meta-Auditor 机器执行面）",
       "stage": "governance",
@@ -2135,13 +2276,13 @@
     {
       "id": "pkos.exit.wenzhang.compose",
       "capability_id": "pkos.exit.wenzhang.compose",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "compatible_pkos_schema": ">=4.5.0",
       "role": "exit",
       "stage": 5,
       "stage_label": "exit.article",
       "consumes": "TargetConstraint(by_route_artifact: exit=article) + options(writing_mode, length_target, draft_path, voice_profile, title_count, auto_mode, provider)",
-      "produces": "_PKOS/_Export/article/<route-id>-article/（<route-id>-article.md + <route-id>-titles.md + <route-id>-qc-report.json + manifest.json）",
+      "produces": "_PKOS/_Export/article/<route-id>-article/（<route-id>-article.md + <route-id>-titles.md + <route-id>-qc-report.json + manifest.json；头图另出 cover-*.png 经 check_cover.py 校验）",
       "semantic_goal": "消费 RT-* (exit=article + conversion_type=公众号文章) + 源 POL-* 条目，诊断路由六种写法（访谈/大纲/续写/素材整合/破题/重写），产出公众号文章成稿 + 爆款标题矩阵 + 机器质检报告；可选个人文风档案硬约束（吸收 SpaceZephyr/creator-buddy 写作三件套方法论）",
       "not_actions": [
         "click",
@@ -2200,7 +2341,14 @@
       },
       "failure_modes_declared": true,
       "test_suite": "pkos-wenzhang-skill/tests/article_tests.py",
-      "added_in_version": 4.5
+      "added_in_version": 4.5,
+      "depends_on_art_resources": [
+        "references/method-templates.md",
+        "references/style-rules.md",
+        "references/title-methods.md",
+        "references/my-voice-template.md",
+        "references/cover-spec.md"
+      ]
     },
     {
       "id": "pkos-wenzhang-skill",
@@ -2220,6 +2368,18 @@
       "test_suite": null,
       "added_in_version": 4.5,
       "capability_id": "pkos.exit.wenzhang.compose"
+    },
+    {
+      "capability_id": "pkos.publish.draft",
+      "name": "pkos-publish",
+      "version": "1.0.0",
+      "stage": "publish",
+      "entry": "pkos-publish/scripts/upload_weixin_draft.py",
+      "summary": "发表枢纽：草稿箱同步唯一出口（upload→回填→add_draft→回读验证四项闭环）；跨线共享，各 exit 单元只调用不内含",
+      "schema_compat": ">=4.9.4",
+      "required_capability": "browser_bridge",
+      "created": "2026-09-01",
+      "origin": "拆出自 pkos-comic v1.1.0 收编节（用户裁定单元=单一职责，发表为跨线枢纽）"
     }
   ],
   "infra_non_units": [

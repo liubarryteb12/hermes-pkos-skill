@@ -1,0 +1,126 @@
+# PKOS 流水线人格与门禁绑定表（节点 × Actor × Critic × Gate）
+# 版本: pkos-persona-map:1 (v4.8) | 消费者: pkos.router.decide（产路由单时携带 required_persona）· 调用方 agent（LLM 轮前 --assemble 拼头）
+#
+# 两条铁律（v4.8 用户裁定，守卫必须守死，不随场景灵活换）:
+#   ① 先 gate 后人格（P4）：能用确定性校验解决的节点一律纯门禁，永不由人格兜底——人格是给"已在场的 LLM"戴的立场头，不是新雇审查员。
+#   ② Actor ≠ Critic：同一节点的执笔人格与审查人格必须异值，禁止自评。
+#
+# Critic 人格取值 = operator 五值词表（contracts/operator-policy.md §2，与 auditor_gate.py PERSONAS 双锁 P-14），
+# 全量继承 operator 四查守卫（越界/抗命/教条）、断路器（STRICT|AUTO_MERGE）与四陷阱预警——零新守卫，新词自动纳管。
+# Actor 人格 = 各单元 SKILL.md 自声明（storyteller / senior_editor / style_adapter 等），不中心化列举（专家 §7：单元内部实现不成为 Planner 负担）。
+#
+# 消歧（"persona" 三义，勿混）:
+#   调用方子人格 = 本表 critic 列（调度控制层）
+#   产出层演员人格 = 本表 actor 列（内容生成层）
+#   分析产物 Persona = POL 条目里的画像卡（数据，不是系统人格，不入本表）
+
+schema: pkos-persona-map:1
+version: 1.0.0
+updated: 2026-08-31
+critic_vocab_source: "contracts/operator-policy.md#2"
+actor_vocab_source: "per-unit SKILL.md 自声明"
+default_fallback: meta_auditor   # 路由单未声明 required_persona → null → meta_auditor 兜底（operator-policy §3，向后兼容）
+
+nodes:
+  - id: intake-triage
+    stage: intake
+    unit: pkos-intake
+    actor: "script(intake_tools.py)"
+    critic: archivist          # 仅歧义项需 LLM probe 时拼头
+    gate: "probe/triage exit code + dedup-key(sha256)"
+
+  - id: ingest-extract
+    stage: process
+    unit: pkos-ingest
+    actor: "script(ingest_tools.py / file_extract.py)"
+    critic: null               # 纯门禁节点，不人格化
+    gate: "validate_entry.py exit 0（schema 校验）"
+
+  - id: knowledge-commit
+    stage: knowledge_service
+    unit: pkos-knowledge-service-commit
+    actor: "script(commit.py)  # vault 唯一写入口 D-6"
+    critic: null
+    gate: "单点裁决 + status forward-only 状态机"
+
+  - id: analysis-structure
+    stage: process
+    unit: pkos-analysis
+    actor: "单元自声明（产出层五 persona，LLM 轮）"
+    critic: evidence_auditor   # v4.8 新词表值：证据归因审查（发现表可回溯 / OKF Phase2 句级归因）
+    gate: none                 # LLM 层，无确定性 gate；发现表打回即 critic 的裁决产物
+
+  - id: polish-refine
+    stage: process
+    unit: pkos-polish
+    actor: "style_adapter（场景化字段）"
+    critic: reader_advocate
+    gate: "FactCore 降级防线（meta_auditor 验证网核对原始参数，operator-policy §1）"
+
+  - id: router-decide
+    stage: decision
+    unit: pkos-router
+    actor: "script(strategy_gate.py fail-loud) + LLM rationale"
+    critic: meta_auditor       # 永远在线底座
+    gate: "router_matrix 36/36 + 策略载荷必填校验"
+
+  - id: weak-check
+    stage: verify
+    unit: pkos-weak-check
+    actor: "script(verify.py)"
+    critic: null               # 纯门禁，不人格化（五维核验 ≥0.9 是规则不是立场）
+    gate: "score ≥0.9 过 / ×2 不过 → raw_fallback"
+
+  - id: exit-html
+    stage: exit
+    unit: pkos-html
+    actor: "主题 token + 组件装配（render.py）"
+    critic: reader_advocate
+    gate: "validate_output.py"
+
+  - id: exit-ppt
+    stage: exit
+    unit: pkos-ppt-skill
+    actor: "design_spec 中间层（compose.py，原生 pptx）"
+    critic: reader_advocate
+    gate: "deck manifest schema(pkos-ppt-deck:2)"
+
+  - id: exit-comic
+    stage: exit
+    unit: pkos-comic
+    actor: "分镜流程（compose.py）"
+    critic: archivist           # 角色漂移 / 对白≤12字半角是既知坑——档案权威性立场
+    gate: "extract_characters 锚定块校验 + manifest 验证"
+
+  - id: exit-novel
+    stage: exit
+    unit: pkos-gzhxiaoshuo-skill
+    actor: "storyteller（gzhxiaoshuo 五选一 persona）"
+    critic: reader_advocate     # Actor≠Critic 样板位
+    gate: "validate / count / slice / check_wikilinks 四子命令"
+
+  - id: exit-article
+    stage: exit
+    unit: pkos-wenzhang-skill
+    actor: "六写法路由（writing_mode）"
+    critic: reader_advocate
+    gate: "qc lint fails==0（外部 humanizer ≥45/50 复核为 gate 而非人格）"
+
+  - id: gzh-publish
+    stage: external
+    unit: "external(gzh-design)"
+    actor: n/a
+    critic: null               # 纯门禁，不人格化
+    gate: "audit_gzh 三级 BLOCK/WARN/AUTO + 署名/母题/元信息词表"
+
+  - id: meta-tick
+    stage: governance
+    unit: pkos-meta
+    actor: "script(tick.py)"
+    critic: meta_auditor
+    gate: "telemetry 阈值（AER ≥0.8 / MTTI / 提案死亡率）"
+
+# 扩位纪律（防词表膨胀）:
+#   新增 critic 词表值的前置条件 = ①有未被既有四值覆盖的"立场裁量面"（不是确定性规则——那是 gate）
+#   ②与既有值零立场重叠 ③契约 §2 + auditor_gate.py PERSONAS 同批改（P-14）④selftest 补正/负例。
+#   新增节点行的前置条件 = 固定环节（高频出现在路由单/任务链中），一次性任务不入表。

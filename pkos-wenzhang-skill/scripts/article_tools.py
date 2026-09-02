@@ -44,6 +44,7 @@ FAKE_EXAMPLE_RE = re.compile(
     r"某(互联网)?(大厂|公司|企业|用户|位朋友|位读者|团队|机构|品牌|医院|学校)")
 DASH = "——"
 PENDING_RE = re.compile(r"【待补[:：][^】]*】")
+VOICE_BLOCK_RE = re.compile(r"```json voice-overrides\s*\n(.*?)\n```", re.S)
 CTA_GROUPS = {
     "comment": ["评论", "留言", "聊聊", "说说你的"],
     "zai": ["在看", "点赞"],
@@ -121,8 +122,32 @@ def _cta_groups_hit(text: str) -> list[str]:
     return [k for k, kws in CTA_GROUPS.items() if any(w in window for w in kws)]
 
 
-def lint(text: str, length: str = "long") -> dict:
-    """返回 {length, stats, items:[{level,rule,detail}], fails, warnings}。"""
+def load_voice_overrides(path: Path) -> dict:
+    """从 my-voice.md 的 ```json voice-overrides 块读机器阈值（档案即配置）。
+
+    块缺失/非法 → {}（lint 走通用规则），不报错——文风档案允许纯人读版。
+    """
+    try:
+        text = path.read_text(encoding="utf-8-sig", errors="replace")
+    except OSError:
+        return {}
+    m = VOICE_BLOCK_RE.search(text)
+    if not m:
+        return {}
+    try:
+        data = json.loads(m.group(1))
+        return data if isinstance(data, dict) else {}
+    except ValueError:
+        return {}
+
+
+def lint(text: str, length: str = "long", overrides: dict | None = None) -> dict:
+    """返回 {length, stats, items:[{level,rule,detail}], fails, warnings}。
+
+    overrides（voice-overrides 块）可覆盖: para_cap / dash_max /
+    length_ranges{mode:[min,max]}；length 参数与 mode 同名时取区间。
+    """
+    ov = overrides or {}
     items: list[dict] = []
     def add(level: str, rule: str, detail: str) -> None:
         items.append({"level": level, "rule": rule, "detail": detail})
@@ -132,15 +157,20 @@ def lint(text: str, length: str = "long") -> dict:
     longest = longest_paragraph_len(text)
     pending = len(PENDING_RE.findall(body))
 
-    # 段落上限
-    para_cap = 70 if length == "short" else 90
+    # 段落上限（voice 可覆盖：long 90 / short 70 → para_cap）
+    para_cap = int(ov.get("para_cap") or (70 if length == "short" else 90))
     for p in paragraphs(text):
         n = count_words(p)
         if n > para_cap:
             add("FAIL", "L1", f"段落 {n} 字超上限 {para_cap}：{p[:24]}…")
 
-    # 字数区间
-    if length == "short":
+    # 字数区间（voice length_ranges 优先，如 {"matrix": [600,1100]}）
+    ranges = ov.get("length_ranges") or {}
+    if length in ranges:
+        lo, hi = ranges[length]
+        if not (int(lo) <= wc <= int(hi)):
+            add("FAIL", "L2", f"字数 {wc} 不在 voice 区间 {lo}-{hi}")
+    elif length == "short":
         if wc > 1000:
             add("FAIL", "L2", f"短文 {wc} 字 > 1000")
     elif length == "long":
@@ -182,8 +212,9 @@ def lint(text: str, length: str = "long") -> dict:
     if "母题" in body:
         add("WARN", "W2", "出现「母题」（文学语境豁免，交人工裁决）")
     nd = body.count(DASH)
-    if nd > 2:
-        add("WARN", "W3", f"破折号 —— {nd} 次 >2")
+    dash_cap = int(ov.get("dash_max") or 2)
+    if nd > dash_cap:
+        add("WARN", "W3", f"破折号 —— {nd} 次 >{dash_cap}")
     nb = len(re.findall(r"不是.{0,12}而是", body))
     if nb > 1:
         add("WARN", "W4", f"「不是…而是」{nb} 次 >1")
@@ -194,7 +225,9 @@ def lint(text: str, length: str = "long") -> dict:
             add("WARN", "W5", "连续两段以「而/然而」开头")
             break
     hits = _cta_groups_hit(text)
-    if not hits:
+    if ov.get("cta_required") is False:
+        pass  # 档案声明 CTA 非硬约束（如矩阵连载文以「下一篇钩子」收尾）
+    elif not hits:
         add("WARN", "W6", "结尾未检出行动引导（留言/在看/转发/上一篇/加群…）")
     elif len(hits) >= 2:
         add("WARN", "W6", f"结尾行动引导 {len(hits)} 组（{','.join(hits)}）——只给一个")
@@ -214,7 +247,7 @@ def lint(text: str, length: str = "long") -> dict:
 
 def cmd_lint(args: list[str]) -> int:
     if not args:
-        _die("usage: article_tools.py lint <article.md> [--length long|short|<int>] [--json out]")
+        _die("usage: article_tools.py lint <article.md> [--length long|short|matrix|<int>] [--voice my-voice.md] [--json out]")
     path = Path(args[0])
     if not path.is_file():
         _die(f"file not found: {path}")
@@ -223,12 +256,17 @@ def cmd_lint(args: list[str]) -> int:
         _die(f"empty file: {path}")
     length = "long"
     out_json = None
+    overrides: dict = {}
     for i, a in enumerate(args):
         if a == "--length" and i + 1 < len(args):
             length = args[i + 1]
+        elif a == "--voice" and i + 1 < len(args):
+            overrides = load_voice_overrides(Path(args[i + 1]))
+            if overrides.get("default_length") and length == "long":
+                length = overrides["default_length"]
         elif a == "--json" and i + 1 < len(args):
             out_json = args[i + 1]
-    report = lint(text, length)
+    report = lint(text, length, overrides)
     payload = json.dumps(report, ensure_ascii=False, indent=2)
     if out_json:
         Path(out_json).write_text(payload, encoding="utf-8")
@@ -324,6 +362,31 @@ def cmd_selftest(_args: list[str]) -> int:
     # stats 与 lint 口径一致
     st = {"word_count": count_words(GOOD_LONG)}
     check("stats 口径一致", st["word_count"] == good["stats"]["word_count"])
+
+    # voice overrides：档案阈值生效
+    ov = {"para_cap": 110, "dash_max": 10, "length_ranges": {"matrix": [600, 1100]}, "default_length": "matrix"}
+    # 构造：一段 96 字（>通用90 误报 / ≤档案110 放行）+ 若干短段凑进 matrix 区间
+    big_para = "验证段落上限被档案放宽的测试内容" * 6          # 96 字
+    filler = "\n\n".join(["这是矩阵节奏的普通短段落内容。"] * 40)  # 15字×40=600
+    tail = "\n\n收尾判断句。评论区聊聊。\n"
+    matrix_text = big_para + "\n\n" + filler + tail
+    m1 = lint(matrix_text, "matrix", ov)
+    m0 = lint(matrix_text, "long", None)
+    check("voice para_cap 放宽后 L1 不再误报", not any(i["rule"] == "L1" for i in m1["items"]), str(m1["items"])[:150])
+    check("无 overrides 时同文 L1 命中（对照）", any(i["rule"] == "L1" for i in m0["items"]))
+    check("voice length_ranges matrix 生效", not any(i["rule"] == "L2" for i in m1["items"]), str(m1["stats"]))
+    dash_text = "测试——破折号。" * 5 + "\n\n" + filler + tail   # 5 个破折号
+    d1 = lint(dash_text, "long", None)
+    d2 = lint(dash_text, "long", ov)
+    check("dash_max 覆盖生效（通用报/档案不报）",
+          any(i["rule"] == "W3" for i in d1["items"]) and not any(i["rule"] == "W3" for i in d2["items"]),
+          f"d1={[i['rule'] for i in d1['items']]} d2={[i['rule'] for i in d2['items']]}")
+    check("load_voice_overrides 缺块返回 {}", load_voice_overrides(Path(__file__)) == {})
+    # 真实档案文件可读且阈值正确（若存在）
+    real_voice = Path(__file__).resolve().parents[2] / "_PKOS" / "assets" / "my-voice.md"
+    if real_voice.is_file():
+        rov = load_voice_overrides(real_voice)
+        check("真实 my-voice.md voice-overrides 可解析", rov.get("para_cap") == 130 and rov.get("dash_max") == 10, str(rov))
 
     print(f"\narticle_tools selftest: {len(fails)} failures")
     return 0 if not fails else 1

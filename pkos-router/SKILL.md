@@ -71,6 +71,7 @@ outputs:
       topic_suggestion: "<一句话主题>"
       audience: "<给谁看 什么场合>"
       confirmation_strength: "interactive-one-step | batch-post-gate | first-screen-sample"
+      required_persona: "archivist | reader_advocate | meta_auditor | evidence_auditor | null"  # v4.8 人格×门禁看板（contracts/pipeline-persona-map.yaml）；缺省 null = meta_auditor 兜底（operator-policy §3）；越词表 → unavailable
       style_theme: null         # v3.3 废弃: 恒 null, 样式统一走 style_adapter
       rationale: ["..."]        # 决策理由，可追溯
   side_effects:

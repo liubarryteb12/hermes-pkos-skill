@@ -9,11 +9,11 @@ description: 公众号漫画出口层 v3.2（v1 原生入册）：消费 RT-* �
 ```yaml
 capability_id: "pkos.exit.comic.compose"
 required_capability: "image_gen"  # v4.2.1 U3 批D 铺开
-version: "1.1.0"
+version: "1.0.0"
 compatible_pkos_schema: ">=2.3.0"
 stage: exit
 stage_subindex: 5c
-semantic_goal: "消费 RT-* (exit=comic + conversion_type=公众号漫画) + 源 POL-* 条目 + 用户提供的人物/主题/大纲，按选定画风产出 4/6 宫分镜 + 中文对白 + Prompt 块；v1.1.0 起收编出图编排全链（6格整图公式/角色卡库/双通道出图/验收清单/发表管线）——分镜到发表成品一条龙"
+semantic_goal: "消费 RT-* (exit=comic + conversion_type=公众号漫画) + 源 POL-* 条目 + 用户提供的人物/主题/大纲，按选定画风产出 4/6 宫分镜 + 16:9 封面 + 中文对白 + 一键可粘贴 Prompt 块"
 NOT_actions:
   - "click"
   - "type"
@@ -25,7 +25,6 @@ NOT_actions:
   - "swap_art_style_unauthorized"
   - "render_html"
   - "compose_ppt"
-  - "decide_channel_unauthorized"  # v1.1.0: 出图通道选择须按 SKILL.md 路由表
 replaces: []
 ```
 
@@ -53,7 +52,7 @@ replaces: []
 # 理论层定位
 
 > **comic 是 PKOS 出口层第三槽位，与 html/ppt 平级，承接 conversion_type「公众号漫画」。**
-> 它读取已 polished 的条目（truth owner 已是稳定状态），渲染为公众号漫画分镜脚本（v1.1.0 起出图编排为本 skill 职责：通道路由表见出图编排节；调用方只需提供路由单与人物/主题）。
+> 它读取已 polished 的条目（truth owner 已是稳定状态），渲染为公众号漫画分镜脚本（不直接出图——出图由调用方用 Nano Banana / gptimage2 等便宜渠道完成）。
 >
 > - comic 不改变源条目（A4 公理：Skill 无状态，不改长期事实）
 > - comic 不与 html/ppt 混装（v0 锁死：单次调用只出一种）
@@ -282,14 +281,14 @@ replaces: []
 
 必须持有合法路由单（`exit: comic` + `conversion_type: 公众号漫画`），源条目 status=polished。
 
-**三出口形态不混装**（v0 锁死；v1.1.0 修订 comic 职责）：
+**三出口形态不混装**（v0 锁死）：
 - html=中规中矩的阅读网页
 - ppt=直接出图
-- comic=公众号漫画全链（分镜脚本 + prompt 块 + 中文对白 + **出图编排与发表管线**——v1.1.0 收编实战管线）
+- comic=公众号漫画分镜脚本（prompt 块 + 中文对白；不直接出图）
 
 ## 职责边界（v0 锁死）
 
-做：按路由单把已有内容转成公众号漫画分镜脚本与 prompt 块，并按 contracts/image-route-policy.md 编排出图；发表交 pkos-publish 枢纽，输出每格可粘贴的英文 prompt 块 + 中文对白清单 + 拼图指引。
+只做：按路由单把已有内容转成公众号漫画分镜脚本，输出每格可粘贴的英文 prompt 块 + 中文对白清单 + 拼图指引。
 
 1. **不改写原意**（文案以 polished 素材为准）
 2. **不出网页版**（v0 锁死）
@@ -369,50 +368,3 @@ chinese_text=true 时，prompt 必带三件套：
 - **入口兼容**：frontmatter `name: pkos-comic` 不变，触发语不变
 - **行为兼容**：4 套画风必问 / 4 vs 6 宫必问 / chinese_text 默认开 / 不混装 / manifest 完整 / 兜底不编造**完全锁死**
 - **v2 增量**：失败三态解释层（v0 兜底路径引入 degraded_success 状态）+ integrity_policy 门 1+门 2 接入
-
-
-# 出图编排与发表（v1.1.0 收编自 comic-single-image-pipeline 实战管线）
-
-> 经验细节（通道对比/坑/prompt 实证结论）见 [references/lessons-learned.md](references/lessons-learned.md)——出图前必读。
-
-## 6 格整图 Prompt 拼装公式（顺序固定）
-
-```
-[媒介锁+气质行] A single tall comic page, flat 2D vector illustration (clean flat tech style, slate-gray background, warm accent glow, bold clean outlines), containing exactly 6 panels arranged in a grid of 2 columns and 3 rows with thin white gutters between panels.
-[角色统一声明] The same character appears in every panel: <角色卡锚定句原样复制>.
-[逐格五段式] Panel N (top-left/top-right/middle-left/middle-right/bottom-left/bottom-right), <镜头景别>: <主体+事件动作>, <表情(安全词库)>, <关键道具>. Speech bubble: '<对白≤12字半角标点>'.
-[清晰度收尾] All Chinese characters must be clearly printed, standard strokes, highly legible.
-```
-
-硬规则：对白每格 ≤12 字半角标点；正向 prompt **禁 no/without/don't**（消除类改肯定短语）；每格气泡只一句；镜头景别每格显式写、节奏交替；表情用安全词库（sweat drop/sparkling eyes/closed-eye smile，禁 hysterical/jaw drop）；五段式=镜头景别→主体事件→表情→道具→氛围（事件优于状态罗列）；格内装饰小字密度越低越好。
-
-## 角色卡库制度
-
-- 卡库：`pkos-outputs/comic/characters/角色卡库.md`（主角全期必到 + 拟物配角单期≤1）。
-- 每期审核卡注明「本期出场」；锚定句从卡库**原样复制**，禁临场改写——跨期一致性唯一保障。
-- 主题有实体工具/容器意象→启用对应拟物卡；阻力用具象化障碍物，不设反派角色。
-
-## 流程关卡（先审后画 + 画后验收，两关不可互替）
-
-1. **提示词审核卡**：调 API 前先交用户——①主题与逐格摘要表 ②图幅 ③完整英文 prompt（可编辑）。拦内容/叙事错误。
-2. **画后验收**：vision_analyze 逐项过——①格数与排布（6格 2列3排、阅读顺序）②逐格气泡文字笔画（零乱码为过关线）③角色跨格一致性（锚定三件套）④画风统一、无水印。图内装饰小字瑕疵当噪声记录，不当缺陷返工。
-
-## 出图通道选择
-
-通道选择政策（gptimage2=批量正式 / Gemini=零成本验证 / ModelScope=SD 可控）已收归枢纽契约 **`contracts/image-route-policy.md`** 单一真相——本单元只按政策选通道执行，不复制路由内容。
-
-## 发表
-
-成品（HTML+图+文案）交 **pkos-publish** 枢纽（`pkos.publish.draft`）执行草稿箱同步与回读验证——发表是跨线共享能力，本单元不含发表流程，只调用。
-
-## 系列与编号（用户定稿）
-
-- 格数铁律：**6 格（2列×3排）**，非用户特殊要求不出 4 格。
-- 编号体系：母题-子题-期号（如 02-01-02），编号进草稿标题、正文无编号。
-- 双系列：A 概念粉碎机（07-Web世界漫游母题，Vibe Hub 术语漫画化）/ B 小鹿打工日记（00 系列，连续剧人设漫）。
-- 单概念 6 格叙事节奏：反直觉问题→错误认知→正确机制→生活化类比→一秒记忆点→下期钩子。
-
-## 交付物与位置
-
-- 产出只落 `D:/00.AIagent/hermesagent/pkos-outputs/comic/`（产物铁律：不写 skill 目录）。
-- 实战脚本：`pkos-outputs/comic/_tools/gen_6grid_gpt2.py`（gptimage2）、`gen_6grid_gemini.py`（Gemini），换 PANELS 段落即复用；单格补图用 `gen_story_gpt2.py`。发表走 pkos-publish 枢纽。

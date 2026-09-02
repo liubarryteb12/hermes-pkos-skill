@@ -42,7 +42,7 @@ def main() -> int:
     check("NOT_actions 显式声明", "NOT_actions:" in skill_md)
 
     # 3) references 齐全
-    for ref in ("method-templates.md", "style-rules.md", "title-methods.md", "my-voice-template.md"):
+    for ref in ("method-templates.md", "style-rules.md", "title-methods.md", "my-voice-template.md", "cover-spec.md"):
         check(f"references/{ref}", (UNIT / "references" / ref).is_file())
 
     # 4) CLI 负向（P-07 机读拒收）
@@ -55,6 +55,32 @@ def main() -> int:
     except ValueError:
         ok = False
     check("lint 缺文件 → exit2 + rejected JSON", ok, f"rc={r2.returncode} out={r2.stdout[:120]}")
+
+    # 5) check_cover.py：正/负尺寸 fixture（Pillow 可用时）
+    cov = UNIT / "scripts" / "check_cover.py"
+    tmp = UNIT / ".tmp-covtest"
+    tmp.mkdir(exist_ok=True)
+    try:
+        from PIL import Image
+        good = tmp / "good.png"; bad = tmp / "bad.png"
+        Image.new("RGB", (1175, 500), "white").save(good)
+        Image.new("RGB", (1000, 500), "white").save(bad)
+        rg = subprocess.run([sys.executable, str(cov), str(good), "--safe-zone",
+                             "--share-preview", "--thumbnail", "--json", str(tmp / "g.json")],
+                            capture_output=True, text=True)
+        rep = json.loads(rg.stdout) if rg.stdout.strip() else {}
+        check("check_cover 2.35:1 → exit0 + 安全区 x337-837",
+              rg.returncode == 0 and rep.get("safe_zone", {}).get("x0") == 337
+              and rep.get("safe_zone", {}).get("x1") == 837
+              and len(rep.get("previews", [])) == 3, f"rc={rg.returncode}")
+        rb = subprocess.run([sys.executable, str(cov), str(bad)],
+                            capture_output=True, text=True)
+        check("check_cover 比例错误 → exit1", rb.returncode == 1, f"rc={rb.returncode}")
+    except ImportError:
+        print("SKIP check_cover fixtures (Pillow 不可用)")
+    finally:
+        import shutil
+        shutil.rmtree(tmp, ignore_errors=True)
 
     print(f"\narticle_tests: {len(fails)} failures")
     return 0 if not fails else 1

@@ -73,7 +73,39 @@ def main() -> int:
           "缺失时 pkos-gptimage2use / ppt/comic 图像出口降级" if not has_key("PKOS_IMG_API_KEY") else "")
     check("warn", "HUNYUAN_API_KEY（历史 LLM 通道，Hermes 下通常不需要）", has_key("HUNYUAN_API_KEY"))
 
-    # 6) 可选：套件自带测试
+    # 6) 代码智能图同步（code-review-graph，可选工具；图过期则自动增量 update）
+    #    同步规则提醒：主库回写 robocopy 需 /XD 追加 .code-review-graph（图数据不跨机同步）
+    import shutil
+    crg = shutil.which("code-review-graph")
+    graph_dir = SKILL_ROOT / ".code-review-graph"
+    if crg is None:
+        check("warn", "code-review-graph CLI（图同步）", False, "未安装，跳过图同步（pipx install code-review-graph 可启用）")
+    elif not graph_dir.is_dir():
+        check("warn", "code-review-graph 图存在", False, "在套件根跑一次: code-review-graph build")
+    else:
+        def newest_mtime(root: Path, exts: tuple[str, ...], skip: frozenset = frozenset()) -> float:
+            best = 0.0
+            for p in root.rglob("*"):
+                if p.suffix in exts and not any(s in p.parts for s in skip):
+                    try:
+                        best = max(best, p.stat().st_mtime)
+                    except OSError:
+                        pass
+            return best
+        src_new = newest_mtime(SKILL_ROOT, (".py", ".json", ".yaml", ".yml"),
+                               frozenset({"__pycache__", ".code-review-graph"}))
+        db_new = newest_mtime(graph_dir, (".db", ".sqlite", ".sqlite3", ".wal", ".json"))
+        if src_new <= db_new:
+            check("warn", "代码图新鲜（与源码同步）", True, "无需更新")
+        else:
+            # 套件根非 git 仓库，update 依赖 git diff 不可用 → 全量 build（幂等，秒级）
+            r = subprocess.run([crg, "build"], capture_output=True, text=True,
+                               timeout=600, cwd=str(SKILL_ROOT))
+            tail = (r.stdout or r.stderr or "").strip().splitlines()
+            check("warn", "代码图过期→自动 build 重建", r.returncode == 0,
+                  (tail[-1][:90] if tail else "") if r.returncode == 0 else f"build 失败 exit={r.returncode}")
+
+    # 7) 可选：套件自带测试
     if "--with-tests" in sys.argv:
         print("\n--- 套件自带测试 ---")
         for script, expect in [("tests/run_tests.py", "validate_entry 测试"),

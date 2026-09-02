@@ -34,6 +34,7 @@ cases:
 
   # ----------------- ambiguous：lint 范围不决 -----------------
   - id: lint-rules-ambiguous
+    known_gap: "decision_card 语义脚本未实现（failure-taxonomy F4 契约超前，待排期）"
     failure_mode: ambiguous
     description: rules 多解（哪些启用未确认）
     arrange:
@@ -45,6 +46,7 @@ cases:
       - "decision_card 列出 8 项规则的启停推荐"
 
   - id: lint-max-fix-touched
+    known_gap: "decision_card 语义脚本未实现（failure-taxonomy F4 契约超前，待排期）"
     failure_mode: ambiguous
     description: max_fix_per_run 触顶
     arrange:

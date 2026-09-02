@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""pkos-operator:1 机器守卫 — 调用方人格与行为拦截 (v4.2)
+"""pkos-operator:1 机器守卫 — 调用方人格与行为拦截 (v4.2 / v4.8 词表扩五值)
 
 契约: contracts/operator-policy.md §4/§5/§6/§7/§8
 - --assemble            §7 动态拼装头（词表校验后输出硬核指令头）
@@ -14,7 +14,7 @@
 - 环境错误 → exit 3；用法错误 → exit 4；selftest 有失败 → exit 1
 
 不变量: 本脚本永不写 vault（Hook 3）；telemetry 只经 pkos_v31_lib.emit（P-15）；
-子人格四值 / 断路器二值 / 陷阱四值词表唯一出处 = operator-policy.md §2/§4/§6（P-14）。
+子人格五值 / 断路器二值 / 陷阱四值词表唯一出处 = operator-policy.md §2/§4/§6（P-14，v4.8 扩 evidence_auditor）。
 merge/Skill 提案审批永远属于人类——AUTO_MERGE 仅适用于断路器判定的低危类（§4.3 确权不可代理）。
 依赖: stdlib only。
 """
@@ -37,7 +37,7 @@ except Exception:  # noqa: BLE001 — lib 缺失时降级为 no-op emit（守卫
     lib = None
 
 # ---------------------------------------------------------------- 词表（P-14 唯一出处：operator-policy.md §2/§4/§6）
-PERSONAS = ("archivist", "reader_advocate", "meta_auditor", "null")
+PERSONAS = ("archivist", "reader_advocate", "meta_auditor", "evidence_auditor", "null")
 BREAKER_STATES = ("STRICT", "AUTO_MERGE")
 TRAPS = ("overreaching_butler", "paranoia", "dogmatic", "rubber_stamp", "none")
 RISK_LEVELS = ("low", "high")
@@ -311,7 +311,10 @@ def _selftest() -> int:
     check("assemble ok", "SUB_ROLE: archivist" in head and "BREAKER: STRICT" in head)
     head = assemble_head("meta_auditor", "AUTO_MERGE", "paranoia")
     check("assemble with trap", "WARNING_TRAP: paranoia" in head)
-    for bad in (("hustler", "STRICT", "none"), ("archivist", "LOOSE", "none"), ("archivist", "STRICT", "laziness")):
+    head = assemble_head("evidence_auditor", "STRICT")
+    check("assemble evidence_auditor ok", "SUB_ROLE: evidence_auditor" in head)
+    for bad in (("hustler", "STRICT", "none"), ("archivist", "LOOSE", "none"), ("archivist", "STRICT", "laziness"),
+                ("evidence_audit", "STRICT", "none")):
         try:
             assemble_head(*bad)
             check(f"assemble vocab reject {bad[0]}", False, "no error")

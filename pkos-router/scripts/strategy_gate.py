@@ -27,10 +27,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-for _p in (ROOT / "tests", ROOT / "pkos-html" / "scripts"):
+for _p in (ROOT / "tests", ROOT / "pkos-html" / "scripts", ROOT / "pkos-operator" / "scripts"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
+from auditor_gate import PERSONAS as PERSONA_VOCAB  # noqa: E402  (P-14: 人格词表唯一出处 = operator-policy §2 + auditor_gate.py，本文件零复制)
 from router_matrix import (  # noqa: E402  (单一事实源, P-14)
     ROUTER_MATRIX,
     STYLE_ADAPTER_MATRIX,
@@ -197,6 +198,9 @@ def check_strategy(d: dict) -> tuple[str, list[str]]:
             cs = r.get("confirmation_strength")
             if isinstance(cs, str) and cs not in CONFIRMATION:
                 una.append(f"confirmation_strength out of vocab {CONFIRMATION}: {cs!r}")
+            rp = r.get("required_persona")
+            if rp not in (None, "null", "") and rp not in PERSONA_VOCAB:
+                una.append(f"required_persona out of operator vocab {PERSONA_VOCAB}: {rp!r}")
 
     ver = d.get("verification")
     if ver is not None:
@@ -291,6 +295,7 @@ def build_route(st: dict, route_id: str) -> dict:
         "topic_suggestion": r.get("topic_suggestion"),
         "audience": r.get("audience"),
         "confirmation_strength": r.get("confirmation_strength"),
+        "required_persona": r.get("required_persona") or "null",  # v4.8 看板: 缺省 null = meta_auditor 兜底（operator-policy §3）
         "style_theme": None,  # v3.3 锁死
         "style_adapter": r.get("style_adapter") or None,
         "rationale": rationale,
@@ -479,6 +484,10 @@ def selftest() -> int:
     expect("style cross html+novel_chapter", check_strategy(_mutate(base, _routing={**base["routing"], "style_adapter": "novel_chapter"}))[0], "unavailable")
     expect("style_theme non-null", check_strategy(_mutate(base, _routing={**base["routing"], "style_theme": "paper-ink"}))[0], "unavailable")
     expect("confirmation out of vocab", check_strategy(_mutate(base, _routing={**base["routing"], "confirmation_strength": "maybe"}))[0], "unavailable")
+    # v4.8 人格×门禁看板: required_persona 词表校验（词表 import 自 auditor_gate，P-14 零复制）
+    expect("required_persona evidence_auditor ok", check_strategy(_mutate(base, _routing={**base["routing"], "required_persona": "evidence_auditor"}))[0], "OK")
+    expect("required_persona actor-vocab rejected", check_strategy(_mutate(base, _routing={**base["routing"], "required_persona": "storyteller"}))[0], "unavailable")
+    expect("required_persona absent ok (null fallback)", check_strategy(base)[0], "OK")
     # 四出口全合法组合抽查
     for exit_, conv, sa in (("ppt", "实战操作指南", "video_script"), ("comic", "公众号漫画", "comic_storyboard"), ("novel", "小说", "novel_chapter")):
         st = _mutate(base, _routing={**base["routing"], "exit": exit_, "conversion_type": conv, "style_adapter": sa})
@@ -504,7 +513,7 @@ def selftest() -> int:
     st = _valid_strategy()
     text = dump_route(build_route(st, "RT-20260101-001"))
     for key in ("route_id:", "source_entry:", "exit:", "conversion_type:", "style_theme: null",
-                'strategy_id: "ST-20260101-001"', "rationale:", "adaptive_polish_policy:"):
+                'strategy_id: "ST-20260101-001"', "rationale:", "adaptive_polish_policy:", "required_persona:"):
         if key not in text:
             fails.append(f"dispatch RT missing field: {key}")
     if _next_seq(["RT-20260101-001"], "20260101") != "RT-20260101-002":

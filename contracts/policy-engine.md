@@ -143,6 +143,7 @@ routing:                  # 唯一分发指令；必须过 router 合法性矩�
   conversion_type: "wiki百科条目 | 实战操作指南 | 避坑风险清单 | 学习路径 | 公众号漫画 | 小说 | 公众号文章"
   style_adapter: "html_article | video_script | comic_storyboard | novel_chapter | gzh_article | null"
   confirmation_strength: "interactive-one-step | batch-post-gate | first-screen-sample"
+  required_persona: "operator 五值词表 | null"   # v4.8: 按 contracts/pipeline-persona-map.yaml 节点绑定取值; null = meta_auditor 兜底
   topic_suggestion: "<一句话主题>"
   audience: "<给谁看 什么场合>"
 verification: {…}         # 同 policies.verification（扁平引用）

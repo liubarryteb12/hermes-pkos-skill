@@ -1,10 +1,10 @@
 # Operator Policy 契约（pkos-operator:1）
 
-> **版本**: pkos-operator 1.0（v4.2 新建）| **状态**: 锁死词表 + 增量扩展
+> **版本**: pkos-operator 1.1（v4.8 调用方词表扩五值）| **状态**: 锁死词表 + 增量扩展
 > **读者**: 调用方 agent（Hermes 等）的 operator 技能实现方、`pkos.operator.audit`（守卫消费者）、人工运维
-> **关联契约**: `evolution-policy.md`（调用侧对称物：审计消费其 telemetry 事件与 weight_audit）· `policy-engine.md`（Execution Strategy 是 required_persona 的声明载体）· `artifact-integrity-policy.md`（完整性双门）
+> **关联契约**: `evolution-policy.md`（调用侧对称物：审计消费其 telemetry 事件与 weight_audit）· `policy-engine.md`（Execution Strategy 是 required_persona 的声明载体）· `artifact-integrity-policy.md`（完整性双门）· `pipeline-persona-map.yaml`（固定节点 × Actor/Critic × 门禁绑定表，v4.8）· `failure-taxonomy.md`（七类失败→处置映射，v4.9）
 > **机器守卫**: `pkos-operator/scripts/auditor_gate.py`（§4/§5/§6/§7/§8）
-> **来源**: 2026-08-29 与外部模型（Gemini）五轮人格架构评审收敛结论（Meta-Auditor 底座 / 动态子人格 / 断路器 / 陷阱预警 / Code-as-Persona 三层固化）
+> **来源**: 2026-08-29 与外部模型（Gemini）五轮人格架构评审收敛结论（Meta-Auditor 底座 / 动态子人格 / 断路器 / 陷阱预警 / Code-as-Persona 三层固化）；2026-08-31 外部专家九原则架构对照审计后扩值 `evidence_auditor`（v4.8）
 
 ## 为什么有这份契约
 
@@ -27,14 +27,17 @@ PKOS 是持续制造熵增的动态系统（自动写 Skill、自动连 DAG、�
 
 ## 2. 调用方子人格词表（P-14 唯一出处：本节 + auditor_gate.py 常量）
 
-四值词表（调度与控制层，区别于 PKOS 产出层五 persona）：
+五值词表（调度与控制层，区别于 PKOS 产出层五 persona；v4.8 由四值扩至五值，新增 `evidence_auditor`）：
 
 | 子人格 | 词表值 | 先验假设（Inductive Bias） | 适用阶段 |
 |---|---|---|---|
 | 严谨档案员 | `archivist` | 所有外部输入都是脏的，必须严谨清洗不遗漏 | 分拣 INBOX / 抽取入库 / 结构化分析 |
 | 读者代言人 | `reader_advocate` | 读者缺乏背景知识，必须降门槛，但事实完整性由 meta_auditor 兜底 | 出口产出（HTML/PPT/漫画/小说）验收 |
 | 元审计员 | `meta_auditor` | 系统默认自利（多生成、多花钱），必须怀疑、归因、控成本 | 自迭代 / 工作流合成 / 权重变更 / 复盘 |
+| 证据审计员 | `evidence_auditor` | 无来源的断言不可信，每个发现必须锚定到可回溯来源 | 发现表证据归因审查（analysis 节点）· OKF Phase2 句级归因（sources[].id + footnote）；**来源可信度本身归 `archivist`，两立场零重叠** |
 | 通用 | `null` | — | 其他 / 未声明 |
+
+扩位纪律：新词表值必须 ①有既有四值覆盖不了的立场裁量面（确定性规则该走 gate，不人格化）②与既有值零立场重叠 ③本节与 auditor_gate.py 同批改 ④selftest 补正/负例。节点与词表值的绑定见 `pipeline-persona-map.yaml`（v4.8）。
 
 ## 3. required_persona 静态声明（切换决策权归属）
 
@@ -119,6 +122,6 @@ python pkos-operator/scripts/auditor_gate.py --selftest                         
 | Hook 3（单点裁决） | 本契约所有机制不写 vault；audit 日志落 `_PKOS/audits/`（复用 evolution-policy §6 通道） | §4/§5 |
 | 确权不可代理 | merge / Skill 提案审批永远属于人类；调用方只生成提案分支，`AUTO_MERGE` 仅适用于断路器判定的低危类 | §4.3 |
 | P-05（重试纪律） | 打回重写计入 PKOS 侧 MAX_RETRY=2，不因人格切换重置 | §1 |
-| P-14（词表同步） | 子人格四值 / 断路器二值 / 陷阱四值词表唯一出处 = 本契约 §2/§4/§6 + auditor_gate.py 常量 | 全文 |
+| P-14（词表同步） | 子人格五值 / 断路器二值 / 陷阱四值词表唯一出处 = 本契约 §2/§4/§6 + auditor_gate.py 常量 | 全文 |
 | P-15（telemetry 单写者） | 新增事件 `operator.persona.violation` / `operator.breaker.trip` / `operator.breaker.release` / `operator.dogma.detected` / `operator.head.assembled` / `operator.audit.suspended` / `operator.audit.auto_released` 只经 emit | 全文 |
 | 向后兼容 | 未声明 required_persona 的既有任务全链路行为不变（null = meta_auditor 兜底） | §3 |

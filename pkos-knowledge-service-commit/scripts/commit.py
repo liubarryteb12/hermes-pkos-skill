@@ -191,6 +191,14 @@ def main(argv: list[str] | None = None) -> int:
     if fm is None:
         return _emit(args.json, 2, "front_matter_unparseable", "无法解析 front matter")
 
+    # F3 输入失败（failure-taxonomy:1）：front matter 缺关键字段 → not_found + missing_fields
+    REQUIRED_FM = ("title", "type", "status", "domain")
+    missing = [k for k in REQUIRED_FM if not str(fm.get(k) or "").strip()]
+    if missing:
+        return _emit(args.json, 2, "frontmatter_incomplete",
+                     f"front matter 缺关键字段: {missing}",
+                     extra={"missing_fields": missing})
+
     # v2.2 D1: read-only normalize actual_status (does NOT mutate source file)
     actual_status_norm = normalize_status_in_read_flow(actual_status)
 
@@ -222,6 +230,15 @@ def main(argv: list[str] | None = None) -> int:
             evidence = json.loads(args.evidence)
         except json.JSONDecodeError as e:
             return _emit(args.json, 1, "evidence_parse_error", str(e))
+        # F3 输入失败（failure-taxonomy:1）：evidence 引用的上游产物路径必须存在
+        missing_ev = []
+        for _k, _v in (evidence.items() if isinstance(evidence, dict) else []):
+            if isinstance(_v, str) and _v.startswith("_PKOS/") and not (vault / _v).exists():
+                missing_ev.append(_v)
+        if missing_ev:
+            return _emit(args.json, 2, "evidence_path_missing",
+                         f"evidence 引用的上游产物不存在: {missing_ev}",
+                         extra={"missing_evidence_paths": missing_ev})
 
     # 6. 备份 + atomic 写
     backup_path = backup(target, fm)

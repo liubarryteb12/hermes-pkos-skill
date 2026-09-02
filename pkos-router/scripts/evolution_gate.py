@@ -223,6 +223,44 @@ def cmd_check_synthesis(cooc_path: Path, pair: str, min_co: int) -> int:
     return 0
 
 
+# ============================================================ §5.5 机制→工作流（第四态）
+def cmd_workflow_diff(proposal_path: Path) -> int:
+    """机制提案被用户采纳后，从 adoption JSON 生成「流程改动清单」。
+
+    输入 shape: {"proposal_id": str, "mechanism": str, "adopted_by": str,
+                 "workflow_changes": [{"unit": str, "file": str, "change": str, "verify": str}]}
+    输出: workflow-diff 清单（机器可读 + 人可读摘要），供执行者逐项落地并在 changelog 记录。
+    这是元循环第四环「机制→工作流」的显式通道：mechanism adopted → workflow changes enumerated。
+    """
+    try:
+        obj = json.loads(proposal_path.read_text(encoding="utf-8-sig"))
+    except FileNotFoundError:
+        return _fail_env(f"adoption file not found: {proposal_path}")
+    except (OSError, json.JSONDecodeError) as e:
+        return _reject("ambiguous", f"adoption file unreadable: {e}")
+    req = ["proposal_id", "mechanism", "adopted_by", "workflow_changes"]
+    missing = [f for f in req if f not in obj]
+    if missing:
+        return _reject("ambiguous", f"adoption missing fields: {missing}")
+    changes = obj["workflow_changes"]
+    if not isinstance(changes, list) or not changes:
+        return _reject("ambiguous", "workflow_changes must be a non-empty list")
+    for k, c in enumerate(changes):
+        for f in ("unit", "file", "change", "verify"):
+            if not isinstance(c.get(f), str) or not c[f].strip():
+                return _reject("ambiguous", f"workflow_changes[{k}] missing/empty '{f}'")
+    _emit("workflow.diff.generated", proposal=obj["proposal_id"], n=len(changes))
+    out = {
+        "proposal_id": obj["proposal_id"],
+        "mechanism": obj["mechanism"],
+        "adopted_by": obj["adopted_by"],
+        "changes": changes,
+        "note": "逐项落地后：changelog 追加 + contract_refs/run_tests 过关线（evolution-policy.md）",
+    }
+    print(json.dumps(out, ensure_ascii=False, indent=2))
+    return 0
+
+
 # ============================================================ §6 审计校验
 def _validate_audit_line(obj: dict, idx: int) -> list[str]:
     errs: list[str] = []
@@ -368,11 +406,15 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--pair", default=None, help="§5 ordered pair 'A,B'")
     ap.add_argument("--min-cooccurrence", type=int, default=DEFAULT_MIN_COOCCURRENCE)
     ap.add_argument("--validate-audit", default=None, help="§6 weight audit jsonl path")
+    ap.add_argument("--workflow-diff", default=None, help="§5.5 adopted mechanism proposal JSON → workflow change list")
     ap.add_argument("--selftest", action="store_true")
     args = ap.parse_args(argv)
 
     if args.selftest:
         return _selftest()
+    if args.workflow_diff:
+        return cmd_workflow_diff(Path(args.workflow_diff))
+
     if args.tier:
         return cmd_tier(args.tier)
     if args.expand:

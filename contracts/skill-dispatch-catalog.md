@@ -4,6 +4,7 @@
 > **依据**: registry.json 31 units + round-27 五 skill 联通实测（LINKTEST-REPORT）
 > **用途**: 理解每个下游 skill 能做什么、要什么、出什么，从而按用户命令选择正确的出口
 > **边界判定**: 见 `contracts/external-capability-boundary.md`（体系内 vs 外部辅助）
+> **人格绑定（v4.8）**: 固定节点的 Critic 人格与纯门禁绑定见 `contracts/pipeline-persona-map.yaml`；router 产路由单时按表携带 `required_persona`（Critic 侧取值 = operator 五值词表 `contracts/operator-policy.md` §2；缺省 null → meta_auditor 兜底）
 
 ---
 
@@ -109,7 +110,8 @@ Provider: hy3 (chat, hunyuan-direct) · gpt-image-2 (image, PKOS_IMG_API_KEY)
 | 功能 | 诊断作者手上有什么（念头/素材/半稿/大纲/不满意成稿）→ 路由六种写法之一（访谈/大纲/续写/素材整合/破题/重写），产出**成稿 article.md + 标题矩阵 titles.md（16 法/评分/Top5 角色）+ 机器质检 qc-report.json**；可选个人文风档案硬约束 |
 | 用户命令特征 | "写篇公众号文章 / 按这条素材写长文 / 出个文章版 / 深度文 / 这个主题怎么写" |
 | 输入 | RT-*.yaml（exit=article + conversion_type=公众号文章）+ POL 源；options.writing_mode（auto 默认）/ length_target（long\|short\|int）/ draft_path（续写/重写必给）/ voice_profile |
-| 输出 | `_PKOS/_Export/article/<route-id>-article/`：article.md + titles.md + qc-report.json + manifest.json（schema pkos-wenzhang-article:1） |
+| 输出 | `_PKOS/_Export/article/<route-id>-article/`：article.md + titles.md + qc-report.json + manifest.json（schema pkos-wenzhang-article:1）；头图另出 cover-*.png（1175×500，check_cover.py 双道检查，出图走 gptimage2use） |
+| 文风 | `_PKOS/assets/my-voice.md` 已落地（60 篇验收文案提炼）；voice-overrides 块=lint 阈值单一来源（para_cap=130/dash_max=10/matrix 600-1100） |
 | 前置 | 承接 conversion_type=公众号文章（唯一，强绑定）；status≥polished；qc lint fails==0 才算成稿（≤2 轮定点修复） |
 | 设计来源 | 吸收 SpaceZephyr/creator-buddy 写作三件套方法论（2026-08-31），红线与 PKOS 不编造事实公理对齐 |
 | 边界 | 不做排版（外部 gzh-design）、不做选题监控（外部 API 禁用）、不混装其他出口产物 |

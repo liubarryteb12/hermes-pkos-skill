@@ -6,7 +6,6 @@
 
 # 运行残留
 .tmp/
-.tmp-test/
 __pycache__/
 .staging/
 .pytest_cache/

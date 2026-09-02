@@ -45,6 +45,7 @@ cases:
 
   # ----------------- ambiguous：scope 不决 -----------------
   - id: index-include-status-ambiguous
+    known_gap: "decision_card 语义脚本未实现（failure-taxonomy F4 契约超前，待排期）"
     failure_mode: ambiguous
     description: include_status 多解
     arrange:
@@ -57,6 +58,7 @@ cases:
       - "decision_card 列出 archived 处理选项"
 
   - id: index-incremental-since-ambiguous
+    known_gap: "decision_card 语义脚本未实现（failure-taxonomy F4 契约超前，待排期）"
     failure_mode: ambiguous
     description: incremental=true 但 since 跨多轮
     arrange:

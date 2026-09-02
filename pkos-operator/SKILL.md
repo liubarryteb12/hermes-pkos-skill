@@ -1,6 +1,6 @@
 ---
 name: pkos-operator
-description: v4.2 调用方人格守卫（Hermes 等外部 agent 的行为拦截器）：把调用方人格固化为机器可校验规格——meta_auditor 元人格底座 + 按 required_persona 切换的调度子人格（archivist/reader_advocate/meta_auditor/null 四值词表）+ 断路器（STRICT|AUTO_MERGE，AER/MTTI/提案死亡率量化 + 连续绿灯免检 + 拥塞低危放行）+ 四陷阱预警（overreaching_butler/paranoia/dogmatic/rubber_stamp）。auditor_gate.py 三查：人格越界/断路器抗命/拦截理由教条。触发语：「检查调用方越权」「算断路器状态」「拼装审计员头部」「这轮拦截是不是教条了」。契约：contracts/operator-policy.md。
+description: v4.8 调用方人格守卫（Hermes 等外部 agent 的行为拦截器）：把调用方人格固化为机器可校验规格——meta_auditor 元人格底座 + 按 required_persona 切换的调度子人格（archivist/reader_advocate/meta_auditor/evidence_auditor/null 五值词表）+ 断路器（STRICT|AUTO_MERGE，AER/MTTI/提案死亡率量化 + 连续绿灯免检 + 拥塞低危放行）+ 四陷阱预警（overreaching_butler/paranoia/dogmatic/rubber_stamp）。auditor_gate.py 三查：人格越界/断路器抗命/拦截理由教条。触发语：「检查调用方越权」「算断路器状态」「拼装审计员头部」「这轮拦截是不是教条了」。契约：contracts/operator-policy.md · 节点绑定：contracts/pipeline-persona-map.yaml。
 ---
 
 # Capability 身份 (v2 契约 C-1)
@@ -8,7 +8,7 @@ description: v4.2 调用方人格守卫（Hermes 等外部 agent 的行为拦截
 ```yaml
 capability_id: "pkos.operator.audit"
 required_capability: "none"  # 纯代码守卫，无 LLM 需求（v4.2.1）
-version: "1.0.0"
+version: "1.1.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: governance
 stage_subindex: 8b
@@ -24,14 +24,14 @@ replaces: []
 > - 调用方是 PKOS 的反向制衡力量（减熵者）：怀疑、质询、控成本、守边界
 > - merge/Skill 提案审批永远属于人类（确权不可代理）；AUTO_MERGE 仅适用断路器判定的低危类
 >
-> 详见 [contracts/operator-policy.md](../contracts/operator-policy.md)。
+> 详见 [contracts/operator-policy.md](../contracts/operator-policy.md)；固定节点与人格/门禁的绑定表见 [contracts/pipeline-persona-map.yaml](../contracts/pipeline-persona-map.yaml)（v4.8）。
 
 # 输入契约 (v2 契约 C-2)
 
 ```yaml
 inputs:
   - name: required_persona        # 来自 RT-* 路由单或 SKILL.md 静态声明（§3）
-    type: "archivist | reader_advocate | meta_auditor | null"
+    type: "archivist | reader_advocate | meta_auditor | evidence_auditor | null"
     required: false               # 缺省 null = meta_auditor 兜底语义
   - name: actions                 # 调用方本轮动作清单
     type: "list[{action, target_risk?}]"
@@ -57,7 +57,7 @@ python pkos-operator/scripts/auditor_gate.py --selftest
 
 # 调用方使用流程（Hermes 侧）
 
-1. **拿到路由单** → 读 `required_persona`（缺省按 `meta_auditor` 兜底语义，不自行猜人格）。
+1. **拿到路由单** → 读 `required_persona`（缺省按 `meta_auditor` 兜底语义，不自行猜人格）；节点级默认绑定查 `contracts/pipeline-persona-map.yaml`。
 2. **每轮动作前** → `--assemble` 拼装硬核头部注入 LLM 调用（Code-as-Persona，防 Prompt 漂移）。
 3. **产生拦截/挂起动作时** → 若断路器已 `AUTO_MERGE` 且目标低危 → 先跑 `--check-defiance`，抗命则守卫强制放行。
 4. **连续拦截 ≥3 次** → 跑 `--check-dogma`，教条循环则强制换维度重评或放行。
@@ -73,6 +73,6 @@ python pkos-operator/scripts/auditor_gate.py --selftest
 
 # 验收
 
-- `--selftest` 22 用例 ALL PASS（拼装词表正负例 / 断路器七态 / 越界判定 / 抗命判定 / 教条判定 / 向后兼容）
+- `--selftest` 24 用例 ALL PASS（拼装词表正负例含 evidence_auditor / 断路器七态 / 越界判定 / 抗命判定 / 教条判定 / 向后兼容）
 - `contract_refs` 引用存在性 0 错误
 - Hook 3：本 skill 永不写 vault；telemetry 只经 `pkos_v31_lib.emit`（P-15）

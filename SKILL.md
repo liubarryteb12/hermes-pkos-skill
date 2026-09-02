@@ -26,8 +26,7 @@ Personal Knowledge OS（PKOS）套件的 Hermes 原生封装。套件根 = 本�
   - **工作汇报/内容聚合 HTML** → 加载 `html-anything` 技能（note-taking/html-anything，已 build `dist/cli.js`）：把用户的文档、工作记录、任意数据源汇成一份精美单文件 HTML。它服务「工作汇报」场景，与公众号文章无关，不要互相替代。
 - **技能自优化（pkos-skillopt，08-30 接入）**：「训练/优化某个 PKOS 技能」→ `pkos-skillopt/scripts/skillopt_mini.py`（microsoft/SkillOpt 微型循环：rollout→反思改写→验证门→best_skill.md，验证门=改后 val 不得低于改前，与 artifact-integrity gate_1_no_retrograde 同构）。模型实测可用组合=`HERMES_CUSTOM_7_API_KEY`+`qwen3.8-flash`（deepseek-v4-flash 公益分组 503 无通道；glm-5.3-flash thinking 禁用）。产物只进 `reports/skillopt/`，覆盖任何单元 SKILL.md 必须人工评审+套件治理。配合 AMAP-ML/SkillClaw（已装守护进程，原生 Hermes 集成，代理 :30000）：Claw 管会话经验收获/去重/分发，skillopt 管定向训练，两者产物入库都走套件治理。
 - **出图统一口径**：所有生图（comic/gptimage2use/ppt 插图槽位）走 `contracts/image-size-spec.json` 的白名单与 remap 表；漫画出图用 `pkos-comic/scripts/render_panels.py --manifest <RT-...>/manifest.json`（compose 只产脚本，出图必须显式跑渲染器）。**ppt 出口 v2.0 起为原生 PPTX 渲染（python-pptx），gptimage2 仅作 `--images` 可选插图通道**（2026-08-31 用户裁定，v0.2 出图制作废）。
-- **出图通道优先级（用户 2026-08-30 最终指令）**：**漫画批量出图只调 gptimage2 API**（`PKOS_IMG_API_KEY` + `pkos-gptimage2use/scripts/generate.py` 或 `render_panels.py`，尺寸白名单见 `contracts/image-size-spec.json`）——Gemini 和 ModelScope 都不走，用户实测 gptimage2 漫画效果最好；常规出图默认 Gemini 网页 chat（Pro 订阅免费）；SD 系可控需求（LoRA/ControlNet/局部重绘）走 ModelScope 专业生图（手册在 `opencli-browser-bridge` 技能 references）；gptimage2 兼作其他场景备用。
-- **人物一致性出图（断点B 定案）**：跨分镜同角色 = 首格出**定妆特写图**（Seed）→ 后续格把定妆照当**参考图（垫图）**喂 Gemini → visual_prompt 只写极简英文 Tag（禁长句外貌描述，长描述必然漂移）。角色档案统一放 CSM 顶层 `entities.characters`（`contracts/csm-schema.json`），beats 只放 ID 引用。
+- **出图通道优先级**：全部路由规则以 `contracts/image-route-policy.md` 单一真相为准（gptimage2=漫画批量正式 / Gemini chat=常规零成本 / ModelScope=SD 可控；2026-08-30/31 用户裁定）。各单元 SKILL.md 只放指针。- **人物一致性出图（断点B 定案）**：跨分镜同角色 = 首格出**定妆特写图**（Seed）→ 后续格把定妆照当**参考图（垫图）**喂 Gemini → visual_prompt 只写极简英文 Tag（禁长句外貌描述，长描述必然漂移）。角色档案统一放 CSM 顶层 `entities.characters`（`contracts/csm-schema.json`），beats 只放 ID 引用。
 - **正文去 AI 味**：出口链的文案（小说/gzh/工作汇报正文）交稿前按 `humanizer-zh` 技能的 24 模式清单改写并自评 ≥45/50；「太简单/AI 味重」是用户明确退货理由，润色不是可选项。
 - **html-anything 模型选择（2026-08-29 实测）**：网关 `47.108.25.114:1519` 上 `glm-5.3-flash` 是推理模型，长输出会被 thinking 吃光 token 返回空 content——**禁用**；`deepseek-v4-flash` 快（小任务 ~30s）但对大生成（完整 HTML 页 ~10k token）会挂起数分钟甚至 524 超时。因此 **CLI 的 LLM 全自动路线只适合短文**；工作汇报/长页面走 **agent 主路线**：由 agent 按 html-anything 的设计系统直接手写单文件 HTML（首例：桌面《PKOS-工作汇报-20260829.html》）。环境变量：`OPENAI_API_KEY` ← `.env` 的 `HERMES_CUSTOM_1_API_KEY`，`OPENAI_BASE_URL=http://47.108.25.114:1519/v1`（git-bash 内联 `$(grep …)` 取 .env 值会静默失败，用 python 读）。
 - 涉及 `D:\obsidian知识库\obsidian知识库` vault 的 PKOS 规范操作（校验、lint、索引、入库）。
@@ -48,6 +47,20 @@ Personal Knowledge OS（PKOS）套件的 Hermes 原生封装。套件根 = 本�
 ```
 
 纪律：①全程零外部付费 API/零 MCP（用户硬约束）；②工具层硬约束见 `hermes-tool-constraints` 技能；③报告进 INBOX 后按本套件既有契约走，validate_entry 不过不得入库；④纯调研不落库时报告存 `D:/00.AIagent/research/<topic-slug>/`，不污染 INBOX。
+
+## 产品工作上游层（pm-skills 套件，09-01 接入）
+
+用户提出**产品工作类**请求（写 PRD、评审、排优先级、路线图、数据分析、实验、埋点、问卷、竞品、复盘、原型）时，不由本套件单元处理，走 pm-skills 链：
+
+```
+用户产品工作请求
+  → skill_view(pm-master)  ← 常驻索引的唯一 PM 入口，自带 23 成员路由表+5 条预置链路
+  → pm-master 分诊路由：顾问团 8 员直接 skill_view；15 个执行单元已 disable（skill_view 会拒绝），用 read_file 读 skills/pm/<单元名>/SKILL.md 加载
+  → 交付物（PRD/评审清单/路线图/原型 HTML/分析报告）
+  → 有沉淀价值的产物落 _PKOS/INBOX/ → 接回本套件 intake triage → commit 入库
+```
+
+纪律：①PM 产物进 INBOX 后按既有契约走（validate_entry 不过不得入库）；②判断类问题（该不该做）由 pm-master 转 pm-advisory-board，不直接给结论；③产物落盘仍守 pkos-outputs/ 归位铁律，入库原件才进 INBOX。
 
 ## Prerequisites
 
@@ -134,6 +147,7 @@ python tests/run_tests.py && python tests/contract_refs.py && python tests/route
 ## Pitfalls
 
 - **vault 只读纪律（D-6）**：除 `pkos-knowledge-service-commit` 的 `commit.py` 外，任何单元/脚本不得写 `D:\obsidian知识库`。lint 默认 report-only，`--apply` 前必须向用户确认。
+- **功能重叠防范（structure-audit:1）**：新单元准入与自进化审查按 `contracts/structure-audit.md` 五步流程跑重叠扫描；「同输入同输出同时机」重叠对为 0 才准入，否则上位收编（comic v1.1.0 先例）。
 - **敏感写操作 Dry-run Gate（G2，2026-08-29 固化）**：任何批量覆写/全局索引重构/跨条目重命名/`--apply` 类动作，默认 dry-run 产出 Change Log 挂起，用户显式确认后才可执行。破坏性写入宁可多问一句。
 - **快照与归档不是活代码**：`_PKOS/_snapshots/`、`_PKOS/_archive/`、`docs/` 是历史快照，不要编译、不要运行、不要按其中的路径修复活代码（它们含旧路径属预期）。
 - **Python 3.11 限制**：活代码已全部兼容 3.11（`pkos-ppt-skill/scripts/render_deck.py` 的 f-string 反斜杠问题已在迁移时修复）；若从主库回同步后该文件编译再失败，是同款老问题，按同样方式修（把正则提出 f-string）。
