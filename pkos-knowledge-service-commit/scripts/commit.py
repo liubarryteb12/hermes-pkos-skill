@@ -246,7 +246,7 @@ def main(argv: list[str] | None = None) -> int:
     new_fm["status"] = args.to_state
     new_fm["last_commit_at"] = now_iso()
     # pkos-okf:1 trust 签名（Phase 1）：generated 记 agent 写入；verified 追加 process 确认（human 确权由用户侧动作追加 human: 前缀条目）
-    new_fm["generated"] = {"by": "agent/dsh-pkos-skill", "at": now_iso()}
+    new_fm["generated"] = {"by": "agent/hermes-pkos-skill", "at": now_iso()}
     _vf = new_fm.get("verified")
     _vf_list = _vf if isinstance(_vf, list) else ([_vf] if isinstance(_vf, dict) else [])
     _entry = {"by": "process:pkos.knowledge_service.commit", "at": now_iso()}

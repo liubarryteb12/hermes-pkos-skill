@@ -4,7 +4,7 @@
   "providers": {
     "gptimage2": {
       "kind": "openai-compatible",
-      "endpoint": "http://47.108.25.114:1519/v1",
+      "endpoint": "http://<LLM_GATEWAY_HOST>:1519/v1",
       "auth_env": "PKOS_IMG_API_KEY",
       "model": "gpt-image-2",
       "defaults": {

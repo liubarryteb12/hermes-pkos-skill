@@ -102,7 +102,7 @@ RawEntry ──commit──► FactCore ──analysis/polish──► DerivedDr
 
 | Provider | 服务对象 | 用途 | 凭证 |
 |---|---|---|---|
-| hy3（hunyuan-direct, 47.108.25.114:1519/v1） | intake.query / fanout.concept / 各出口 LLM 轮 | 对话推理（含 reasoning_content） | HUNYUAN_API_KEY（.env） |
+| hy3（hunyuan-direct, <LLM_GATEWAY_HOST>:1519/v1） | intake.query / fanout.concept / 各出口 LLM 轮 | 对话推理（含 reasoning_content） | HUNYUAN_API_KEY（.env） |
 | gpt-image-2（同网关 /images/generations） | gptimage2use → ppt/comic 出图 | 图像生成 | PKOS_IMG_API_KEY（.env, **与聊天 key 不同分组**） |
 | filesystem / atomic_writer / yaml_writer | commit / lint / comic 等 | 本地 IO 原子性 | — |
 | self-degrade | intake.query / fanout | LLM 不可达时降级路径 | — |

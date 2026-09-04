@@ -24,7 +24,7 @@ pkos 单元按以下优先级使用 provider：
 | P1（回退 1） | `m21`（M2.1 等替代 LLM）| `m21` | P0 限流/超时/5xx 时 | P0 不可达 |
 | P2（回退 2） | `self-degrade`（自有降级路径）| `self-degrade` | P0+P1 都不可用 | 整体限流，交付降级产物 |
 
-> **v2.3.1 round-23b 注**：PKOS 内部 `hy3` 抽象层通过 DSH `llm-pi-ai` 的 `hunyuan-direct` hand-declared route 解析到 endpoint 47.108.25.114:1519（OpenAI-compatible 协议）。该 endpoint `/v1/models` 列出 3 个 model（`deepseek-v4-flash` / `deepseek-v4-flash-vision-exp` / `hy3`），其中 `hy3` 唯一含 `hy3` 关键词，含 `reasoning_content`（类似 r1 风格）。model id 与能力的对应关系见下文 [Provider Capability Registry](#provider-capability-registryv13lock--key)（v1.3）。
+> **v2.3.1 round-23b 注**：PKOS 内部 `hy3` 抽象层通过 DSH `llm-pi-ai` 的 `hunyuan-direct` hand-declared route 解析到 endpoint <LLM_GATEWAY_HOST>:1519（OpenAI-compatible 协议）。该 endpoint `/v1/models` 列出 3 个 model（`deepseek-v4-flash` / `deepseek-v4-flash-vision-exp` / `hy3`），其中 `hy3` 唯一含 `hy3` 关键词，含 `reasoning_content`（类似 r1 风格）。model id 与能力的对应关系见下文 [Provider Capability Registry](#provider-capability-registryv13lock--key)（v1.3）。
 
 **回退触发条件**（任一命中即切下一档）：
 - HTTP 429（rate limit）
@@ -48,10 +48,10 @@ pkos 单元按以下优先级使用 provider：
       config:
         providers:
           hunyuan-direct:
-            displayName: Tencent Hunyuan-compatible (47.108.25.114)
+            displayName: Tencent Hunyuan-compatible (<LLM_GATEWAY_HOST>)
             apiKeyEnv: HUNYUAN_API_KEY       # 从根 .env 读 (gitignored)
             api: openai-completions
-            baseURL: http://47.108.25.114:1519/v1
+            baseURL: http://<LLM_GATEWAY_HOST>:1519/v1
             models:
               - id: hy3
                 name: hy3 (Tencent Hunyuan-compatible)
@@ -141,7 +141,7 @@ depends_on_providers:
 - 退避时长按表（2s→5s→10s）逐轮递增
 - 跨档退避计数器重置
 - 幂等键跨档保持
-- **v2.3.1**：PKOS 内部 `hy3` id 解析到 DSH 端 `hunyuan-direct` route（47.108.25.114:1519，OpenAI-compatible 协议，hand-declared 不在 pi-ai catalog）
+- **v2.3.1**：PKOS 内部 `hy3` id 解析到 DSH 端 `hunyuan-direct` route（<LLM_GATEWAY_HOST>:1519，OpenAI-compatible 协议，hand-declared 不在 pi-ai catalog）
 - **v2.3.1**：web UI settings 读根 `.env`（gitignored）的 `HUNYUAN_API_KEY`，`hy3` model 自动出现在选择器
 - **v2.3.1**：endpoint GET `/v1/models` 列出 3 model，`hy3` 唯一含 `hy3` 关键词，含 `reasoning_content` 字段（带 chain-of-thought）
 

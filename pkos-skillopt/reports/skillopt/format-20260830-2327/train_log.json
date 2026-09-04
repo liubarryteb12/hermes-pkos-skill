@@ -1,27 +1,27 @@
-{
-  "model": "qwen3.8-flash",
-  "base_url": "http://47.108.25.114:1519/v1",
-  "epochs": [
-    {
-      "epoch": 1,
-      "train": 4,
-      "failures": 4,
-      "candidate_val": 0.666,
-      "best_val": 0.334,
-      "accepted": true
-    },
-    {
-      "epoch": 2,
-      "train": 4,
-      "failures": 2,
-      "candidate_val": 0.666,
-      "best_val": 0.666,
-      "accepted": true
-    }
-  ],
-  "gate": {
-    "seed_val": 0.334,
-    "best_val": 0.666,
-    "improved": true
-  }
+{
+  "model": "qwen3.8-flash",
+  "base_url": "http://<LLM_GATEWAY_HOST>:1519/v1",
+  "epochs": [
+    {
+      "epoch": 1,
+      "train": 4,
+      "failures": 4,
+      "candidate_val": 0.666,
+      "best_val": 0.334,
+      "accepted": true
+    },
+    {
+      "epoch": 2,
+      "train": 4,
+      "failures": 2,
+      "candidate_val": 0.666,
+      "best_val": 0.666,
+      "accepted": true
+    }
+  ],
+  "gate": {
+    "seed_val": 0.334,
+    "best_val": 0.666,
+    "improved": true
+  }
 }

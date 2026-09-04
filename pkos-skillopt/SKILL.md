@@ -28,7 +28,7 @@ replaces: []
 > **pkos-skillopt 是 PKOS 的技能优化原子工具（utility 层），不是出口层、不是治理层。**
 >
 > - 上游来源：[microsoft/SkillOpt](https://github.com/microsoft/SkillOpt)（arXiv:2605.23904，"像训练神经网络一样训练技能文本"）。本单元是该方法的**单文件微型适配**（`scripts/skillopt_mini.py`），不是完整上游。
-> - **适配决策**（有意为之，勿"修复"回去）：①后端固定 PKOS 网关 OpenAI-compatible（47.108.25.114:1519，即 provider-policy 的 hy3/deepseekv4flash 抽象 provider）；②benchmark 换成用户给的微型任务集（子串判分，SearchQA-substring 精神）；③reflect→aggregate→edit 压缩为单 agent 改写（patch 模式 LR 语义：每次 epoch 至多一轮改写）；④**validation gate 语义完整保留**：候选技能在 val 集不得低于当前 best，否则弃用——这与 PKOS `artifact-integrity-policy.md` 的 gate_1_no_retrograde 同构。
+> - **适配决策**（有意为之，勿"修复"回去）：①后端固定 PKOS 网关 OpenAI-compatible（<LLM_GATEWAY_HOST>:1519，即 provider-policy 的 hy3/deepseekv4flash 抽象 provider）；②benchmark 换成用户给的微型任务集（子串判分，SearchQA-substring 精神）；③reflect→aggregate→edit 压缩为单 agent 改写（patch 模式 LR 语义：每次 epoch 至多一轮改写）；④**validation gate 语义完整保留**：候选技能在 val 集不得低于当前 best，否则弃用——这与 PKOS `artifact-integrity-policy.md` 的 gate_1_no_retrograde 同构。
 > - **模型选择**：默认 `deepseek-v4-flash`（快档）。**禁用 `glm-5.3-flash`**（thinking 模型，长输出被思考吃光 token 返回空，umbrella SKILL.md 已记录）。optimizer 与 target 同模型（微型预算下的简化）。
 > - 与 **SkillClaw**（AMAP-ML，集体技能进化守护进程，原生支持 Hermes）的分工：SkillClaw 管"从真实会话收获经验→去重→跨 agent 分发"（进化循环的**采集与分发面**）；pkos-skillopt 管"把一个具体技能文档当参数，在任务集上定向训练+验证门把守"（进化循环的**定向优化面**）。典型配合：SkillClaw pull/收获候选技能 → 本单元训练优化 → 验证门通过后 push 回 SkillClaw 或人工评审入库。**凡进 PKOS 套件的技能文本，验证门通过只是必要条件，最终入库仍走套件治理（registry 追加+人工确认）。**
 
@@ -51,7 +51,7 @@ inputs:
   - name: model / base-url
     type: ProviderHint
     required: false
-    default: "deepseek-v4-flash / http://47.108.25.114:1519/v1"
+    default: "deepseek-v4-flash / http://<LLM_GATEWAY_HOST>:1519/v1"
 outputs:
   - name: best_skill_md
     type: Artifact

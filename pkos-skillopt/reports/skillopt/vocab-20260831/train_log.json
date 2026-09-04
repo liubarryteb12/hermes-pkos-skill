@@ -1,27 +1,27 @@
-{
-  "model": "deepseek-v4-flash",
-  "base_url": "http://47.108.25.114:1519/v1",
-  "epochs": [
-    {
-      "epoch": 1,
-      "train": 6,
-      "failures": 4,
-      "candidate_val": 0.667,
-      "best_val": 0.333,
-      "accepted": true
-    },
-    {
-      "epoch": 2,
-      "train": 6,
-      "failures": 1,
-      "candidate_val": 0.667,
-      "best_val": 0.667,
-      "accepted": true
-    }
-  ],
-  "gate": {
-    "seed_val": 0.333,
-    "best_val": 0.667,
-    "improved": true
-  }
+{
+  "model": "deepseek-v4-flash",
+  "base_url": "http://<LLM_GATEWAY_HOST>:1519/v1",
+  "epochs": [
+    {
+      "epoch": 1,
+      "train": 6,
+      "failures": 4,
+      "candidate_val": 0.667,
+      "best_val": 0.333,
+      "accepted": true
+    },
+    {
+      "epoch": 2,
+      "train": 6,
+      "failures": 1,
+      "candidate_val": 0.667,
+      "best_val": 0.667,
+      "accepted": true
+    }
+  ],
+  "gate": {
+    "seed_val": 0.333,
+    "best_val": 0.667,
+    "improved": true
+  }
 }
