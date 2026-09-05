@@ -260,6 +260,15 @@ hermes-pkos-skill/
 
 MIT —— 拿去用，改完记得回来留个 star ⭐
 
+## ❤️ 赞助
+
+如果这个项目帮到了你，可以请作者（伊霖）喝杯咖啡 ☕
+
+<p align="center">
+  <img src="docs/sponsor-wechat.jpg" alt="微信赞赏码" width="280">
+</p>
+<p align="center"><i>微信赞赏 · 扫码请作者喝杯咖啡</i></p>
+
 ---
 
 <div align="center">
