@@ -8,7 +8,7 @@
 | 单元目录 | capability_id | stage | 入口脚本 | 用途一句话 |
 |---|---|---|---|---|
 | 01-pkos-intake | `pkos.intake.scan` | intake | `scripts/intake_tools.py`（probe/triage/dedup-key） | 扫 INBOX 与落点，识别每件投放物，产出机读分拣单 |
-| pkos-intake-query | `pkos.intake.query` | intake | （SKILL.md 流程，无脚本） | 对既有条目/库内做查询式分拣 |
+| 09-pkos-intake-query | `pkos.intake.query` | intake | （SKILL.md 流程，无脚本） | 对既有条目/库内做查询式分拣 |
 | 03-pkos-ingest | `pkos.ingest.extract` | process | `scripts/ingest_tools.py`、`file_extract.py`、`assemble.py` | 把分拣物抽取/转换为合规条目（schema 校验） |
 | 04-pkos-knowledge-service-commit | `pkos.knowledge_service.commit` | knowledge_service | `scripts/commit.py` | **vault 唯一写入口**，单点裁决入库 |
 | 05-pkos-analysis | `pkos.analysis.structure` | process | （SKILL.md 流程，无脚本） | 结构化分析，产出发现表/Persona，落 `_PKOS/analysis/` |

@@ -133,7 +133,7 @@
 | `04-pkos-knowledge-service-commit/scripts/commit.py` | 10497 B | 22/22 |
 | `22-pkos-audit-lint/scripts/lint.py` | 13847 B | 26/26 |
 | `23-pkos-fanout-concept/SKILL.md`（加执行提示段） | — | ✅ |
-| `pkos-intake-query/SKILL.md`（加执行提示段） | — | ✅ |
+| `09-pkos-intake-query/SKILL.md`（加执行提示段） | — | ✅ |
 | `tests/capability_runner.py` | 10375 B | 19/19 |
 | `tests/contract_refs.py` | 4468 B | 15/15 |
 | `tests/e2e_runner.py` | 6215 B | 19/20（1 误报） |
@@ -307,7 +307,7 @@ D:\deepseekharness\workspace\skills\personal-knowledge-os\
 ├── 04-pkos-knowledge-service-commit/scripts/commit.py  # v2 新增
 ├── 21-pkos-maintenance-index/scripts/index.py          # v2 新增
 ├── 23-pkos-fanout-concept/                   # LLM 密集 + 执行提示
-├── pkos-intake-query/                     # LLM 密集 + 执行提示
+├── 09-pkos-intake-query/                     # LLM 密集 + 执行提示
 ├── 24-pkos-timeline/scripts/build_timeline.py
 ├── 30-pkos-meta/scripts/meta_gate.py         # 元治理设施
 ├── tests/

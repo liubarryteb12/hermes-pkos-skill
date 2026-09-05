@@ -63,7 +63,7 @@
 ### 2.2 LLM 类能力修订 SKILL.md 执行提示
 
 - `23-pkos-fanout-concept/SKILL.md`：新增 **"执行提示"** 段——host/agent 会话内如何按 6 扇出方向调 LLM（按 provider-policy）、如何读 MASTER_INDEX.json 找关联、如何保证扇出草稿不自动 commit
-- `pkos-intake-query/SKILL.md`：新增 **"执行提示"** 段——问答 + 索引检索 + 引用源生成、不自动 ingest 的强约束写法
+- `09-pkos-intake-query/SKILL.md`：新增 **"执行提示"** 段——问答 + 索引检索 + 引用源生成、不自动 ingest 的强约束写法
 
 ### 2.3 三态用例 runner
 

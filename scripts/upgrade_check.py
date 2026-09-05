@@ -27,7 +27,7 @@ EXPECT_UNITS = 29  # 清理后 29 唯一单元
 EXPECT_ALIAS = 1  # 2026-09-05: pkos.gemini.video 实测转正解除 deprecated，仅剩 00-pkos-init
 LEGACY_RE = re.compile(r"D:[\\/]{1,2}00\.AIagent|deepseekharness", re.I)
 # 守卫作用域：这些目录下的代码/配置文件；其中账本 registry.json 除外（历史记录）
-GUARD_DIRS = ["01-pkos-intake", "pkos-intake-query", "03-pkos-ingest", "04-pkos-knowledge-service-commit",
+GUARD_DIRS = ["01-pkos-intake", "09-pkos-intake-query", "03-pkos-ingest", "04-pkos-knowledge-service-commit",
               "05-pkos-analysis", "06-pkos-polish", "08-pkos-router", "07-pkos-weak-check",
               "10-pkos-html", "11-pkos-ppt-skill", "12-pkos-comic", "14-pkos-gzhxiaoshuo-skill",
               "13-pkos-wenzhang-skill",
