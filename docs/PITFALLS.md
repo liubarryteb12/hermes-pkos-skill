@@ -50,7 +50,7 @@
 - pwsh `-replace`/`.Contains` 锚点用 CRLF 字符串会匹配失败（round 审计踩过）；优先用 `edit` 工具或逐行替换
 
 ### P-11 PKOS skill 物理目录名不可随意改
-- loader 按物理目录名查找（与 registry unit id 一致）。v2.27 裁决：对外宣传名用 SKILL.md frontmatter `display_name`（双名机制），物理目录 `pkos-comic` 保持不动
+- loader 按物理目录名查找（与 registry unit id 一致）。v2.27 裁决：对外宣传名用 SKILL.md frontmatter `display_name`（双名机制），物理目录 `12-pkos-comic` 保持不动
 
 ### P-12 e2e 产物是审计轨迹
 - `_PKOS/reports/lint/<ts>_lint.{md,json}`、`_PKOS/MASTER_INDEX.{md,json}` 是流水线合法输出，测试后**保留**；清理只针对自造 fixture（trap.md / smoke*.html / negative-*.json）

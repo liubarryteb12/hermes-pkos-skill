@@ -4,7 +4,7 @@
 扫所有 v2 SKILL.md 的：
   1. depends_on_providers 字段（hy3 / m21 / image-api 等抽象名）—— 留作日志
   2. 引用 v0 脚本路径（render.py / validate_output.py / audit.py 等）—— 路径必须存在
-  3. 跨 SKILL.md 引用（../pkos-init/SKILL.md 等）—— 路径必须存在
+  3. 跨 SKILL.md 引用（../00-pkos-init/SKILL.md 等）—— 路径必须存在
   4. 共享契约引用（contracts/artifact-integrity-policy.md 等）—— 路径必须存在
 
 用法：
@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILL_GLOB = list(ROOT.rglob("pkos-*/SKILL.md"))
+SKILL_GLOB = list(ROOT.rglob("[0-9][0-9]-pkos-*/SKILL.md")) + list(ROOT.rglob("pkos-*/SKILL.md"))
 # 排除归档
 SKILL_GLOB = [p for p in SKILL_GLOB if "_archive" not in p.parts and ".staging" not in p.parts]
 
@@ -58,7 +58,7 @@ def check_skill(skill: Path) -> list[str]:
         m = pat.search(text)
         if m:
             for ref in extract_depends(m.group(1)):
-                # 路径类（contracts/X.md 或 pkos-init/SKILL.md）必须存在
+                # 路径类（contracts/X.md 或 00-pkos-init/SKILL.md）必须存在
                 if "/" in ref or ref.endswith(".md") or ref.endswith(".py"):
                     target = ROOT / ref if ref.startswith("contracts/") or ref.startswith("pipeline/") else skill_dir / ref
                     if not target.exists():
@@ -79,9 +79,9 @@ def check_skill(skill: Path) -> list[str]:
     # 3. 跨 SKILL.md 引用（[...](../pkos-xxx/SKILL.md)）
     for ref in re.findall(r"\.\./(pkos-[a-z-]+)/SKILL\.md", text):
         target = ROOT / f"pkos-{ref.split('-', 1)[1]}/SKILL.md"
-        # 注意：ref 形如 "../pkos-init/SKILL.md" → "pkos-init" 部分
+        # 注意：ref 形如 "../00-pkos-init/SKILL.md" → "00-pkos-init" 部分
         if not target.exists():
-            # 实际路径是 pkos-init 不是 pkos-pkos-init
+            # 实际路径是 00-pkos-init 不是 pkos-00-pkos-init
             m = re.search(r"\.\./(pkos-[\w-]+)/SKILL\.md", text)
             if m:
                 pass  # 上面已抓

@@ -3,7 +3,7 @@
 > **版本**: pkos-policy 1.0（v4.0 新建）| **状态**: 锁死词表 + 增量扩展
 > **读者**: Policy Engine 实现方（策略中枢）、`pkos.router.decide`（策略消费者）、人工运维
 > **关联契约**: `provider-policy.md`（Provider 回退链权威）· `knowledge-object-model.md`（四态类型系统）· `artifact-integrity-policy.md`（完整性双门）· `external-capability-boundary.md`（内外边界）
-> **机器守卫**: `pkos-router/scripts/strategy_gate.py`（§6）
+> **机器守卫**: `08-pkos-router/scripts/strategy_gate.py`（§6）
 
 ## 为什么有这份契约
 
@@ -38,7 +38,7 @@ verification_requirements:
   dimensions: ["structural", "semantic", "evidence", "consistency", "requirement"]
   cross_validation: true       # 是否启用模型交叉验证（pkos.weak_check.verify v2.0）
 system_state:
-  modules_enabled: ["pkos-html", "pkos-ppt-skill", "pkos-comic", "pkos-ppt-skill(gzhxiaoshuo)…"]
+  modules_enabled: ["10-pkos-html", "11-pkos-ppt-skill", "12-pkos-comic", "11-pkos-ppt-skill(gzhxiaoshuo)…"]
   quarantine_count: 0
   drafts_in_ttl: 0
   vault_clean: true
@@ -89,7 +89,7 @@ explicit_directives:           # G1 显式规则绝对优先（v4.2.1 增量扩�
     | POL-* 含人物关系网络 + 场景描写密度高 | 中 | novel 适配 |
     | 事实密度高（数据/代码/参数） | 反向 | 转 html/ppt |
   - 确认强度默认：单篇交互 `interactive-one-step`；批量任务必须显式升为 `batch-post-gate`；对外发布的重要产物用 `first-screen-sample`。
-- **不做**：不改词表（词表权威仍在 `pkos-router/SKILL.md` 六处 + `tests/router_matrix.py`）；候选不进 router 合法性矩阵前不得输出（先查 §3 合法性）。
+- **不做**：不改词表（词表权威仍在 `08-pkos-router/SKILL.md` 六处 + `tests/router_matrix.py`）；候选不进 router 合法性矩阵前不得输出（先查 §3 合法性）。
 
 ### 2.2 CapabilityPolicy（能力策略）
 
@@ -174,7 +174,7 @@ provenance:
 
 | Hook | 不变量 | 落地 |
 |---|---|---|
-| Hook 1（防耦合拦截） | router SKILL.md 不含"根据用户意图判断"类 Prompt 逻辑；决策全部读策略变量 | `pkos-router/SKILL.md` v4.0 节 + 本契约 §2.1 承接移交表 |
+| Hook 1（防耦合拦截） | router SKILL.md 不含"根据用户意图判断"类 Prompt 逻辑；决策全部读策略变量 | `08-pkos-router/SKILL.md` v4.0 节 + 本契约 §2.1 承接移交表 |
 | Hook 2（验证降维拦截） | 生成节点（Generator）内部禁止自我打分；验证剥离至独立 Verifier 节点 | `pkos.weak_check.verify` v2.0（独立脚本 + 独立报告） |
 | Hook 3（单点裁决防线） | 任何演化阶段的数据未经 `knowledge_service.commit` 禁止反写 vault | Policy Engine / Router / Verifier 全部只读 vault；写点白名单见各自 SKILL.md |
 | P-14（词表同步） | exit/conversion_type 词表权威仍在 router SKILL.md 六处 + `router_matrix.py`；本契约只引用不复制 | §2.1 移交条目逐条标注原出处 |
@@ -183,10 +183,10 @@ provenance:
 ## 6. 机器守卫（strategy_gate.py）
 
 ```
-python pkos-router/scripts/strategy_gate.py --context ctx.json          # 断言 A：Decision Context 10 字段校验
-python pkos-router/scripts/strategy_gate.py --validate-only ST.yaml     # 只校验策略载荷
-python pkos-router/scripts/strategy_gate.py --dispatch ST.yaml --out-dir _PKOS/routes   # 校验 + 写 RT-*
-python pkos-router/scripts/strategy_gate.py --selftest                  # 正/负用例矩阵（非法载荷→ambiguous 等）
+python 08-pkos-router/scripts/strategy_gate.py --context ctx.json          # 断言 A：Decision Context 10 字段校验
+python 08-pkos-router/scripts/strategy_gate.py --validate-only ST.yaml     # 只校验策略载荷
+python 08-pkos-router/scripts/strategy_gate.py --dispatch ST.yaml --out-dir _PKOS/routes   # 校验 + 写 RT-*
+python 08-pkos-router/scripts/strategy_gate.py --selftest                  # 正/负用例矩阵（非法载荷→ambiguous 等）
 ```
 
 - 非法载荷：stdout `{rejected: true, reason, v2_failure_mode: "ambiguous"}`，exit 2（P-07 机器可读，不抛裸 traceback）。
@@ -195,6 +195,6 @@ python pkos-router/scripts/strategy_gate.py --selftest                  # 正/�
 
 ## 7. 版本与兼容
 
-- v0 兼容入口 `pkos-router`（deprecated alias）在 v4.0 语义下同样要求策略载荷；**无策略直调 = ambiguous fail loud**（这是 v4.0 的 breaking change，SemVer 主版本升级）。
-- v0 启发式原文从 `pkos-router/SKILL.md` 移交至本契约 §2.1，原文逐条对应，未改语义；快照见 `_PKOS/_snapshots/round-31/`。
+- v0 兼容入口 `08-pkos-router`（deprecated alias）在 v4.0 语义下同样要求策略载荷；**无策略直调 = ambiguous fail loud**（这是 v4.0 的 breaking change，SemVer 主版本升级）。
+- v0 启发式原文从 `08-pkos-router/SKILL.md` 移交至本契约 §2.1，原文逐条对应，未改语义；快照见 `_PKOS/_snapshots/round-31/`。
 - registry.json `units[].pkos.router.decide` 的 consumes/semantic_goal 与本契约同步更新；changelog 记录 breaking_changes=true。

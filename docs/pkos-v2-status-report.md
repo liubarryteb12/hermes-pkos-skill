@@ -54,7 +54,7 @@
 | D-5 | 路径即结构（一级目录 = 域） |
 | D-6 | **commit 单点裁定**（所有 status 推进必须经 pkos.knowledge_service.commit） |
 | D-7 | 安全网：每步骤均容错（gate_1/2/3） |
-| D-8 | 元治理设施独立（pkos-meta 不参与启停） |
+| D-8 | 元治理设施独立（30-pkos-meta 不参与启停） |
 | D-9 | **v0 可清理**（双身份可卸，已升号） |
 | D-10 | **v2 锁定基线**（已升号） |
 
@@ -96,20 +96,20 @@
 
 | v0 入口 | alias_of | 兼容语义 |
 |---|---|---|
-| `pkos-init` | `pkos.governance.bootstrap` | 触发语"初始化知识库"仍生效 |
-| `pkos-intake` | `pkos.intake.scan` | "处理 INBOX" 仍生效 |
-| `pkos-ingest` | `pkos.ingest.extract` | "入库这条链接" 仍生效 |
-| `pkos-analysis` | `pkos.analysis.structure` | "分析这篇" 仍生效 |
-| `pkos-polish` | `pkos.polish.refine` | "润色这段" 仍生效 |
-| `pkos-router` | `pkos.router.decide` | "这篇做成什么好" 仍生效 |
-| `pkos-html` | `pkos.exit.html.render` | "做个网页" 仍生效 |
+| `00-pkos-init` | `pkos.governance.bootstrap` | 触发语"初始化知识库"仍生效 |
+| `01-pkos-intake` | `pkos.intake.scan` | "处理 INBOX" 仍生效 |
+| `03-pkos-ingest` | `pkos.ingest.extract` | "入库这条链接" 仍生效 |
+| `05-pkos-analysis` | `pkos.analysis.structure` | "分析这篇" 仍生效 |
+| `06-pkos-polish` | `pkos.polish.refine` | "润色这段" 仍生效 |
+| `08-pkos-router` | `pkos.router.decide` | "这篇做成什么好" 仍生效 |
+| `10-pkos-html` | `pkos.exit.html.render` | "做个网页" 仍生效 |
 | `pkos-ppt` | `pkos.exit.ppt.compose` | "做个 PPT" 仍生效 |
-| `pkos-audit` | `pkos.governance.audit` | "体检一下知识库" 仍生效 |
-| `pkos-timeline` | `pkos.maintenance.timeline` | "看看库的成长时间线" 仍生效 |
+| `25-pkos-audit` | `pkos.governance.audit` | "体检一下知识库" 仍生效 |
+| `24-pkos-timeline` | `pkos.maintenance.timeline` | "看看库的成长时间线" 仍生效 |
 
 ### 3.3 infra_non_units
 
-- `pkos-meta`（元治理设施：门禁/SOP，无 SKILL.md，**不参与启停**）
+- `30-pkos-meta`（元治理设施：门禁/SOP，无 SKILL.md，**不参与启停**）
 
 ---
 
@@ -121,7 +121,7 @@
 |---|---|
 | 0.1 补 round-1 snapshot | ✅ |
 | 0.2 修正 v2_migration_progress（13→15/15） | ✅ |
-| 0.3 迁移 pkos-audit/timeline 为 v2 契约 | ✅（2 v2 + 2 deprecated + 2 测试套） |
+| 0.3 迁移 25-pkos-audit/timeline 为 v2 契约 | ✅（2 v2 + 2 deprecated + 2 测试套） |
 | 0.4 归档 .staging/ 调试脚本 | ✅（8 子目录 + 30 文件 → `_archive/staging-2026-08-27/`） |
 | round-0a/0b snapshot 补足 | ✅ |
 
@@ -129,10 +129,10 @@
 
 | 文件 | 大小 | 静态自检 |
 |---|---|---|
-| `pkos-maintenance-index/scripts/index.py` | 11533 B | 15/15 |
-| `pkos-knowledge-service-commit/scripts/commit.py` | 10497 B | 22/22 |
-| `pkos-audit-lint/scripts/lint.py` | 13847 B | 26/26 |
-| `pkos-fanout-concept/SKILL.md`（加执行提示段） | — | ✅ |
+| `21-pkos-maintenance-index/scripts/index.py` | 11533 B | 15/15 |
+| `04-pkos-knowledge-service-commit/scripts/commit.py` | 10497 B | 22/22 |
+| `22-pkos-audit-lint/scripts/lint.py` | 13847 B | 26/26 |
+| `23-pkos-fanout-concept/SKILL.md`（加执行提示段） | — | ✅ |
 | `pkos-intake-query/SKILL.md`（加执行提示段） | — | ✅ |
 | `tests/capability_runner.py` | 10375 B | 19/19 |
 | `tests/contract_refs.py` | 4468 B | 15/15 |
@@ -235,9 +235,9 @@ round-17  (2026-08-27  e2e 真跑 + 实施发现)
 
 ```bash
 # 单能力验证
-python pkos-maintenance-index/scripts/index.py --vault D:\obsidian知识库\obsidian知识库 --out _PKOS --json
-python pkos-knowledge-service-commit/scripts/commit.py --vault ... --target x.md --from triaged --to analyzed
-python pkos-audit-lint/scripts/lint.py --vault ... --mode report-only --rules fm-missing-fields,tag-coverage
+python 21-pkos-maintenance-index/scripts/index.py --vault D:\obsidian知识库\obsidian知识库 --out _PKOS --json
+python 04-pkos-knowledge-service-commit/scripts/commit.py --vault ... --target x.md --from triaged --to analyzed
+python 22-pkos-audit-lint/scripts/lint.py --vault ... --mode report-only --rules fm-missing-fields,tag-coverage
 
 # 测试 / 校验
 python tests/capability_runner.py --verbose     # 39 cases 冒烟
@@ -294,22 +294,22 @@ D:\deepseekharness\workspace\skills\personal-knowledge-os\
 │   └── pkos-v2-status-report.md           # 本报告
 ├── pipeline/registry.json                 # 15+10 capability 注册表
 ├── contracts/                             # 4 份共享契约
-├── pkos-init/scripts/init_kb.py           # v0 保留
-├── pkos-intake/scripts/intake_tools.py
-├── pkos-ingest/scripts/{ingest_tools,file_extract,assemble}.py
-├── pkos-analysis/                         # LLM 密集
-├── pkos-polish/                           # LLM 密集
-├── pkos-router/                           # LLM 密集
-├── pkos-html/scripts/{render,render_combined,validate_output,build_themes,lint_theme}.py
+├── 00-pkos-init/scripts/init_kb.py           # v0 保留
+├── 01-pkos-intake/scripts/intake_tools.py
+├── 03-pkos-ingest/scripts/{ingest_tools,file_extract,assemble}.py
+├── 05-pkos-analysis/                         # LLM 密集
+├── 06-pkos-polish/                           # LLM 密集
+├── 08-pkos-router/                           # LLM 密集
+├── 10-pkos-html/scripts/{render,render_combined,validate_output,build_themes,lint_theme}.py
 ├── pkos-ppt/scripts/render_deck.py
-├── pkos-audit/scripts/audit.py
-├── pkos-audit-lint/scripts/lint.py        # v2 新增
-├── pkos-knowledge-service-commit/scripts/commit.py  # v2 新增
-├── pkos-maintenance-index/scripts/index.py          # v2 新增
-├── pkos-fanout-concept/                   # LLM 密集 + 执行提示
+├── 25-pkos-audit/scripts/audit.py
+├── 22-pkos-audit-lint/scripts/lint.py        # v2 新增
+├── 04-pkos-knowledge-service-commit/scripts/commit.py  # v2 新增
+├── 21-pkos-maintenance-index/scripts/index.py          # v2 新增
+├── 23-pkos-fanout-concept/                   # LLM 密集 + 执行提示
 ├── pkos-intake-query/                     # LLM 密集 + 执行提示
-├── pkos-timeline/scripts/build_timeline.py
-├── pkos-meta/scripts/meta_gate.py         # 元治理设施
+├── 24-pkos-timeline/scripts/build_timeline.py
+├── 30-pkos-meta/scripts/meta_gate.py         # 元治理设施
 ├── tests/
 │   ├── run_tests.py                       # v0 base 回归
 │   ├── capability_runner.py               # v2 真跑 runner

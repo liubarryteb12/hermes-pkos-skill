@@ -1,9 +1,9 @@
-# Operator Policy 契约（pkos-operator:1）
+# Operator Policy 契约（31-pkos-operator:1）
 
-> **版本**: pkos-operator 1.1（v4.8 调用方词表扩五值）| **状态**: 锁死词表 + 增量扩展
+> **版本**: 31-pkos-operator 1.1（v4.8 调用方词表扩五值）| **状态**: 锁死词表 + 增量扩展
 > **读者**: 调用方 agent（Hermes 等）的 operator 技能实现方、`pkos.operator.audit`（守卫消费者）、人工运维
 > **关联契约**: `evolution-policy.md`（调用侧对称物：审计消费其 telemetry 事件与 weight_audit）· `policy-engine.md`（Execution Strategy 是 required_persona 的声明载体）· `artifact-integrity-policy.md`（完整性双门）· `pipeline-persona-map.yaml`（固定节点 × Actor/Critic × 门禁绑定表，v4.8）· `failure-taxonomy.md`（七类失败→处置映射，v4.9）
-> **机器守卫**: `pkos-operator/scripts/auditor_gate.py`（§4/§5/§6/§7/§8）
+> **机器守卫**: `31-pkos-operator/scripts/auditor_gate.py`（§4/§5/§6/§7/§8）
 > **来源**: 2026-08-29 与外部模型（Gemini）五轮人格架构评审收敛结论（Meta-Auditor 底座 / 动态子人格 / 断路器 / 陷阱预警 / Code-as-Persona 三层固化）；2026-08-31 外部专家九原则架构对照审计后扩值 `evidence_auditor`（v4.8）
 
 ## 为什么有这份契约
@@ -18,7 +18,7 @@ PKOS 是持续制造熵增的动态系统（自动写 Skill、自动连 DAG、�
 
 | 层 | 角色 | 职责 | 绝不做什么 |
 |---|---|---|---|
-| PKOS 产出层 persona（`wechat_master`/`bioinformatician`/`knowledge_architect`/`storyteller`/`null`，定义处 `pkos-analysis/SKILL.md`） | **演员/执笔人** | 生成内容（Data Generation）：把干货写成人类爱看的段落 | 不做调度决策、不碰 telemetry |
+| PKOS 产出层 persona（`wechat_master`/`bioinformatician`/`knowledge_architect`/`storyteller`/`null`，定义处 `05-pkos-analysis/SKILL.md`） | **演员/执笔人** | 生成内容（Data Generation）：把干货写成人类爱看的段落 | 不做调度决策、不碰 telemetry |
 | 调用方子人格（本契约 §2） | **导演/质检员** | 过程控制与验收（Process Control）：站在读者/运维立场单向审视，不满意打回重写 | **绝不亲自下场写一行内容**（一个做加法一个做减法） |
 | 调用方元人格 `meta_auditor`（永远在线） | **馆长/运维总监** | 守护**系统引擎**：telemetry、token 成本、死循环、越权 DAG；在第 12 步验证网拿原始参数表兜底核对 | 不评判 .md 内容质量（那是 `knowledge_architect` 的文件内容层领空） |
 
@@ -103,12 +103,12 @@ PKOS 是持续制造熵增的动态系统（自动写 Skill、自动连 DAG、�
 ## 8. 机器守卫（auditor_gate.py）
 
 ```
-python pkos-operator/scripts/auditor_gate.py --assemble --persona archivist --breaker STRICT        # §7 头部拼装（词表校验）
-python pkos-operator/scripts/auditor_gate.py --persona-violation rt.yaml --actions actions.json     # §5-1 越界检查
-python pkos-operator/scripts/auditor_gate.py --breaker-state telemetry.jsonl --pending 3             # §4 断路器状态计算
-python pkos-operator/scripts/auditor_gate.py --check-defiance AUTO_MERGE --actions actions.json      # §5-2 抗命检查
-python pkos-operator/scripts/auditor_gate.py --check-dogma reasons.jsonl                              # §5-3 教条检查
-python pkos-operator/scripts/auditor_gate.py --selftest                                               # 全部正/负用例（纯内存）
+python 31-pkos-operator/scripts/auditor_gate.py --assemble --persona archivist --breaker STRICT        # §7 头部拼装（词表校验）
+python 31-pkos-operator/scripts/auditor_gate.py --persona-violation rt.yaml --actions actions.json     # §5-1 越界检查
+python 31-pkos-operator/scripts/auditor_gate.py --breaker-state telemetry.jsonl --pending 3             # §4 断路器状态计算
+python 31-pkos-operator/scripts/auditor_gate.py --check-defiance AUTO_MERGE --actions actions.json      # §5-2 抗命检查
+python 31-pkos-operator/scripts/auditor_gate.py --check-dogma reasons.jsonl                              # §5-3 教条检查
+python 31-pkos-operator/scripts/auditor_gate.py --selftest                                               # 全部正/负用例（纯内存）
 ```
 
 - 失败语义继承 P-07：stdout JSON `{rejected: true, reason, v2_failure_mode}`，exit 2；用法错误 exit 4；selftest 有失败 exit 1。

@@ -276,16 +276,16 @@ _PKOS/
 
 | 旧 v0 ID | 新 v2 ID | 归属分类 | 核心语义目标 (semantic_goal) |
 |---|---|---|---|
-| `pkos-init` | `pkos.governance.bootstrap` | governance | 在指定路径初始化 PKOS 工作区骨架 |
-| `pkos-intake` | `pkos.intake.scan` | intake | 扫一遍指定来源，识别并分拣投放物 |
-| `pkos-ingest` | `pkos.ingest.extract` | process | 将分拣物抽取为合规的 Knowledge Object 候选 |
-| `pkos-analysis` | `pkos.analysis.structure` | process | 对入库条目产出可操作的发现表与关联推荐 |
-| `pkos-polish` | `pkos.polish.refine` | process | 按发现表与优化规则输出净化稿 |
-| `pkos-router` | `pkos.router.decide` | decision | 基于净化稿与意图生成唯一路由裁定单 |
-| `pkos-html` | `pkos.exit.html.render` | exit | 将 Knowledge Object 渲染为单文件离线 HTML |
+| `00-pkos-init` | `pkos.governance.bootstrap` | governance | 在指定路径初始化 PKOS 工作区骨架 |
+| `01-pkos-intake` | `pkos.intake.scan` | intake | 扫一遍指定来源，识别并分拣投放物 |
+| `03-pkos-ingest` | `pkos.ingest.extract` | process | 将分拣物抽取为合规的 Knowledge Object 候选 |
+| `05-pkos-analysis` | `pkos.analysis.structure` | process | 对入库条目产出可操作的发现表与关联推荐 |
+| `06-pkos-polish` | `pkos.polish.refine` | process | 按发现表与优化规则输出净化稿 |
+| `08-pkos-router` | `pkos.router.decide` | decision | 基于净化稿与意图生成唯一路由裁定单 |
+| `10-pkos-html` | `pkos.exit.html.render` | exit | 将 Knowledge Object 渲染为单文件离线 HTML |
 | `pkos-ppt` | `pkos.exit.ppt.compose` | exit | 将 Knowledge Object 编排为演示图组 |
-| `pkos-audit` | `pkos.maintenance.audit` | maintenance | 对全库做结构化体检并输出报告 |
-| `pkos-timeline` | `pkos.maintenance.timeline` | maintenance | 汇总历次审计生成趋势图 |
+| `25-pkos-audit` | `pkos.maintenance.audit` | maintenance | 对全库做结构化体检并输出报告 |
+| `24-pkos-timeline` | `pkos.maintenance.timeline` | maintenance | 汇总历次审计生成趋势图 |
 | (新) | `pkos.knowledge_service.commit` | knowledge_service | 独立裁定 Artifact 是否晋升为 Knowledge Object |
 | (新) | `pkos.artifact.locate` | process | 基于 Target Constraint 定位目标产物 |
 
@@ -370,7 +370,7 @@ v2.0 的 PKOS 是**"工业内容交付流水线"**——素材 → 状态机 →
 | 借鉴点 | Karpathy 机制 | PKOS v2.1 新 Capability | 落地位置 |
 |---|---|---|---|
 | **跨文档概念网格编织** | 单篇 Ingest 时扇出更新 10-15 个关联概念页 | `pkos.fanout.concept` | ingest / analysis 阶段子工序 |
-| **语义矛盾检测与自愈 Lint** | 定期 Lint 扫描事实矛盾 + 知识断层 | `pkos.audit.lint` | 升级 pkos-audit 失败三态与自愈建议单 |
+| **语义矛盾检测与自愈 Lint** | 定期 Lint 扫描事实矛盾 + 知识断层 | `pkos.audit.lint` | 升级 25-pkos-audit 失败三态与自愈建议单 |
 | **问答资产回流沉淀** | 高价值问答自动回写为 Wiki 词条 | `pkos.intake.query` | intake 新增子通道（chat → raw） |
 | **紧凑层级索引导航** | 维护 INDEX.md 替换向量检索 | `pkos.maintenance.index` | 维护 `_PKOS/MASTER_INDEX.md` |
 
@@ -433,7 +433,7 @@ failures:
 **Karpathy 机制**：定期执行 lint 指令，扫描新旧笔记中的冲突事实（如"方法 A 在 2024 年有效，但 2026 年新文献指出其缺陷"），并在词条中显式标注争议。
 
 **PKOS 落地**：
-- **新 Capability**：`pkos.audit.lint`（**升级** v0 的 `pkos-audit`）
+- **新 Capability**：`pkos.audit.lint`（**升级** v0 的 `25-pkos-audit`）
 - **阶段**：maintenance
 - **体检范围扩展**（v0 → v2.1）：
   - v0 已有：格式规范、坏链、孤岛
@@ -450,7 +450,7 @@ failures:
 **Karpathy 机制**：基于知识库回答的高质量、深入推理结果，自动沉淀为 Wiki 库中的新词条。
 
 **PKOS 落地**：
-- **新 Capability**：`pkos.intake.query`（**扩展** v0 的 `pkos-intake`）
+- **新 Capability**：`pkos.intake.query`（**扩展** v0 的 `01-pkos-intake`）
 - **阶段**：intake（新增子通道）
 - **数据流**：
   ```
@@ -506,21 +506,21 @@ failures:
 
 | 旧 v0 ID | 新 v2.0 ID | v2.1 扩列 | 归属分类 | 核心语义目标 |
 |---|---|---|---|---|
-| `pkos-init` | `pkos.governance.bootstrap` | — | governance | 在指定路径初始化 PKOS 工作区骨架 |
-| `pkos-intake` | `pkos.intake.scan` | — | intake | 扫一遍指定来源，识别并分拣投放物 |
+| `00-pkos-init` | `pkos.governance.bootstrap` | — | governance | 在指定路径初始化 PKOS 工作区骨架 |
+| `01-pkos-intake` | `pkos.intake.scan` | — | intake | 扫一遍指定来源，识别并分拣投放物 |
 | (新) | `pkos.intake.query` | ✅ v2.1 新增 | intake | 把高价值问答回流入库（Query-to-Wiki Loop） |
-| `pkos-ingest` | `pkos.ingest.extract` | — | process | 将分拣物抽取为合规的 Knowledge Object 候选 |
+| `03-pkos-ingest` | `pkos.ingest.extract` | — | process | 将分拣物抽取为合规的 Knowledge Object 候选 |
 | (新) | `pkos.fanout.concept` | ✅ v2.1 新增 | process | 把分析结果扇出更新到 5-15 个相关概念节点 |
-| `pkos-analysis` | `pkos.analysis.structure` | — | process | 对入库条目产出可操作的发现表与关联推荐 |
-| `pkos-polish` | `pkos.polish.refine` | — | process | 按发现表与优化规则输出净化稿 |
+| `05-pkos-analysis` | `pkos.analysis.structure` | — | process | 对入库条目产出可操作的发现表与关联推荐 |
+| `06-pkos-polish` | `pkos.polish.refine` | — | process | 按发现表与优化规则输出净化稿 |
 | (新) | `pkos.artifact.locate` | — | process | 基于 Target Constraint 定位目标产物 |
-| `pkos-router` | `pkos.router.decide` | — | decision | 基于净化稿与意图生成唯一路由裁定单 |
-| `pkos-html` | `pkos.exit.html.render` | — | exit | 将 Knowledge Object 渲染为单文件离线 HTML |
+| `08-pkos-router` | `pkos.router.decide` | — | decision | 基于净化稿与意图生成唯一路由裁定单 |
+| `10-pkos-html` | `pkos.exit.html.render` | — | exit | 将 Knowledge Object 渲染为单文件离线 HTML |
 | `pkos-ppt` | `pkos.exit.ppt.compose` | — | exit | 将 Knowledge Object 编排为演示图组 |
-| `pkos-audit` | `pkos.maintenance.audit` | — | maintenance | 对全库做结构化体检并输出报告 |
+| `25-pkos-audit` | `pkos.maintenance.audit` | — | maintenance | 对全库做结构化体检并输出报告 |
 | (升级) | `pkos.audit.lint` | ✅ v2.1 升级 | maintenance | 语义矛盾检测 + 知识断层扫描 + 自愈建议 |
 | (新) | `pkos.maintenance.index` | ✅ v2.1 新增 | maintenance | 维护 MASTER_INDEX.md 服务全局视野 |
-| `pkos-timeline` | `pkos.maintenance.timeline` | — | maintenance | 汇总历次审计生成趋势图 |
+| `24-pkos-timeline` | `pkos.maintenance.timeline` | — | maintenance | 汇总历次审计生成趋势图 |
 | (v2.0 新) | `pkos.knowledge_service.commit` | — | knowledge_service | 独立裁定 Artifact 是否晋升为 Knowledge Object |
 
 **总计**：v2.0 12 个 → **v2.1 16 个** Capability（新增 4 个，升级 1 个）。

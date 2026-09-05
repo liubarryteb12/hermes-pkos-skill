@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "skill": "10-pkos-html",
+  "approved_by": "PKOS Builder",
+  "approved_at": "2026-08-24",
+  "review_due": "2026-11-22",
+  "capabilities": {
+    "file_write": {
+      "decision": "approved",
+      "reviewer": "PKOS Builder",
+      "scope": "_PKOS/outputs 渲染产物",
+      "reason": "单文件 HTML 成品交付到约定出口目录",
+      "evidence": [
+        "tests/run_tests.py 19 组契约测试全 PASS（2026-08-24）",
+        "30-pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
+        "yao-meta-skill trust_check PASS（reports/security_trust_report.json）",
+        "yao-meta-skill package-verify PASS（2026-08-24）"
+      ],
+      "target_enforcement": {
+        "generic": "宿主文件沙箱按 _PKOS/ 路径边界拦截越界写入；路径校验由调用方执行"
+      },
+      "expires_at": "2026-11-22"
+    }
+  }
+}

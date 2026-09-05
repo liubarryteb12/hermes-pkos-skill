@@ -31,7 +31,7 @@
 
 ## U3 — v4.0 Policy 模型全量铺开（核心工程，19 单元）
 
-现状：仅 `pkos-router` 完成 v4 改造（`required_capability` 声明 + Decision Context + 六大 Policy + strategy_gate 守卫），其余 18 单元仍在 v3.x 语义（`compatible_pkos_schema` 分布：`>=2.0.0`×10、`>=2.1.0`×5、`>=3.1.0`×2、`>=2.3.0`×1、无字段×1）。
+现状：仅 `08-pkos-router` 完成 v4 改造（`required_capability` 声明 + Decision Context + 六大 Policy + strategy_gate 守卫），其余 18 单元仍在 v3.x 语义（`compatible_pkos_schema` 分布：`>=2.0.0`×10、`>=2.1.0`×5、`>=3.1.0`×2、`>=2.3.0`×1、无字段×1）。
 
 **铺开顺序**（按数据流上游→下游，每批完成后跑全套件测试再进下一批）：
 
@@ -53,9 +53,9 @@
 
 | 步骤 | 内容 | 验收 |
 |---|---|---|
-| 4.1 | **novel 出口真实 LLM 端到端验证**：Hermes 运行时直接用当前会话模型驱动 `pkos-gzhxiaoshuo-skill` 全链（读样例条目 → 三层结构产出 → 切片回滚校验），产物落 `_PKOS/outputs/` | 一条真实 chapter.json+md 产出 + manifest 溯源完整 |
-| 4.2 | **Persona 模板外置**：从 `pkos-analysis/SKILL.md`（27 处 Persona 引用）抽出为 `templates/persona/*.md`——注意主库 SYNC-NOTES 的教训：**`templates/` 不进技能发现面**，放 `references/persona/` 更安全 | analysis SKILL.md 引用外置文件；contract_refs 通过 |
-| 4.3 | **telemetry 可视化**：`telemetry_dashboard.py` 已有文本面板，补 `--html` 输出单文件面板（复用 pkos-html 主题 token，落 `_PKOS/execution/`） | 双击可开的单文件 HTML，与文本面板数字一致 |
+| 4.1 | **novel 出口真实 LLM 端到端验证**：Hermes 运行时直接用当前会话模型驱动 `14-pkos-gzhxiaoshuo-skill` 全链（读样例条目 → 三层结构产出 → 切片回滚校验），产物落 `_PKOS/outputs/` | 一条真实 chapter.json+md 产出 + manifest 溯源完整 |
+| 4.2 | **Persona 模板外置**：从 `05-pkos-analysis/SKILL.md`（27 处 Persona 引用）抽出为 `templates/persona/*.md`——注意主库 SYNC-NOTES 的教训：**`templates/` 不进技能发现面**，放 `references/persona/` 更安全 | analysis SKILL.md 引用外置文件；contract_refs 通过 |
+| 4.3 | **telemetry 可视化**：`telemetry_dashboard.py` 已有文本面板，补 `--html` 输出单文件面板（复用 10-pkos-html 主题 token，落 `_PKOS/execution/`） | 双击可开的单文件 HTML，与文本面板数字一致 |
 | 4.4 | **Hermes 运行时差异化收尾**：PKOS_IMG_API_KEY 接入 Hermes `.env`（`hermes config env-path`）；gptimage2 endpoint 连通性探测 | doctor.py 密钥项转 OK | ✅ **已完成 2026-08-29**：密钥已入 `C:/Users/18765/AppData/Local/hermes/.env`，endpoint `<LLM_GATEWAY_HOST>:1519` 探测 HTTP 200，doctor 密钥项 [OK] |
 
 ## 执行顺序与依赖
@@ -80,7 +80,7 @@ U1 的守卫脚本一天内可完成且保护价值最高——**先做 U1**。
 | G1b | **article/novel 分流机判**（断点C） | U1.4 | 知识条目关系边类型决定引擎：`followed_by/caused_by/conflict_with` → novel 引擎；`is_a/contains/compare_to` → article 直出；混杂/缺失 → 决策单挂用户。规范见 `contracts/csm-schema.json` routing_rule | ✅ 规则已定稿入 CSM 契约 |
 | G2 | **敏感写操作 Dry-run Gate 通用条款** | U1.5 | 固化纪律：任何批量覆写/全局索引重构/跨条目重命名，默认 dry-run 产出 Change Log 挂起，用户确认后 --apply。写进主 SKILL.md Pitfalls + lint/commit 既有纪律对齐 |
 | G3 | **Telemetry 动态降级回路** | U5.1 | tick/巡检消费 telemetry.jsonl：错误率/降级率超阈值 → 生成降级建议单（退纯文本、暂缓富媒体），挂用户裁决，不自动改路由 |
-| G4 | **Vault 一致性巡检 GC** | U5.2 | pkos-audit 增补死链/孤立节点扫描（只读），产出补丁提案单走 Dry-run Gate |
+| G4 | **Vault 一致性巡检 GC** | U5.2 | 25-pkos-audit 增补死链/孤立节点扫描（只读），产出补丁提案单走 Dry-run Gate |
 | G5 | **出口并发限定 Gemini 通道** | U5.3 | 出图默认走 Gemini chat（用户 Pro 订阅），可并发；gptimage2 API 保持串行防 524 |
 | G6 | **否决存档** | — | 内存管道、DLQ 大模型自愈、并发行级锁：经对抗验证否决（文件驱动=溯源/断点续渲；weak_check 已闭环；单agent无并发）。后人重提前先读 Gemini评审收敛报告 R2 |
 
@@ -91,7 +91,7 @@ U1 的守卫脚本一天内可完成且保护价值最高——**先做 U1**。
 | # | 报告问题 | Hermes 副本实况 |
 |---|---|---|
 | 1 | 文档路径全线失效（deepseekharness） | **活代码已修**（迁移时改相对定位）；仅 SKILL.md 文档示例与历史账本残留 → U1 |
-| 2 | pkos-meta 未安装，tick/telemetry 调不到 | **已解决**：迁移时已入副本并实跑通过 |
+| 2 | 30-pkos-meta 未安装，tick/telemetry 调不到 | **已解决**：迁移时已入副本并实跑通过 |
 | 3 | v4.0 只落地 1/19 | **确认**：required_capability 仅 router 有 → U3 |
 | 4 | website-kit 停在 3.3.1 | **确认** → U2.3 |
 | 5 | registry 10 个空 capability_id 别名 | **实测 11 个** → U2.2 |

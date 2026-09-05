@@ -1,0 +1,26 @@
+interface:
+  display_name: "公众号文章出口"
+  short_description: "诊断路由六种写法，产出长文成稿+标题矩阵+机器质检"
+  default_prompt: "Use $13-pkos-wenzhang-skill when the user says 写篇公众号文章 / 按这条素材写长文 / 出个文章版 / 深度文."
+compatibility:
+  canonical_format: "agent-skills"
+  adapter_targets:
+    - "openai"
+    - "claude"
+    - "generic"
+    - "vscode"
+  activation:
+    mode: "manual"
+    paths: []
+  execution:
+    context: "inline"
+    shell: "bash"
+  trust:
+    source_tier: "local"
+    remote_inline_execution: "forbid"
+    remote_metadata_policy: "allow-metadata-only"
+  degradation:
+    openai: "metadata-adapter"
+    claude: "neutral-source-plus-adapter"
+    generic: "neutral-source"
+    vscode: "agent-skills-source-with-vscode-notes"

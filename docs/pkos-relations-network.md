@@ -122,7 +122,7 @@ RawEntry ──commit──► FactCore ──analysis/polish──► DerivedDr
 
 ## 7. 双重身份与外部边界（网络的外沿）
 
-- **v0 兼容层**（pkos-init/-intake/-ingest/-analysis/-polish/-router/-comic/-html/-audit/-timeline 等 8+ 个）：deprecated 入口，仅映射到 v2 capability_id，新会话一律用 v2/v3 名
+- **v0 兼容层**（00-pkos-init/-intake/-ingest/-analysis/-polish/-router/-comic/-html/-audit/-timeline 等 8+ 个）：deprecated 入口，仅映射到 v2 capability_id，新会话一律用 v2/v3 名
 - **外部辅助**（不占网络节点）：gzh-design（排版美化）、khazix-writer（长文写作）、567-image-generation（出图 API 封装，其 config 明文 key 待清）、素材目录（微信公众号文章生成等）——**可读 PKOS 产物，无写权限，契约输入不得来自它们**
 
 ## 8. 一屏总结

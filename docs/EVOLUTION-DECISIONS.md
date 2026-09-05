@@ -1,7 +1,7 @@
 # PKOS v4.1 演化优化决策记录
 
 > **日期**: 2026-08-29 | **来源**: 与外部模型 Gemini 的架构评审（[对话存档](https://gemini.google.com/app/4c1498338dc32e7a)）
-> **结论**: 六条优化 1–6 全采纳；**#1 采纳折中版**（其余五条按原案）。契约权威 = `contracts/evolution-policy.md`，机器守卫 = `pkos-router/scripts/evolution_gate.py`。
+> **结论**: 六条优化 1–6 全采纳；**#1 采纳折中版**（其余五条按原案）。契约权威 = `contracts/evolution-policy.md`，机器守卫 = `08-pkos-router/scripts/evolution_gate.py`。
 
 ## 逐条裁决
 

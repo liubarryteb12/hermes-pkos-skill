@@ -1,0 +1,215 @@
+{
+  "ok": true,
+  "skill_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\10-pkos-html",
+  "summary": {
+    "scanned_files": 8,
+    "script_count": 5,
+    "internal_module_count": 0,
+    "secret_findings": 0,
+    "dependency_files": [],
+    "network_script_count": 0,
+    "network_policy_covered_count": 0,
+    "network_policy_missing_count": 0,
+    "file_write_script_count": 3,
+    "permission_required_count": 1,
+    "permission_approved_count": 0,
+    "permission_missing_count": 1,
+    "permission_invalid_count": 0,
+    "permission_expired_count": 0,
+    "help_smoke_checked_count": 3,
+    "help_smoke_failed_count": 0,
+    "interactive_script_count": 0,
+    "package_hash_scope": "source-contract-without-generated-reports",
+    "package_hash_file_count": 8,
+    "package_sha256": "a552126149000d44b56aa024ec8945a0b2198ae70446d1a17bb961051147940d"
+  },
+  "failures": [],
+  "warnings": [
+    "No dependency or lock file detected",
+    "CLI scripts without argparse/help surface: scripts\\build_themes.py, scripts\\lint_theme.py",
+    "Permission approvals missing: file_write"
+  ],
+  "secrets": [],
+  "scripts": [
+    {
+      "path": "scripts\\build_themes.py",
+      "interface": "cli",
+      "interface_declared": false,
+      "interface_reason": "Default CLI classification; add SCRIPT_INTERFACE for internal modules.",
+      "has_argparse": false,
+      "has_main_guard": true,
+      "uses_input": false,
+      "uses_network": false,
+      "uses_file_write": true,
+      "uses_subprocess": false,
+      "network_urls": [],
+      "network_hosts": []
+    },
+    {
+      "path": "scripts\\lint_theme.py",
+      "interface": "cli",
+      "interface_declared": false,
+      "interface_reason": "Default CLI classification; add SCRIPT_INTERFACE for internal modules.",
+      "has_argparse": false,
+      "has_main_guard": true,
+      "uses_input": false,
+      "uses_network": false,
+      "uses_file_write": false,
+      "uses_subprocess": false,
+      "network_urls": [],
+      "network_hosts": []
+    },
+    {
+      "path": "scripts\\render.py",
+      "interface": "cli",
+      "interface_declared": false,
+      "interface_reason": "Default CLI classification; add SCRIPT_INTERFACE for internal modules.",
+      "has_argparse": true,
+      "has_main_guard": true,
+      "uses_input": false,
+      "uses_network": false,
+      "uses_file_write": true,
+      "uses_subprocess": false,
+      "network_urls": [],
+      "network_hosts": []
+    },
+    {
+      "path": "scripts\\render_combined.py",
+      "interface": "cli",
+      "interface_declared": false,
+      "interface_reason": "Default CLI classification; add SCRIPT_INTERFACE for internal modules.",
+      "has_argparse": true,
+      "has_main_guard": true,
+      "uses_input": false,
+      "uses_network": false,
+      "uses_file_write": true,
+      "uses_subprocess": false,
+      "network_urls": [],
+      "network_hosts": []
+    },
+    {
+      "path": "scripts\\validate_output.py",
+      "interface": "cli",
+      "interface_declared": false,
+      "interface_reason": "Default CLI classification; add SCRIPT_INTERFACE for internal modules.",
+      "has_argparse": true,
+      "has_main_guard": true,
+      "uses_input": false,
+      "uses_network": false,
+      "uses_file_write": false,
+      "uses_subprocess": false,
+      "network_urls": [],
+      "network_hosts": []
+    }
+  ],
+  "dependencies": {
+    "present": [],
+    "pinned": [],
+    "unpinned": []
+  },
+  "network_policy": {
+    "present": false,
+    "path": "security/network_policy.json",
+    "schema_version": "",
+    "network_script_count": 0,
+    "covered_scripts": [],
+    "missing_scripts": [],
+    "mismatches": [],
+    "default_policy": {}
+  },
+  "help_smoke": {
+    "enabled": true,
+    "timeout_seconds": 5.0,
+    "candidate_count": 3,
+    "checked_count": 3,
+    "passed_count": 3,
+    "failed_count": 0,
+    "skipped_count": 2,
+    "failed_scripts": [],
+    "results": [
+      {
+        "path": "scripts\\render.py",
+        "command": "python3 scripts\\render.py --help",
+        "returncode": 0,
+        "timed_out": false,
+        "passed": true,
+        "has_help_text": true,
+        "stdout_excerpt": "usage: render.py [-h] --content CONTENT --theme THEME --route-id ROUTE_ID\n                 --source-id SOURCE_ID --out OUT\n\noptions:\n  -h, --help            show this help message and exit\n  --content CONTENT\n  --theme THEME\n  --route-id RO",
+        "stderr_excerpt": ""
+      },
+      {
+        "path": "scripts\\render_combined.py",
+        "command": "python3 scripts\\render_combined.py --help",
+        "returncode": 0,
+        "timed_out": false,
+        "passed": true,
+        "has_help_text": true,
+        "stdout_excerpt": "usage: render_combined.py [-h] --article ARTICLE --slides SLIDES\n                          --html-theme HTML_THEME --ppt-theme PPT_THEME\n                          --route-id ROUTE_ID --source-id SOURCE_ID --out OUT\n\noptions:\n  -h, --help   ",
+        "stderr_excerpt": ""
+      },
+      {
+        "path": "scripts\\validate_output.py",
+        "command": "python3 scripts\\validate_output.py --help",
+        "returncode": 0,
+        "timed_out": false,
+        "passed": true,
+        "has_help_text": true,
+        "stdout_excerpt": "usage: validate_output.py [-h] --sink {web-combined,web-single-file} file\n\npositional arguments:\n  file\n\noptions:\n  -h, --help            show this help message and exit\n  --sink {web-combined,web-single-file}",
+        "stderr_excerpt": ""
+      }
+    ],
+    "skipped": [
+      {
+        "path": "scripts\\build_themes.py",
+        "reason": "missing argparse/help surface"
+      },
+      {
+        "path": "scripts\\lint_theme.py",
+        "reason": "missing argparse/help surface"
+      }
+    ]
+  },
+  "permission_governance": {
+    "present": false,
+    "path": "security/permission_policy.json",
+    "schema_version": "",
+    "reviewed_at": "",
+    "required_capabilities": [
+      "file_write"
+    ],
+    "approved_capabilities": [],
+    "missing_capabilities": [
+      "file_write"
+    ],
+    "invalid_capabilities": [],
+    "expired_capabilities": [],
+    "approval_count": 0,
+    "required_count": 1,
+    "missing_count": 1,
+    "invalid_count": 0,
+    "expired_count": 0,
+    "approvals": [
+      {
+        "capability": "file_write",
+        "status": "missing",
+        "scripts": [
+          "scripts\\build_themes.py",
+          "scripts\\render.py",
+          "scripts\\render_combined.py"
+        ],
+        "validation": [
+          "approval entry is missing"
+        ]
+      }
+    ]
+  },
+  "trust_metadata": {
+    "source_tier": "local",
+    "remote_inline_execution": "forbid",
+    "remote_metadata_policy": "allow-metadata-only"
+  },
+  "artifacts": {
+    "json": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\10-pkos-html\\reports\\security_trust_report.json",
+    "markdown": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\10-pkos-html\\reports\\security_trust_report.md"
+  }
+}

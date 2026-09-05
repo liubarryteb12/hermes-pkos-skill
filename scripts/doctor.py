@@ -70,7 +70,7 @@ def main() -> int:
                 pass
         return False
     check("warn", "PKOS_IMG_API_KEY（图像出口需要）", has_key("PKOS_IMG_API_KEY"),
-          "缺失时 pkos-gptimage2use / ppt/comic 图像出口降级" if not has_key("PKOS_IMG_API_KEY") else "")
+          "缺失时 43-pkos-gptimage2use / ppt/comic 图像出口降级" if not has_key("PKOS_IMG_API_KEY") else "")
     check("warn", "HUNYUAN_API_KEY（历史 LLM 通道，Hermes 下通常不需要）", has_key("HUNYUAN_API_KEY"))
 
     # 6) 代码智能图同步（code-review-graph，可选工具；图过期则自动增量 update）

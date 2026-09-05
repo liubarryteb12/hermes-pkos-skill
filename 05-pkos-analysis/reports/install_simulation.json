@@ -1,0 +1,121 @@
+{
+  "ok": true,
+  "schema_version": "2.0",
+  "generated_at": "2026-08-25",
+  "skill_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\05-pkos-analysis",
+  "package_dir": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\05-pkos-analysis\\dist",
+  "install_root": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim5\\simulate-05-pkos-analysis",
+  "installed_skill_dir": "C:\\Users\\18765\\AppData\\Local\\Temp\\pkos-install-sim5\\simulate-05-pkos-analysis\\05-pkos-analysis",
+  "summary": {
+    "archive_present": true,
+    "archive_entry_count": 12,
+    "nested_skill_entry_count": 0,
+    "archive_extracted": true,
+    "entrypoint_loaded": true,
+    "manifest_loaded": true,
+    "interface_loaded": true,
+    "adapter_count": 1,
+    "installer_permission_enforced_count": 0,
+    "installer_permission_failure_count": 0,
+    "permission_target_count": 1,
+    "permission_capability_count": 0,
+    "install_root_is_temp": false,
+    "failure_count": 0,
+    "warning_count": 0
+  },
+  "checks": [
+    {
+      "id": "archive-present",
+      "status": "pass",
+      "detail": "Package archive exists: D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\05-pkos-analysis\\dist\\05-pkos-analysis.zip"
+    },
+    {
+      "id": "archive-safe-paths",
+      "status": "pass",
+      "detail": "Archive has no absolute or parent-traversal entries"
+    },
+    {
+      "id": "single-skill-entrypoint",
+      "status": "pass",
+      "detail": "Installed package exposes only the root SKILL.md entrypoint"
+    },
+    {
+      "id": "single-top-level",
+      "status": "pass",
+      "detail": "Archive top-level directory is 05-pkos-analysis"
+    },
+    {
+      "id": "entrypoint-load",
+      "status": "pass",
+      "detail": "Installed SKILL.md frontmatter is readable"
+    },
+    {
+      "id": "entrypoint-name",
+      "status": "pass",
+      "detail": "Installed SKILL.md name matches package directory"
+    },
+    {
+      "id": "entrypoint-description",
+      "status": "pass",
+      "detail": "Installed SKILL.md description is present"
+    },
+    {
+      "id": "manifest-load",
+      "status": "pass",
+      "detail": "Installed manifest.json is readable"
+    },
+    {
+      "id": "manifest-name",
+      "status": "pass",
+      "detail": "Installed manifest name matches package manifest"
+    },
+    {
+      "id": "manifest-version",
+      "status": "pass",
+      "detail": "Installed manifest version matches package manifest"
+    },
+    {
+      "id": "interface-load",
+      "status": "pass",
+      "detail": "Installed agents/interface.yaml is readable"
+    },
+    {
+      "id": "overview-report",
+      "status": "pass",
+      "detail": "Installed overview report is present"
+    },
+    {
+      "id": "review-studio-report",
+      "status": "pass",
+      "detail": "Installed Review Studio report is present"
+    },
+    {
+      "id": "adapter-generic",
+      "status": "pass",
+      "detail": "generic adapter is readable after package install simulation"
+    },
+    {
+      "id": "adapter-generic-name",
+      "status": "pass",
+      "detail": "generic adapter name matches package manifest"
+    },
+    {
+      "id": "permission-policy-load",
+      "status": "pass",
+      "detail": "Installed permission policy is readable"
+    },
+    {
+      "id": "permission-generic-contract",
+      "status": "pass",
+      "detail": "generic adapter exposes target permission contract for installer enforcement"
+    }
+  ],
+  "failures": [],
+  "warnings": [],
+  "artifacts": {
+    "archive": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\05-pkos-analysis\\dist\\05-pkos-analysis.zip",
+    "package_manifest": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\05-pkos-analysis\\dist\\manifest.json",
+    "json": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\05-pkos-analysis\\reports\\install_simulation.json",
+    "markdown": "D:\\deepseekharness\\workspace\\skills\\personal-knowledge-os\\05-pkos-analysis\\reports\\install_simulation.md"
+  }
+}

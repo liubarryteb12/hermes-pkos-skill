@@ -1,6 +1,6 @@
 """v3.3 断言 B: Router 合法性矩阵机器验证 (tests/router_matrix.py)
 
-矩阵来自 pkos-router/SKILL.md v3.3 Compatibility Matrix（v4.5.0 起 11 合法 / 30 全组合）。
+矩阵来自 08-pkos-router/SKILL.md v3.3 Compatibility Matrix（v4.5.0 起 11 合法 / 30 全组合）。
 非法组合必须被 ROUTER_MATRIX.is_legal 拦截 → unavailable + 决策单。
 """
 from __future__ import annotations
@@ -8,7 +8,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# v3.3 Compatibility Matrix（与 pkos-router/SKILL.md 保持同步）
+# v3.3 Compatibility Matrix（与 08-pkos-router/SKILL.md 保持同步）
 # v4.5.0: 新增 article 第五出口槽位（pkos.exit.wenzhang.compose，承接 公众号文章）
 ROUTER_MATRIX: dict[str, set[str]] = {
     "html": {"wiki百科条目", "实战操作指南", "避坑风险清单", "学习路径"},

@@ -14,17 +14,17 @@ MAIN = Path("D:/00.AIagent/pkos/skills/personal-knowledge-os")
 # 核心文件映射（主包 → 主库）
 CORE_FILES = [
     "pipeline/registry.json",
-    "pkos-knowledge-service-commit/scripts/commit.py",
-    "pkos-knowledge-service-commit/scripts/pkos_kb/catalog.py",
-    "pkos-knowledge-service-commit/scripts/pkos_kb/migrate.py",
-    "pkos-knowledge-service-commit/scripts/pkos_kb/parser.py",
-    "pkos-knowledge-service-commit/scripts/pkos_kb/thread.py",
-    "pkos-knowledge-service-commit/scripts/trash_gc.py",
-    "pkos-knowledge-service-commit/scripts/probe_frontmatter.py",
-    "pkos-knowledge-service-commit/scripts/probe_links.py",
-    "pkos-knowledge-service-commit/scripts/probe_concurrency.py",
-    "pkos-knowledge-service-commit/scripts/probe_p2.py",
-    "pkos-knowledge-service-commit/scripts/probe_trash_gc.py",
+    "04-pkos-knowledge-service-commit/scripts/commit.py",
+    "04-pkos-knowledge-service-commit/scripts/pkos_kb/catalog.py",
+    "04-pkos-knowledge-service-commit/scripts/pkos_kb/migrate.py",
+    "04-pkos-knowledge-service-commit/scripts/pkos_kb/parser.py",
+    "04-pkos-knowledge-service-commit/scripts/pkos_kb/thread.py",
+    "04-pkos-knowledge-service-commit/scripts/trash_gc.py",
+    "04-pkos-knowledge-service-commit/scripts/probe_frontmatter.py",
+    "04-pkos-knowledge-service-commit/scripts/probe_links.py",
+    "04-pkos-knowledge-service-commit/scripts/probe_concurrency.py",
+    "04-pkos-knowledge-service-commit/scripts/probe_p2.py",
+    "04-pkos-knowledge-service-commit/scripts/probe_trash_gc.py",
 ]
 
 def sha(path):
@@ -46,7 +46,7 @@ def main():
         if s != d:
             diffs.append(f"  ≠ {rel} ({s} vs {d})")
     # 目录级对比
-    for label, src_d, dst_d in [("pkos_kb", LIVE/"pkos-knowledge-service-commit/scripts/pkos_kb", MAIN/"pkos-knowledge-service-commit/scripts/pkos_kb")]:
+    for label, src_d, dst_d in [("pkos_kb", LIVE/"04-pkos-knowledge-service-commit/scripts/pkos_kb", MAIN/"04-pkos-knowledge-service-commit/scripts/pkos_kb")]:
         if src_d.exists() and dst_d.exists():
             s_files = {f.name: sha(f) for f in src_d.rglob("*") if f.is_file()}
             d_files = {f.name: sha(f) for f in dst_d.rglob("*") if f.is_file()}

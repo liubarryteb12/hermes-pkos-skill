@@ -19,7 +19,7 @@
 | 169 三态用例零执行器 | 只有 `tests/run_tests.py`（validate_entry 13 项）能跑 | "全绿"是说法不是实测 |
 | round-1 快照缺失 | round-2~15 齐全，round-1 缺 | 快照链断在最关键基线轮 |
 | registry v2_migration_progress 字段过时 | 停在 round 1/10 / migrated 1 | 元数据失真 |
-| pkos-audit / pkos-timeline 未 v2 契约化 | 仍是 v0 SKILL.md，与 pkos.audit.lint 并存 | 契约覆盖不一致 |
+| 25-pkos-audit / 24-pkos-timeline 未 v2 契约化 | 仍是 v0 SKILL.md，与 pkos.audit.lint 并存 | 契约覆盖不一致 |
 | .staging/ 6 个调试脚本残留 | check_ticket03 / debug_audit / triple_run 等 | 工作区未净身 |
 
 **核心论点**：v2 的设计哲学是"语义契约 + 由 host/agent 按契约执行"——LLM 类能力（fanout/query）确实不需要写死脚本（写死反而违背"能力抽象"），但机械类高频率能力（index/commit/lint）值得补脚本。三方分工：
@@ -36,8 +36,8 @@
 |---|---|---|
 | 0.1 | 补 round-1 snapshot | 派生自 `_baseline-v0/pkos-init-SKILL.md` + 轮 1 实际产物，落到 `_PKOS/_snapshots/round-1/` |
 | 0.2 | 修正 `v2_migration_progress` | 改成 `{total_target_capabilities: 13, migrated_count: 13, round: "15/15", last_updated: "2026-08-27"}` |
-| 0.3 | pkos-audit v2 化 | `pkos-audit/SKILL.md` 加 C-1~C-6 + 失败三态契约（不重写 v0 行为）；registry 新增 `pkos.governance.audit` 条目 + pkos-audit 标 deprecated；**audit.lint 关系**：audit.lint 是 audit 的"扩展执行器"（supersede 关系不变） |
-| 0.4 | pkos-timeline v2 化 | `pkos-timeline/SKILL.md` 加 C-1~C-6 + 失败三态契约；registry 新增 `pkos.maintenance.timeline` + pkos-timeline 标 deprecated |
+| 0.3 | 25-pkos-audit v2 化 | `25-pkos-audit/SKILL.md` 加 C-1~C-6 + 失败三态契约（不重写 v0 行为）；registry 新增 `pkos.governance.audit` 条目 + 25-pkos-audit 标 deprecated；**audit.lint 关系**：audit.lint 是 audit 的"扩展执行器"（supersede 关系不变） |
+| 0.4 | 24-pkos-timeline v2 化 | `24-pkos-timeline/SKILL.md` 加 C-1~C-6 + 失败三态契约；registry 新增 `pkos.maintenance.timeline` + 24-pkos-timeline 标 deprecated |
 | 0.5 | .staging/ 归档 | 6 个 v0 调试脚本移到 `_PKOS/_archive/staging-2026-08-27/`，不直接删（保留可回溯） |
 
 **输出**：14→15 snapshot、registry 字段一致、5 个 v0 unit 全部有 v2 归宿（11→5 deprecated，3 个 v0 已迁+新 audit/timeline 收口）、staging 清空。
@@ -50,9 +50,9 @@
 
 | 能力 | 脚本 | 入口 | 关键设计 |
 |---|---|---|---|
-| `pkos.maintenance.index` | `pkos-maintenance-index/scripts/index.py` | `python -m scripts.index <vault> --out _PKOS/` | 扫库解析 front matter → MASTER_INDEX.md + .json；支持 incremental |
-| `pkos.knowledge_service.commit` | `pkos-knowledge-service-commit/scripts/commit.py` | `python -m scripts.commit <path> --from triaged --to analyzed` | atomic 写 front matter（备份→改→验证）；rollback token 入审计；B1 gate_1 拦下 status 倒退 |
-| `pkos.audit.lint` | `pkos-audit-lint/scripts/lint.py` | `python -m scripts.lint <vault> --mode auto-fix --rules fm-missing,status-machine,tag-coverage` | 4 类可修 + 4 类只报告（dangling/orphan/cross-domain/status-retrograde-blocked） |
+| `pkos.maintenance.index` | `21-pkos-maintenance-index/scripts/index.py` | `python -m scripts.index <vault> --out _PKOS/` | 扫库解析 front matter → MASTER_INDEX.md + .json；支持 incremental |
+| `pkos.knowledge_service.commit` | `04-pkos-knowledge-service-commit/scripts/commit.py` | `python -m scripts.commit <path> --from triaged --to analyzed` | atomic 写 front matter（备份→改→验证）；rollback token 入审计；B1 gate_1 拦下 status 倒退 |
+| `pkos.audit.lint` | `22-pkos-audit-lint/scripts/lint.py` | `python -m scripts.lint <vault> --mode auto-fix --rules fm-missing,status-machine,tag-coverage` | 4 类可修 + 4 类只报告（dangling/orphan/cross-domain/status-retrograde-blocked） |
 
 **约束**：
 - 脚本必须**零外部依赖**（除 Python 3.10+ 标准库），延续 `tests/run_tests.py` / `validate_entry.py` 风格
@@ -62,7 +62,7 @@
 
 ### 2.2 LLM 类能力修订 SKILL.md 执行提示
 
-- `pkos-fanout-concept/SKILL.md`：新增 **"执行提示"** 段——host/agent 会话内如何按 6 扇出方向调 LLM（按 provider-policy）、如何读 MASTER_INDEX.json 找关联、如何保证扇出草稿不自动 commit
+- `23-pkos-fanout-concept/SKILL.md`：新增 **"执行提示"** 段——host/agent 会话内如何按 6 扇出方向调 LLM（按 provider-policy）、如何读 MASTER_INDEX.json 找关联、如何保证扇出草稿不自动 commit
 - `pkos-intake-query/SKILL.md`：新增 **"执行提示"** 段——问答 + 索引检索 + 引用源生成、不自动 ingest 的强约束写法
 
 ### 2.3 三态用例 runner
@@ -130,8 +130,8 @@
 
 - [ ] 0.1 补 round-1 snapshot（15/15）
 - [ ] 0.2 修正 v2_migration_progress
-- [ ] 0.3 pkos-audit v2 化
-- [ ] 0.4 pkos-timeline v2 化
+- [ ] 0.3 25-pkos-audit v2 化
+- [ ] 0.4 24-pkos-timeline v2 化
 - [ ] 0.5 .staging/ 归档
 - [ ] 1.1a index.py 写完 + 跑通真库
 - [ ] 1.1b commit.py 写完 + atomic 验证
@@ -145,7 +145,7 @@
 
 ## 7. 已知遗留 / 暂不做
 
-- `pkos-meta`（infra_non_units，无 SKILL.md）—— 是否补文档？**暂不做**（元治理设施结构上属"非能力"类）
-- `pkos-timeline/SKILL.md` 与 `pkos.audit.lint` 的关系——audit.lint 产报告 / timeline 读报告，**未明确数据契约**，等梯次 2 e2e 验证
+- `30-pkos-meta`（infra_non_units，无 SKILL.md）—— 是否补文档？**暂不做**（元治理设施结构上属"非能力"类）
+- `24-pkos-timeline/SKILL.md` 与 `pkos.audit.lint` 的关系——audit.lint 产报告 / timeline 读报告，**未明确数据契约**，等梯次 2 e2e 验证
 - v0 `scripts/audit.py` 与 v2 `pkos.audit.lint` 关系——v0 脚本 = 只读测量，v2 lint = 测量 + auto-fix；脚本归属待 0.3 厘清
 - 169 用例中 fanout/query/intake.scan 等 LLM 类的"全绿"——受模型影响，不强求稳态绿

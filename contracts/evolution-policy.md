@@ -3,7 +3,7 @@
 > **版本**: pkos-evolution 1.0（v4.1 新建）| **状态**: 锁死词表 + 增量扩展
 > **读者**: 演化机制实现方（索引维护 / 工作流合成 / 验证分级 / 自迭代权重）、`pkos.maintenance.index`、`pkos.weak_check.verify`、人工运维
 > **关联契约**: `policy-engine.md`（VerificationPolicy / FallbackPolicy 消费本契约）· `artifact-integrity-policy.md`（完整性双门）· `knowledge-object-model.md`（四态类型系统）
-> **机器守卫**: `pkos-router/scripts/evolution_gate.py`（§3/§4/§5/§7）
+> **机器守卫**: `08-pkos-router/scripts/evolution_gate.py`（§3/§4/§5/§7）
 > **来源**: 2026-08-29 与外部模型（Gemini）架构评审后采纳的 6 项优化（1–6 全采纳，#1 为折中版）
 
 ## 为什么有这份契约
@@ -27,7 +27,7 @@ v4.0 的演化机制（索引对账、提案确权、交叉验证、DAG 执行�
 
 - **配置**（`_PKOS/config/evolution_policy.json`，缺省时用本表默认值）：`index_reconcile_cadence_days`（默认 7）、`mtime_probe_enabled`（默认 true）。
 - **幽灵节点自愈顺序不变**：任何一层发现 404 节点 → 从索引移除 + emit `index.reconcile` 事件；commit 闸门的物理验真仍是最后防线。
-- `pkos-maintenance-index` 的增量失败降级全量语义**不变**；本契约只新增 L2 探测层与 L3 节奏。
+- `21-pkos-maintenance-index` 的增量失败降级全量语义**不变**；本契约只新增 L2 探测层与 L3 节奏。
 
 ## 2. 提案确权 Git 语义（优化 #2）
 
@@ -99,11 +99,11 @@ trigger_event: "<telemetry 事件引用>"
 ## 7. 机器守卫（evolution_gate.py）
 
 ```
-python pkos-router/scripts/evolution_gate.py --tier fact_dense                 # §3 分级词表 → 验证要求片段
-python pkos-router/scripts/evolution_gate.py --check-synthesis cooccurrence.json --pair A,B   # §5 双重门判定
-python pkos-router/scripts/evolution_gate.py --expand workflow.yaml --out cache.json           # §4 静态展开（含环检测）
-python pkos-router/scripts/evolution_gate.py --validate-audit audit.jsonl                      # §6 审计行完整性
-python pkos-router/scripts/evolution_gate.py --selftest                        # 全部正/负用例（纯内存，不写盘）
+python 08-pkos-router/scripts/evolution_gate.py --tier fact_dense                 # §3 分级词表 → 验证要求片段
+python 08-pkos-router/scripts/evolution_gate.py --check-synthesis cooccurrence.json --pair A,B   # §5 双重门判定
+python 08-pkos-router/scripts/evolution_gate.py --expand workflow.yaml --out cache.json           # §4 静态展开（含环检测）
+python 08-pkos-router/scripts/evolution_gate.py --validate-audit audit.jsonl                      # §6 审计行完整性
+python 08-pkos-router/scripts/evolution_gate.py --selftest                        # 全部正/负用例（纯内存，不写盘）
 ```
 
 - 失败语义继承 P-07：stdout JSON `{rejected: true, reason, v2_failure_mode}`，exit 2；用法错误 exit 4；selftest 有失败 exit 1。

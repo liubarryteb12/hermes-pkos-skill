@@ -117,7 +117,7 @@ def main() -> int:
         f.write_text(out, encoding="utf-8")
         print(f"[proposal saved] {f}", file=sys.stderr)
         try:
-            sys.path.insert(0, str(ROOT / "pkos-html" / "scripts"))
+            sys.path.insert(0, str(ROOT / "10-pkos-html" / "scripts"))
             import pkos_v31_lib as lib
             lib.emit("pkos.governance.tick", "degradation.proposal", proposals=len(proposals))
         except Exception:  # noqa: BLE001

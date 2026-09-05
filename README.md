@@ -109,13 +109,13 @@ python scripts/registry_schema_check.py   # 应输出 PASS (29 单元, 0 警告)
 
 ```bash
 # 体检（全部只读，跑不坏）
-python pkos-meta/scripts/tick.py --json              # 心跳巡检
-python pkos-audit-lint/scripts/lint.py --vault "你的库路径" --mode report-only
-python pkos-maintenance-index/scripts/index.py --vault "你的库路径" --json
-python pkos-knowledge-service-commit/scripts/verify_after.py   # 引擎终检
+python 30-pkos-meta/scripts/tick.py --json              # 心跳巡检
+python 22-pkos-audit-lint/scripts/lint.py --vault "你的库路径" --mode report-only
+python 21-pkos-maintenance-index/scripts/index.py --vault "你的库路径" --json
+python 04-pkos-knowledge-service-commit/scripts/verify_after.py   # 引擎终检
 
 # 垃圾桶报告（绝不直接删）
-python pkos-knowledge-service-commit/scripts/trash_gc.py --report
+python 04-pkos-knowledge-service-commit/scripts/trash_gc.py --report
 ```
 
 ---
@@ -233,7 +233,7 @@ hermes-pkos-skill/
 ├── pipeline/registry.json    ← 单元注册表（29 units, schema 校验守护）
 ├── contracts/                ← 权威契约（词表/路由/通道政策/失败分类）
 ├── pkos-*/                   ← 29 个单元，每个有自己的 SKILL.md
-├── pkos-knowledge-service-commit/
+├── 04-pkos-knowledge-service-commit/
 │   └── scripts/
 │       ├── pkos_kb/          ← 知识库引擎（SQLite WAL 单写者）
 │       ├── pkos_kb_tests/    ← 158 项回归 + 6 探针固化

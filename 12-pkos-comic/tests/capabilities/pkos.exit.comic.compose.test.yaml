@@ -1,0 +1,262 @@
+schema: pkos-capability-test:1
+capability_id: pkos.exit.comic.compose
+version: 1.1.0
+target_skill: 12-pkos-comic
+description: |
+  pkos.exit.comic.compose 失败三态 + 成功路径测试 (v3.2 错误码枚举版)。
+  共 15 用例:6 not_found + 5 ambiguous + 3 unavailable + 1 degraded_success。
+  评审 round-25 通过:failures.evidence 字符串升级为结构化 error_code。
+
+# ============================================================
+# 失败三态: not_found (业务事实: 路由单/承接子集不合法)
+# ============================================================
+
+- id: TC-COMIC-NF-01
+  name: "路由单 exit 不是 comic"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-001.yaml"   # 假设该 RT 的 exit=html
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+  expect:
+    failure_mode: not_found
+    error_code: "ERR_ROUTE_EXIT_NOT_COMIC"
+
+- id: TC-COMIC-NF-02
+  name: "conversion_type 不是'公众号漫画'"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-002.yaml"   # 假设该 RT 的 conversion_type=公众号小说
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+  expect:
+    failure_mode: not_found
+    error_code: "ERR_ROUTE_CONVERSION_NOT_PUBLIC_ACCOUNT_COMIC"
+
+- id: TC-COMIC-NF-03
+  name: "源条目 status 早于 polished"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-003.yaml"   # exit=comic, conversion_type=公众号漫画
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md" # status=analyzed 而非 polished
+  expect:
+    failure_mode: not_found
+    error_code: "ERR_SOURCE_NOT_POLISHED"
+
+- id: TC-COMIC-NF-04
+  name: "源 POL-* 路径不可达"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-004.yaml"   # 引用 POL-X 不存在
+    source_entry: "_PKOS/analysis/POL-2026-08-28-nonexistent.md"
+  expect:
+    failure_mode: not_found
+    error_code: "ERR_SOURCE_PATH_UNREACHABLE"
+
+- id: TC-COMIC-NF-05
+  name: "art_style 越出四值词表"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-005.yaml"
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+    options:
+      art_style: "shoujo"   # 越出 healing/flat_tech/comic_strip/retro_comic
+  expect:
+    failure_mode: not_found
+    error_code: "ERR_ART_STYLE_OUT_OF_VOCAB"
+
+- id: TC-COMIC-NF-06
+  name: "出网页版(混装锁死)"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-006.yaml"
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+    options:
+      extra_exit: "html"   # v0 锁死:不混装
+  expect:
+    failure_mode: not_found
+    error_code: "ERR_MIXED_EXIT_FORBIDDEN"
+
+# ============================================================
+# 失败三态: ambiguous (语义阻断: 必问项未确认)
+# ============================================================
+
+- id: TC-COMIC-AM-01
+  name: "art_style 未问"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-007.yaml"
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+    options:
+      art_style: null
+  expect:
+    failure_mode: ambiguous
+    error_code: "ERR_ART_STYLE_UNCONFIRMED"
+    decision_card_contains: "healing"
+    decision_card_contains: "flat_tech"
+    decision_card_contains: "comic_strip"
+    decision_card_contains: "retro_comic"
+
+- id: TC-COMIC-AM-02
+  name: "grid 未问"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-008.yaml"
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+    options:
+      art_style: "healing"
+      grid: null
+  expect:
+    failure_mode: ambiguous
+    error_code: "ERR_GRID_UNCONFIRMED"
+    decision_card_contains: "4-grid"
+    decision_card_contains: "6-grid"
+
+- id: TC-COMIC-AM-03
+  name: "人物清单缺失"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-009.yaml"
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+    options:
+      art_style: "healing"
+      grid: "6-grid"
+      characters: null
+  expect:
+    failure_mode: ambiguous
+    error_code: "ERR_CHARACTERS_MISSING"
+    decision_card_contains: "identity"
+    decision_card_contains: "visual_features"
+
+- id: TC-COMIC-AM-04
+  name: "故事大纲缺失"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-010.yaml"
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+    options:
+      art_style: "healing"
+      grid: "6-grid"
+      characters: [{ id: "char_01", name: "小满", visual_features: "齐耳短发,奶白针织衫" }]
+      plot_outline: null
+  expect:
+    failure_mode: ambiguous
+    error_code: "ERR_PLOT_OUTLINE_MISSING"
+    decision_card_contains: "起承转合"
+
+- id: TC-COMIC-AM-05
+  name: "一次问完所有 ambiguous 项"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-011.yaml"
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+    options: {}   # 全部未给
+  expect:
+    failure_mode: ambiguous
+    decision_card_min_items: 5   # art_style + grid + characters + plot_outline + chinese_text 同时在 decision card
+    error_codes_all_in_decision_card: [
+      "ERR_ART_STYLE_UNCONFIRMED",
+      "ERR_GRID_UNCONFIRMED",
+      "ERR_CHARACTERS_MISSING",
+      "ERR_PLOT_OUTLINE_MISSING"
+    ]
+
+# ============================================================
+# 失败三态: unavailable (系统故障: provider/技术不可达)
+# ============================================================
+
+- id: TC-COMIC-UN-01
+  name: "中文对白超 12 字"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-012.yaml"
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+    options:
+      art_style: "healing"
+      grid: "6-grid"
+      characters: [{ id: "char_01", name: "小满" }]
+      plot_outline: "起:加班 承:便利店 转:偶遇 合:释怀"
+      chinese_text: true
+      dialogues: ["今晚我想再多待一会儿,因为外面下着雨。"]   # 17 字,超 12
+  expect:
+    failure_mode: unavailable
+    error_code: "ERR_TEXT_OVERFLOW_12"
+
+- id: TC-COMIC-UN-02
+  name: "manifest 缺必填键"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-013.yaml"
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+    options:
+      art_style: "healing"
+      grid: "6-grid"
+      characters: [{ id: "char_01", name: "小满" }]
+      plot_outline: "起:加班 承:便利店 转:偶遇 合:释怀"
+    inject_missing_field: "chinese_text"   # 故意缺这个键
+  expect:
+    failure_mode: unavailable
+    error_code: "ERR_MANIFEST_MISSING_KEY"
+    evidence_contains: "chinese_text"
+
+- id: TC-COMIC-UN-03
+  name: "同一人物跨 panel anchor 不一致"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-014.yaml"
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+    options:
+      art_style: "healing"
+      grid: "6-grid"
+      characters: [{ id: "char_01", name: "小满", character_id: "01_主角_小满" }]
+      plot_outline: "起:加班 承:便利店 转:偶遇 合:释怀"
+    inject_inconsistency: "char_01_panel_3_anchor_changed"   # 模拟锚定漂移
+  expect:
+    failure_mode: unavailable
+    error_code: "ERR_ANCHOR_MISMATCH"
+
+# ============================================================
+# 退化成功: degraded_success (v0 兜底不编造)
+# ============================================================
+
+- id: TC-COMIC-DS-01
+  name: "出图渠道不可用 + 脚本已交付"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-015.yaml"
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+    options:
+      art_style: "healing"
+      grid: "6-grid"
+      characters: [{ id: "char_01", name: "小满", character_id: "01_主角_小满" }]
+      plot_outline: "起:加班 承:便利店 转:偶遇 合:释怀"
+    provider_unavailable: true
+  expect:
+    failure_mode: null   # 不算 failure
+    manifest_degraded: true
+    script_exists: true
+    placeholders: true
+    success_predicate:
+      - "脚本文件存在且非空"
+      - "manifest.degraded=true"
+      - "PLACEHOLDER.md 存在"
+      - "prompts/ 目录存在"
+
+# ============================================================
+# 成功路径
+# ============================================================
+
+- id: TC-COMIC-OK-01
+  name: "全 happy path (含 v3.2 style_adapter)"
+  arrange:
+    route_artifact: "_PKOS/routes/RT-20260828-016.yaml"
+    source_entry: "_PKOS/analysis/POL-2026-08-28-test.md"
+    options:
+      art_style: "healing"
+      grid: "6-grid"
+      cover: "16:9"
+      chinese_text: true
+      style_adapter: "comic_storyboard"   # v3.2 增量
+      characters:
+        - { id: "char_01", name: "小满", identity: "25岁广告文案", visual_features: "齐耳短发,奶白针织衫,深灰西裤", character_id: "01_主角_小满" }
+        - { id: "char_02", name: "阿鹿", identity: "26岁设计师", visual_features: "低马尾,酒红挑染", character_id: "02_同事_阿鹿" }
+      plot_outline: |
+        起:晚上 11:30, 小满加完班走出写字楼, 进便利店
+        承:店里暖光/关东煮, 疲惫卸下
+        转:意外看到阿鹿和周姐也在
+        合:三人喝完出门, 小满释怀
+  expect:
+    failure_mode: null
+    manifest_art_style: "healing"
+    manifest_grid: "6-grid"
+    manifest_chinese_text: true
+    manifest_style_adapter: "comic_storyboard"   # v3.2 字段存在
+    manifest_panels_count: 7   # 6 宫 + 1 封面
+    manifest_characters_anchor_consistent: true   # v3.2 增量:人物锚定一致
+    script_contains: "【全篇对白】"
+    script_contains: "角色锚定"
+    script_contains: "完整一键出图 Prompt"
+    script_contains: "风格调: comic_storyboard"   # v3.2 增量:风格调标记

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """hermes-pkos-skill 升级守卫（upgrade_check）—— PKOS 进阶计划的机器验收面。
 
 五维体检（对应 references/upgrade-plan.md §六）：
@@ -24,17 +24,17 @@ MAIN_REPO = Path(r"D:\00.AIagent\pkos\skills\personal-knowledge-os")
 REGISTRY = SKILL_ROOT / "pipeline" / "registry.json"
 
 EXPECT_UNITS = 29  # 清理后 29 唯一单元
-EXPECT_ALIAS = 1  # 2026-09-05: pkos.gemini.video 实测转正解除 deprecated，仅剩 pkos-init
+EXPECT_ALIAS = 1  # 2026-09-05: pkos.gemini.video 实测转正解除 deprecated，仅剩 00-pkos-init
 LEGACY_RE = re.compile(r"D:[\\/]{1,2}00\.AIagent|deepseekharness", re.I)
 # 守卫作用域：这些目录下的代码/配置文件；其中账本 registry.json 除外（历史记录）
-GUARD_DIRS = ["pkos-intake", "pkos-intake-query", "pkos-ingest", "pkos-knowledge-service-commit",
-              "pkos-analysis", "pkos-polish", "pkos-router", "pkos-weak-check",
-              "pkos-html", "pkos-ppt-skill", "pkos-comic", "pkos-gzhxiaoshuo-skill",
-              "pkos-wenzhang-skill",
-              "pkos-gptimage2use", "pkos-timeline", "pkos-maintenance-index",
-              "pkos-audit", "pkos-audit-lint", "pkos-init", "pkos-fanout-concept",
-              "pkos-meta", "pkos-skillopt", "pkos-operator",
-              "pkos-gemini-chat", "pkos-gemini-image", "pkos-gemini-video",
+GUARD_DIRS = ["01-pkos-intake", "pkos-intake-query", "03-pkos-ingest", "04-pkos-knowledge-service-commit",
+              "05-pkos-analysis", "06-pkos-polish", "08-pkos-router", "07-pkos-weak-check",
+              "10-pkos-html", "11-pkos-ppt-skill", "12-pkos-comic", "14-pkos-gzhxiaoshuo-skill",
+              "13-pkos-wenzhang-skill",
+              "43-pkos-gptimage2use", "24-pkos-timeline", "21-pkos-maintenance-index",
+              "25-pkos-audit", "22-pkos-audit-lint", "00-pkos-init", "23-pkos-fanout-concept",
+              "30-pkos-meta", "32-pkos-skillopt", "31-pkos-operator",
+              "40-pkos-gemini-chat", "41-pkos-gemini-image", "42-pkos-gemini-video",
               "contracts", "tests"]
 CODE_EXTS = {".py", ".json", ".yaml", ".yml"}
 
@@ -66,7 +66,7 @@ def main() -> int:
         head(False, "registry 账本可读", str(e)[:100])
 
     # 2) v4 声明覆盖率
-    unit_dirs = sorted(d for d in SKILL_ROOT.glob("pkos-*") if (d / "SKILL.md").is_file())
+    unit_dirs = sorted({d.name: d for pat in ("[0-9][0-9]-pkos-*", "pkos-*") for d in SKILL_ROOT.glob(pat) if (d / "SKILL.md").is_file()}.values())
     declared = [d.name for d in unit_dirs if "required_capability" in (d / "SKILL.md").read_text(encoding="utf-8-sig", errors="ignore")]
     head(len(unit_dirs) >= 21, f">=21 个单元 SKILL.md", f"实际 {len(unit_dirs)}")
     print(f"        v4 required_capability 覆盖: {len(declared)}/{len(unit_dirs)}（U3 铺开中只增不减）{(' → ' + ', '.join(declared)) if declared else ''}")
@@ -134,7 +134,7 @@ head(_r.returncode == 0, 'registry schema 校验', _r.stdout.strip().split('\n')
 # [性能透明度] 本机相对参考机倍率（>5x = 绝对规格大概率不达标）
 try:
     import sys
-    sys.path.insert(0, str(SKILL_ROOT/"pkos-knowledge-service-commit/scripts/pkos_kb_tests"))
+    sys.path.insert(0, str(SKILL_ROOT/"04-pkos-knowledge-service-commit/scripts/pkos_kb_tests"))
     from conftest import perf_budget
     print(f"[PERF] 本机慢 {perf_budget():.1f}x" + ("（绝对规格可能不达标）" if perf_budget() > 5 else ""))
 except Exception:

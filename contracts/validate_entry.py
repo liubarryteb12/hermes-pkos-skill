@@ -303,9 +303,9 @@ def validate_entry(path: str) -> Report:
     elif isinstance(ver, bool) or not isinstance(ver, int) or ver < 1:
         rep.err("schema-version", f"pkos-schema 应为正整数，得到 {ver!r}")
 
-    ana = fm.get("pkos-analysis")
+    ana = fm.get("05-pkos-analysis")
     if ana is not None and not isinstance(ana, str):
-        rep.err("pkos-analysis-type", "pkos-analysis 应为字符串（wikilink）")
+        rep.err("pkos-analysis-type", "05-pkos-analysis 应为字符串（wikilink）")
 
     outs = fm.get("pkos-outputs")
     if outs is not None and not isinstance(outs, list):

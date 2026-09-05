@@ -27,7 +27,7 @@
 | `domain` | slug | `^[a-z0-9][a-z0-9-]*$`，受控开放（对应十大 L1 MOC） | 缺失 WARN |
 | `capture-method` | enum | `clipper\|reader\|browser\|manual\|file` | 缺失 INFO |
 | `pkos-schema` | int ≥1 | 契约版本号 | 缺失 INFO |
-| `pkos-analysis` | string | 分析产物 wikilink | 可选 |
+| `05-pkos-analysis` | string | 分析产物 wikilink | 可选 |
 | `pkos-outputs` | list | 产出物路径清单 | `status: published` 时**必须非空**，否则 ERROR |
 | `pkos-feedback` | map | `rating`: null 或 1–5；`note`: string | rating 越界 ERROR |
 

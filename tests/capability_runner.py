@@ -37,14 +37,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TEST_FILE_MAP = {
-    "pkos.maintenance.index": ROOT / "pkos-maintenance-index" / "tests" / "capabilities" / "pkos.maintenance.index.test.yaml",
-    "pkos.knowledge_service.commit": ROOT / "pkos-knowledge-service-commit" / "tests" / "capabilities" / "pkos.knowledge_service.commit.test.yaml",
-    "pkos.audit.lint": ROOT / "pkos-audit-lint" / "tests" / "capabilities" / "pkos.audit.lint.test.yaml",
+    "pkos.maintenance.index": ROOT / "21-pkos-maintenance-index" / "tests" / "capabilities" / "pkos.maintenance.index.test.yaml",
+    "pkos.knowledge_service.commit": ROOT / "04-pkos-knowledge-service-commit" / "tests" / "capabilities" / "pkos.knowledge_service.commit.test.yaml",
+    "pkos.audit.lint": ROOT / "22-pkos-audit-lint" / "tests" / "capabilities" / "pkos.audit.lint.test.yaml",
 }
 SCRIPT_MAP = {
-    "pkos.maintenance.index": ROOT / "pkos-maintenance-index" / "scripts" / "index.py",
-    "pkos.knowledge_service.commit": ROOT / "pkos-knowledge-service-commit" / "scripts" / "commit.py",
-    "pkos.audit.lint": ROOT / "pkos-audit-lint" / "scripts" / "lint.py",
+    "pkos.maintenance.index": ROOT / "21-pkos-maintenance-index" / "scripts" / "index.py",
+    "pkos.knowledge_service.commit": ROOT / "04-pkos-knowledge-service-commit" / "scripts" / "commit.py",
+    "pkos.audit.lint": ROOT / "22-pkos-audit-lint" / "scripts" / "lint.py",
 }
 ALIASES = {"已作答": "analyzed", "待作答": "triaged"}
 

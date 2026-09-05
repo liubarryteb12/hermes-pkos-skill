@@ -1,0 +1,21 @@
+{
+  "name": "14-pkos-gzhxiaoshuo-skill",
+  "version": "1.0.0",
+  "owner": "PKOS Maintainers",
+  "updated_at": "2026-08-28",
+  "review_due": "2026-11-26",
+  "status": "active",
+  "maturity_tier": "prototype",
+  "lifecycle_stage": "prototype",
+  "context_budget_tier": "medium",
+  "review_cadence": "quarterly",
+  "target_platforms": [
+    "openai",
+    "claude",
+    "generic",
+    "agent-skills-compatible"
+  ],
+  "capability_id": "pkos.exit.gzhxiaoshuo.compose",
+  "compatible_pkos_schema": ">=3.1.0",
+  "semantic_goal": "消费 RT-* (exit=novel + conversion_type=小说/公众号小说) + 源 POL-* 条目，产出结构化小说章节（元数据层 + 场景分镜层 + 实体网络），兼顾文学叙事与下游多模态复用（comic/video-script/html-canvas）"
+}

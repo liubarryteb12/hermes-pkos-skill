@@ -24,84 +24,84 @@ default_fallback: meta_auditor   # 路由单未声明 required_persona → null 
 nodes:
   - id: intake-triage
     stage: intake
-    unit: pkos-intake
+    unit: 01-pkos-intake
     actor: "script(intake_tools.py)"
     critic: archivist          # 仅歧义项需 LLM probe 时拼头
     gate: "probe/triage exit code + dedup-key(sha256)"
 
   - id: ingest-extract
     stage: process
-    unit: pkos-ingest
+    unit: 03-pkos-ingest
     actor: "script(ingest_tools.py / file_extract.py)"
     critic: null               # 纯门禁节点，不人格化
     gate: "validate_entry.py exit 0（schema 校验）"
 
   - id: knowledge-commit
     stage: knowledge_service
-    unit: pkos-knowledge-service-commit
+    unit: 04-pkos-knowledge-service-commit
     actor: "script(commit.py)  # vault 唯一写入口 D-6"
     critic: null
     gate: "单点裁决 + status forward-only 状态机"
 
   - id: analysis-structure
     stage: process
-    unit: pkos-analysis
+    unit: 05-pkos-analysis
     actor: "单元自声明（产出层五 persona，LLM 轮）"
     critic: evidence_auditor   # v4.8 新词表值：证据归因审查（发现表可回溯 / OKF Phase2 句级归因）
     gate: none                 # LLM 层，无确定性 gate；发现表打回即 critic 的裁决产物
 
   - id: polish-refine
     stage: process
-    unit: pkos-polish
+    unit: 06-pkos-polish
     actor: "style_adapter（场景化字段）"
     critic: reader_advocate
     gate: "FactCore 降级防线（meta_auditor 验证网核对原始参数，operator-policy §1）"
 
   - id: router-decide
     stage: decision
-    unit: pkos-router
+    unit: 08-pkos-router
     actor: "script(strategy_gate.py fail-loud) + LLM rationale"
     critic: meta_auditor       # 永远在线底座
     gate: "router_matrix 36/36 + 策略载荷必填校验"
 
   - id: weak-check
     stage: verify
-    unit: pkos-weak-check
+    unit: 07-pkos-weak-check
     actor: "script(verify.py)"
     critic: null               # 纯门禁，不人格化（五维核验 ≥0.9 是规则不是立场）
     gate: "score ≥0.9 过 / ×2 不过 → raw_fallback"
 
   - id: exit-html
     stage: exit
-    unit: pkos-html
+    unit: 10-pkos-html
     actor: "主题 token + 组件装配（render.py）"
     critic: reader_advocate
     gate: "validate_output.py"
 
   - id: exit-ppt
     stage: exit
-    unit: pkos-ppt-skill
+    unit: 11-pkos-ppt-skill
     actor: "design_spec 中间层（compose.py，原生 pptx）"
     critic: reader_advocate
     gate: "deck manifest schema(pkos-ppt-deck:2)"
 
   - id: exit-comic
     stage: exit
-    unit: pkos-comic
+    unit: 12-pkos-comic
     actor: "分镜流程（compose.py）"
     critic: archivist           # 角色漂移 / 对白≤12字半角是既知坑——档案权威性立场
     gate: "extract_characters 锚定块校验 + manifest 验证"
 
   - id: exit-novel
     stage: exit
-    unit: pkos-gzhxiaoshuo-skill
+    unit: 14-pkos-gzhxiaoshuo-skill
     actor: "storyteller（gzhxiaoshuo 五选一 persona）"
     critic: reader_advocate     # Actor≠Critic 样板位
     gate: "validate / count / slice / check_wikilinks 四子命令"
 
   - id: exit-article
     stage: exit
-    unit: pkos-wenzhang-skill
+    unit: 13-pkos-wenzhang-skill
     actor: "六写法路由（writing_mode）"
     critic: reader_advocate
     gate: "qc lint fails==0（外部 humanizer ≥45/50 复核为 gate 而非人格）"
@@ -115,7 +115,7 @@ nodes:
 
   - id: meta-tick
     stage: governance
-    unit: pkos-meta
+    unit: 30-pkos-meta
     actor: "script(tick.py)"
     critic: meta_auditor
     gate: "telemetry 阈值（AER ≥0.8 / MTTI / 提案死亡率）"

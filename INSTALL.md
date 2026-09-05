@@ -61,7 +61,7 @@ python hermes-pkos-skill/scripts/upgrade_check.py   # 验证
 python tests/run_tests.py            # 19 项检查
 python tests/contract_refs.py        # 28 SKILL.md 契约引用
 python tests/capability_runner.py    # 37 能力契约用例
-cd pkos-knowledge-service-commit/scripts && python probe_p2.py   # 行为探针
+cd 04-pkos-knowledge-service-commit/scripts && python probe_p2.py   # 行为探针
 ```
 
 全绿 = 小工人们全部到岗，可以开工。

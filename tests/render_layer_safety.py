@@ -7,7 +7,7 @@ from pathlib import Path
 base = Path(__file__).resolve().parents[1]
 vault = Path(r"D:\obsidian知识库\obsidian知识库")
 src = base / "_PKOS" / "_v3-vectors" / "src.md"
-theme = base / "pkos-html" / "themes" / "paper-ink"
+theme = base / "10-pkos-html" / "themes" / "paper-ink"
 export_dir = base / "_PKOS" / "_Export" / "html"
 
 # Setup
@@ -35,7 +35,7 @@ os.symlink(str(trap_real), str(trap_link))
 
 def run(args):
     r = subprocess.run(
-        [sys.executable, str(base / "pkos-html" / "scripts" / "render.py"),
+        [sys.executable, str(base / "10-pkos-html" / "scripts" / "render.py"),
          "--content", str(src), "--theme", str(theme),
          "--route-id", f"RT-{args['name']}", "--source-id", "src",
          "--out", args["out"]],

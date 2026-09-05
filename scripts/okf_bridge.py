@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(SKILL_ROOT / "pkos-knowledge-service-commit" / "scripts"))
+sys.path.insert(0, str(SKILL_ROOT / "04-pkos-knowledge-service-commit" / "scripts"))
 import commit as commit_mod  # noqa: E402 复用 split/render/atomic
 
 FOLD = {"raw": "draft", "analyzed": "draft",

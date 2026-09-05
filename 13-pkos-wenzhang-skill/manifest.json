@@ -1,0 +1,21 @@
+{
+  "name": "13-pkos-wenzhang-skill",
+  "version": "1.1.0",
+  "owner": "PKOS Maintainers",
+  "updated_at": "2026-08-31",
+  "review_due": "2026-11-29",
+  "status": "active",
+  "maturity_tier": "prototype",
+  "lifecycle_stage": "prototype",
+  "context_budget_tier": "medium",
+  "review_cadence": "quarterly",
+  "target_platforms": [
+    "openai",
+    "claude",
+    "generic",
+    "agent-skills-compatible"
+  ],
+  "capability_id": "pkos.exit.wenzhang.compose",
+  "compatible_pkos_schema": ">=4.5.0",
+  "semantic_goal": "消费 RT-* (exit=article + conversion_type=公众号文章) + 源 POL-* 条目，诊断路由六种写法，产出公众号文章成稿 + 标题矩阵 + 机器质检报告（吸收 SpaceZephyr/creator-buddy 写作三件套方法论）"
+}

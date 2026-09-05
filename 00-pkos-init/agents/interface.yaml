@@ -1,0 +1,26 @@
+interface:
+  display_name: "知识库初始化"
+  short_description: "确定库路径并按 MOC/OKF/INDEX 三模式生成 _PKOS 工作区"
+  default_prompt: "Use $00-pkos-init when the user says 初始化知识库 / 设置知识库路径."
+compatibility:
+  canonical_format: "agent-skills"
+  adapter_targets:
+    - "openai"
+    - "claude"
+    - "generic"
+    - "vscode"
+  activation:
+    mode: "manual"
+    paths: []
+  execution:
+    context: "inline"
+    shell: "bash"
+  trust:
+    source_tier: "local"
+    remote_inline_execution: "forbid"
+    remote_metadata_policy: "allow-metadata-only"
+  degradation:
+    openai: "metadata-adapter"
+    claude: "neutral-source-plus-adapter"
+    generic: "neutral-source"
+    vscode: "agent-skills-source-with-vscode-notes"

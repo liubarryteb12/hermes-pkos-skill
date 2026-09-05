@@ -150,17 +150,17 @@ Theory Layer 是对 v0.2.0 设计文档的**概念升级**，不推翻已有决�
                         └───────────┬─────────────────▲───────────────┘
                                     │ 读条目           │ 写回 status/链接/产物
   外部输入                           ▼                 │
-  本地物件(PDF/DOCX/MD/DOC/TXT) ─▶ ⓪ pkos-intake〔_PKOS/INBOX 识别+分类 → 分拣单〕─┐
+  本地物件(PDF/DOCX/MD/DOC/TXT) ─▶ ⓪ 01-pkos-intake〔_PKOS/INBOX 识别+分类 → 分拣单〕─┐
   URL/文章/X帖（对话直给）─────────────────────────────────────────────────────┤
                                                                                ▼
-                                     ① pkos-ingest ──▶ ② pkos-analysis ──▶ ③ pkos-polish
+                                     ① 03-pkos-ingest ──▶ ② 05-pkos-analysis ──▶ ③ 06-pkos-polish
                                           规范+入库         结构化理解          文本净化
                                           守门+去重         发现表+关联         检查清单驱动
                                                                  │
                                                         路由单（纯决策）
                                                                  ▼
-                                              ④ pkos-router ──┬──▶ ⑤a pkos-html（主题库）
-                                             意图/元数据→出口   └──▶ ⑤b pkos-ppt-skill（模板+图像API）
+                                              ④ 08-pkos-router ──┬──▶ ⑤a 10-pkos-html（主题库）
+                                             意图/元数据→出口   └──▶ ⑤b 11-pkos-ppt-skill（模板+图像API）
                                                                  
   ⑥ 元层：反馈回路 · wikilink 引用图谱 · 第三方 skill 接入质量门（横切所有环节）
 ```
@@ -197,7 +197,7 @@ status: raw                    # 状态机：raw|triaged|analyzed|polished|publi
 domain: ai-tools               # 知识域 slug，映射到十大 L1 MOC（词表开放但受控）
 capture-method: clipper        # 可选词表：clipper|reader|browser|manual|file——溯源获取通道
 pkos-schema: 1                 # 契约版本号
-pkos-analysis: "[[_PKOS/analysis/xxx]]"   # 分析产物回链（analysis 阶段写入）
+05-pkos-analysis: "[[_PKOS/analysis/xxx]]"   # 分析产物回链（analysis 阶段写入）
 pkos-outputs: []               # 产出物清单（router 后写入：html/ppt 文件路径）
 pkos-feedback:                 # 反馈回路（使用后回填）
   rating: null                 # 1-5
@@ -219,7 +219,7 @@ raw ──(ingest 完成)──▶ triaged ──(analysis 完成)──▶ anal
   └────────────────────────────── 任意阶段可 ──▶ archived（保留全部历史字段）
 ```
 
-- 状态只能前进或归档，不允许回退写旧值；需要返工时新开一轮并在 `pkos-analysis` 等链接上追加版本。
+- 状态只能前进或归档，不允许回退写旧值；需要返工时新开一轮并在 `05-pkos-analysis` 等链接上追加版本。
 - `published` 要求 `pkos-outputs` 非空。
 
 ### 3.3 Vault 目录拓扑（新增最小侵入）
@@ -228,7 +228,7 @@ raw ──(ingest 完成)──▶ triaged ──(analysis 完成)──▶ anal
 D:\obsidian知识库\obsidian知识库\
 ├── （既有结构全部不动）
 └── _PKOS/                      ← 新增系统区
-    ├── INBOX/                  ← 本地文件投放区：PDF/DOCX/MD 拖进来由 pkos-intake 扫描分拣；URL 新链接对话直给
+    ├── INBOX/                  ← 本地文件投放区：PDF/DOCX/MD 拖进来由 01-pkos-intake 扫描分拣；URL 新链接对话直给
     ├── analysis/               ← ② 的产物笔记（每条目一份，wikilink 回链）
     ├── routes/                 ← ④ 的路由单存档（可追溯每次输出决策）
     └── reports/                ← 例行体检/复盘报告（M3 起）
@@ -240,11 +240,11 @@ D:\obsidian知识库\obsidian知识库\
 workspace/skills/personal-knowledge-os/
 ├── DESIGN.md                   ← 本文档（系统单一事实源）
 ├── contracts/                  ← 数据契约定义（人读规范 + 机读 schema）
-├── pkos-ingest/SKILL.md
-├── pkos-analysis/SKILL.md
-├── pkos-polish/SKILL.md
-├── pkos-router/SKILL.md
-├── pkos-html/
+├── 03-pkos-ingest/SKILL.md
+├── 05-pkos-analysis/SKILL.md
+├── 06-pkos-polish/SKILL.md
+├── 08-pkos-router/SKILL.md
+├── 10-pkos-html/
 │   ├── SKILL.md
 │   ├── scripts/                ← build_themes(--check 再生成) / lint_theme(注册门禁)
 │   │                              / validate_output(按 sink 切换检查集) / render(确定性装配)
@@ -252,7 +252,7 @@ workspace/skills/personal-knowledge-os/
 │       ├── index.json          ← 机器可读登记表（Router 直接消费），index.md 由它再生成
 │       └── <theme-id>/         ← theme.json 数据源 + profile.md(AI 写作规范)
 │                                  + reference.html(金标准) + preview.html(区块预览锚点)
-├── pkos-ppt-skill/
+├── 11-pkos-ppt-skill/
 │   ├── SKILL.md
 │   └── templates/…
 └── shared/image-api.md         ← 图像 API 配置层规范（跨出口共享）
@@ -262,7 +262,7 @@ workspace/skills/personal-knowledge-os/
 
 两条信道分工明确：
 
-- **人读信道**：条目 front matter 的 `status` + `pkos-analysis` / `pkos-outputs` 链接字段承载流转状态；
+- **人读信道**：条目 front matter 的 `status` + `05-pkos-analysis` / `pkos-outputs` 链接字段承载流转状态；
 - **机读信道**：一切工具级调用（图像 API、抽取脚本、评测器、批处理）使用固定字段 JSON 合同——`{success / artifact, meta…, errors[]}`，成功与否以**实际内容**判定而非退出码（§4.1 验收 gate 的机读面）。
 
 > 依据：567-image-generation 的 ===SUMMARY=== 后置 JSON、skill-creator 的 grading.json 字段硬契约——机器可读交接是流水线可自动化的技术基础。
@@ -274,7 +274,7 @@ workspace/skills/personal-knowledge-os/
 > 每个模块按统一模板描述：职责边界（只做什么 / 明确不做什么）→ 输入契约 → 输出契约 → 吸收的长处 → 守门规则。
 > 全部细节来自对 16 个已装 skill 的逐文件深读（四组子代理并行完成），完整报告存于 `skill-analysis-for-pkos.md`。
 
-### 4.0 pkos-intake（入口分拣——「识别并分类」的专职模块）
+### 4.0 01-pkos-intake（入口分拣——「识别并分类」的专职模块）
 
 - **只做**：扫描 `_PKOS/INBOX/` 与现有 Clipper 落点（或接收对话给的路径）→ 识别每件投放物 → 产出**分拣单**并调度对应通道执行。Clipper 已落地的剪藏也是「物件」，同样走 intake 归位。
 - **不做**：内容抽取与转换（那是 ① 规则卡的事）；不改写任何文件内容；对无法识别或触守门线的物件只标注拒收原因，不擅自处置。
@@ -284,7 +284,7 @@ workspace/skills/personal-knowledge-os/
 - **确认点**：已处理/未处理分流在这里问，一次问完；全自动模式下按启发式预判并在产物中附决策说明。
 - 与 ① 的边界一句话：**intake 认出「这是什么、该怎么处理」；ingest 负责「真正把它变成合规条目」。**
 
-### 4.1 pkos-ingest（知识库 Skill）
+### 4.1 03-pkos-ingest（知识库 Skill）
 
 - **只做**：（接收 ⓪ 的分拣单，或对话直给 URL 时自行路由）→ 正文抽取 → 清洗 → 抽检 → 去重校验 → 按 §3.1 schema 写入库内目标位置 → 打标（type/domain/status=triaged）→ 挂载到对应 INDEX。
 - **不做**：任何内容改写与语义分析；原文一字不动。**确定性抽取与语义理解分离**（crawl4ai-web 原则）：抽取阶段只用规则与启发式（可复现、零外呼），语义加工全部留给 analysis。
@@ -300,9 +300,9 @@ workspace/skills/personal-knowledge-os/
 - **文件命名**：不用裸 URL slug（易碰撞、中文不友好）；采用 `日期_标题slug_内容哈希短缀`，哈希兼作去重线索。
 - 守门兜底：schema 校验 fail loud；URL 归一化去重（去 utm/尾斜杠，x.com↔twitter.com 归一）。
 
-### 4.2 pkos-analysis
+### 4.2 05-pkos-analysis
 
-- **只做**：读条目 → 产出结构化理解笔记（发现表 + 要点提取 + 可复用性判定 + 关联推荐）→ 回写 `status=analyzed` + `pkos-analysis` 链接。
+- **只做**：读条目 → 产出结构化理解笔记（发现表 + 要点提取 + 可复用性判定 + 关联推荐）→ 回写 `status=analyzed` + `05-pkos-analysis` 链接。
 - **不做**：修改原条目；决定输出形态（那是 router 的事）。
 - **输出契约**（吸收自 prism，锁死部分）：每条发现的四字段——**位置 / 问题在哪 / 严重度 / 可修 vs 结构性**。「可修 vs 结构性」区分防止流水线对问题空间固有权衡反复产出无效建议；透镜可以每次现场烹制，但发现表 schema 锁死。
 - **置信边界**：每份分析笔记末尾附 CONSTRAINT NOTE（吸收自 prism）——本次最大化了什么视角、未检视哪些角度。下游据此判断置信范围。
@@ -311,7 +311,7 @@ workspace/skills/personal-knowledge-os/
 - **守门规则**：沉默规则（证据不足不出条目、干净直说不硬找）；报告按文本顺序精确引用原文，不按特征归类罗列；输出自检（分析报告本身不得违反所检特征）。
 - KPI 对准体检短板：剪藏类补「一句话概述 + 核心要点 callout」，打通三大 AI 岛的关联推荐。
 
-### 4.3 pkos-polish
+### 4.3 06-pkos-polish
 
 - **只做**：按目标口味净化文本；只处理 Analysis 发现有条目的问题；保留作者声音。
 - **不做**：无差别风格变换；事实增删（有疑问打回 analysis）；排版（那是出口的事）。
@@ -322,13 +322,13 @@ workspace/skills/personal-knowledge-os/
 - **产物附带更改摘要**：逐条映射「位置 + 模式编号」，diff 可审计，充当 Polish→Output 的元数据载体。
 - **本地化警告**：英文模式库不能照搬——中文词表需重新校准；被动语态与副词在中文有正当用途，只作 lint 提示不作硬禁令；「注入灵魂」类风格话术不得批量套用（会产生另一种 uniform voice）。
 
-### 4.4 pkos-router
+### 4.4 08-pkos-router
 
 - **只做**：输入（polished 条目 + 用户意图/场景）→ 输出一张**路由单**（YAML）：出口、主题/模板、受众、参数。存档到 `_PKOS/routes/`。
 - **不做**：生成任何内容。
 - 路由目标词表 v0 直接采用你体系总览 §4.2 的四种知识转化：wiki 百科条目 / 实战操作指南 / 避坑风险清单 / 学习路径 —— 外加 media 维度（html|ppt）与主题选择。
 
-### 4.5 pkos-html
+### 4.5 10-pkos-html
 
 - 核心要求：**版式稳定、风格一致**。一致性唯一机制 = 主题注册库，禁止临时发挥样式、禁止裸色值。
 - **主题三层合一**（综合 gzh-design 治理闭环 + xhs 同源再生成 + html-anything 风格契约，每主题三件套）：
@@ -350,7 +350,7 @@ workspace/skills/personal-knowledge-os/
 - 产物：单文件离线 HTML，文件头注释记录 source 条目 id（引用闭环）。
 - ⚠️ 落地前置：本机 beautiful-article 缺 references/theme-profiles、html-anything 缺 catalog.json，动工前先从上游补齐作参照（见 §7-7）。
 
-### 4.6 pkos-ppt-skill（v0.2，按用户裁定修正）
+### 4.6 11-pkos-ppt-skill（v0.2，按用户裁定修正）
 
 - **出口定义（用户 2026-08-23 裁定）**：PPT 出口 = **直接出图**——每页幻灯片一张图，
   经 shared/image-api 调用 gptimage2 生成；HTML 出口保持中规中矩的网页阅读页。
@@ -375,7 +375,7 @@ workspace/skills/personal-knowledge-os/
 - **存储与展示解耦**：落盘 `output_dir`，展示走 `display.http_base` 的 http(s) URL（Web GUI 只认 http URL）。
 - **换网关回归门**：最小 4 条用例（默认图 / 横版 / 透明背景 / 伪造 401）全过才允许切换 provider。
 
-### 4.8 pkos-meta（元层质量门——M4 第三方接入的机制基础）
+### 4.8 30-pkos-meta（元层质量门——M4 第三方接入的机制基础）
 
 双评测器互补（吸收 skill-creator × yao-meta-skill）：**skill-creator 回答「有没有变好」**——with-skill vs baseline 双臂对照（必须同 turn 并发保证公平）、grading.json 硬契约 `{text, passed, evidence}`、benchmark 出 pass_rate/time/tokens 的 mean±stddev+delta；**yao-meta-skill 回答「会不会变坏」**——晋升硬条件 = 五类 holdout 全不回退 + route confusion 干净。
 
@@ -410,20 +410,20 @@ workspace/skills/personal-knowledge-os/
 - **版本**：pkos v0.1.0（2026-08-23）
 - **安装方式**：每模块以 NTFS junction 链接至 `~/.dsh/skills/<模块名>`，源在仓库内；
   改仓库即改线上，无拷贝漂移。
-- **清单**：pkos-intake / pkos-ingest / pkos-analysis / pkos-polish / pkos-router /
-  pkos-html / pkos-ppt-skill / pkos-audit —— 8/8 新会话目录可见且热生效（audit 曾因缺
+- **清单**：01-pkos-intake / 03-pkos-ingest / 05-pkos-analysis / 06-pkos-polish / 08-pkos-router /
+  10-pkos-html / 11-pkos-ppt-skill / 25-pkos-audit —— 8/8 新会话目录可见且热生效（audit 曾因缺
   SKILL.md 未注册，补齐后即时出现，实证热更新）。
-- **元层质量门**：`pkos-meta/scripts/meta_gate.py`（validate/boundary_check/trigger_eval/
-  optimize 最小版）；触发基线 `pkos-meta/triggers.json` 每模块 ≥4 正例 + ≥2 近失负例，
+- **元层质量门**：`30-pkos-meta/scripts/meta_gate.py`（validate/boundary_check/trigger_eval/
+  optimize 最小版）；触发基线 `30-pkos-meta/triggers.json` 每模块 ≥4 正例 + ≥2 近失负例，
   keyword-overlap-v0 打分器；上下文预算 SKILL.md ≤8KB、description ≤400 字——
   当前最大 4210B，全部免裁剪达标。
 
-## 4.10 外部接入登记（工单 11，SOP 见 pkos-meta/ONBOARDING-SOP.md）
+## 4.10 外部接入登记（工单 11，SOP 见 30-pkos-meta/ONBOARDING-SOP.md）
 
 | 接入项 | 类型 | 版本 | 风险档 | 日期 | 回归证据 |
 |---|---|---|---|---|---|
 | night-desk（夜案） | 主题 | 0.1.0 | — | 2026-08-23 | lint 0 ERROR；自验页 web-single-file 十项 PASS |
-| pkos-timeline | skill | 0.1.0 | L2 | 2026-08-23 | v1 负准入拒绝 2 项→v2 meta_gate all PASS（holdout 无回退） |
+| 24-pkos-timeline | skill | 0.1.0 | L2 | 2026-08-23 | v1 负准入拒绝 2 项→v2 meta_gate all PASS（holdout 无回退） |
 
 ---
 
@@ -440,14 +440,14 @@ workspace/skills/personal-knowledge-os/
 | 里程碑 | 内容 | 验收标准 |
 |---|---|---|
 | **M0** | 本方案评审定稿 | 你确认 schema 与模块边界 |
-| **M1** | pkos-ingest + 数据契约落地，ingest→analysis 最小闭环 | 一篇真实 X 帖/文章走完 入库→分析，front matter 合规，INDEX 挂载 |
+| **M1** | 03-pkos-ingest + 数据契约落地，ingest→analysis 最小闭环 | 一篇真实 X 帖/文章走完 入库→分析，front matter 合规，INDEX 挂载 |
 | **M2** | polish + router + HTML/PPT 双出口同时定型 | 同一 analyzed 条目产出一份 HTML 文章 + 一份 PPT，路由单存档可追溯 |
 | **M3** | 反馈/引用回路 + 例行体检自动化 | 体检报告自动生成且数字与你手工体检口径一致 |
 | **M4** | 第三方 skill / 新风格开放接入 | 一个外部 skill 通过质量门接入 router |
 
 ## 7. 风险与开放问题（评审重点）
 
-1. **收件区位置（已定型）**：URL 新链接在对话里直给 ①；本地物件与 Clipper 已落地的剪藏都算「物件」，由 ⓪ pkos-intake 扫描 `_PKOS/INBOX/` 与现有落点后分拣归位——两渠道路径是否在目标态合并，用 M1-M2 实际使用数据再定。
+1. **收件区位置（已定型）**：URL 新链接在对话里直给 ①；本地物件与 Clipper 已落地的剪藏都算「物件」，由 ⓪ 01-pkos-intake 扫描 `_PKOS/INBOX/` 与现有落点后分拣归位——两渠道路径是否在目标态合并，用 M1-M2 实际使用数据再定。
 2. **新 skill 的安装位置（已查明，已确认）**：DSH 只扫描 4 个 skill 根（项目级 `<root>/.dsh/skills`、`<root>/.agents/skills`；用户级 `~/.dsh/skills`、`~/.agents/skills`），项目级优先，原生支持符号链接并带热更新监听。会话工作区 `workspace/skills/` 本身不在扫描范围。**拟定策略**：各模块在 `workspace/skills/personal-knowledge-os/` 下开发，安装时把每个 `pkos-*` 目录以 junction 链接进 `~/.dsh/skills/`（一次性批准），改完即热生效，无需复制。**已确认（2026-08-23）**：junction 方案经实战验证——dsh-memory-plugin 的安装与移除均走 junction + 热刷新，即时生效且卸载干净；动工时照此执行。
 3. **vault 写权限**：`D:\obsidian知识库` 在会话沙箱工作区之外，流水线运行时会逐次请求写权限批准——接受交互式批准，还是调整沙箱策略？（2026-08-23 更新：当前环境文件策略已是全量访问、无逐次批准，此问题在当下已消解；若策略回调需重议。）
 4. **OpenViking 记忆库：已裁决（2026-08-23）不并入**。OpenViking server 与 dsh 记忆插件已从本机整体移除（轻薄本轻量优先）；跨会话检索以文件树为唯一事实源，未来如确需索引层，另评估本地优先方案。

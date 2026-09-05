@@ -1,0 +1,26 @@
+interface:
+  display_name: "入口分拣"
+  short_description: "扫描 INBOX 识别投放物格式与文本层，产出分拣单"
+  default_prompt: "Use $01-pkos-intake when the user says 处理 INBOX / 分拣一下."
+compatibility:
+  canonical_format: "agent-skills"
+  adapter_targets:
+    - "openai"
+    - "claude"
+    - "generic"
+    - "vscode"
+  activation:
+    mode: "manual"
+    paths: []
+  execution:
+    context: "inline"
+    shell: "bash"
+  trust:
+    source_tier: "local"
+    remote_inline_execution: "forbid"
+    remote_metadata_policy: "allow-metadata-only"
+  degradation:
+    openai: "metadata-adapter"
+    claude: "neutral-source-plus-adapter"
+    generic: "neutral-source"
+    vscode: "agent-skills-source-with-vscode-notes"
