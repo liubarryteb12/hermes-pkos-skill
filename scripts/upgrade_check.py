@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """hermes-pkos-skill 升级守卫（upgrade_check）—— PKOS 进阶计划的机器验收面。
 
 五维体检（对应 references/upgrade-plan.md §六）：
@@ -23,8 +23,8 @@ SKILL_ROOT = Path(__file__).resolve().parents[1]
 MAIN_REPO = Path(r"D:\00.AIagent\pkos\skills\personal-knowledge-os")
 REGISTRY = SKILL_ROOT / "pipeline" / "registry.json"
 
-EXPECT_UNITS = 39 + 1  # pkos-publish 新增 (2026-09-01)
-EXPECT_ALIAS = 11
+EXPECT_UNITS = 29  # 清理后 29 唯一单元
+EXPECT_ALIAS = 1  # 2026-09-05: pkos.gemini.video 实测转正解除 deprecated，仅剩 pkos-init
 LEGACY_RE = re.compile(r"D:[\\/]{1,2}00\.AIagent|deepseekharness", re.I)
 # 守卫作用域：这些目录下的代码/配置文件；其中账本 registry.json 除外（历史记录）
 GUARD_DIRS = ["pkos-intake", "pkos-intake-query", "pkos-ingest", "pkos-knowledge-service-commit",
@@ -58,7 +58,7 @@ def main() -> int:
         if isinstance(units, dict):
             units = list(units.values())
         aliases = [u for u in units if isinstance(u, dict) and (not u.get("capability_id") or u.get("status") == "deprecated")]
-        head(len(units) >= EXPECT_UNITS, f"registry units >= {EXPECT_UNITS}", f"实际 {len(units)}")
+        head(len(units) >= EXPECT_UNITS, f"registry units >= {EXPECT_UNITS}", f"实际 {len(units)} (40→29 因空id/重复清理)")
         head(len(aliases) == EXPECT_ALIAS, f"deprecated 别名 == {EXPECT_ALIAS}", f"实际 {len(aliases)}（U2.2 补 superseded_by 后此数含义变为'已收编'）")
         semver = reg.get("pkos_semver", "?")
         print(f"        pkos_semver={semver} changelog={len(reg.get('changelog', []))} 条")
@@ -124,3 +124,18 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# Schema 校验 (Fail-fast 防脏数据)
+import subprocess as _sp, sys as _sys
+_r = _sp.run(['python', str(SKILL_ROOT/'scripts/registry_schema_check.py')], capture_output=True, text=True, timeout=30)
+head(_r.returncode == 0, 'registry schema 校验', _r.stdout.strip().split('\n')[-1] if _r.stdout.strip() else 'FAIL')
+
+
+# [性能透明度] 本机相对参考机倍率（>5x = 绝对规格大概率不达标）
+try:
+    import sys
+    sys.path.insert(0, str(SKILL_ROOT/"pkos-knowledge-service-commit/scripts/pkos_kb_tests"))
+    from conftest import perf_budget
+    print(f"[PERF] 本机慢 {perf_budget():.1f}x" + ("（绝对规格可能不达标）" if perf_budget() > 5 else ""))
+except Exception:
+    pass
