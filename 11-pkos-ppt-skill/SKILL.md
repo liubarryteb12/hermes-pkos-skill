@@ -8,7 +8,7 @@ description: PPT 出口层（v2.0 原生 PPTX 制，2026-08-31 用户裁定改�
 ```yaml
 capability_id: "pkos.exit.ppt.compose"
 required_capability: "none"   # v2.0：原生渲染零外部依赖（python-pptx 本地库）；--images 时才需 image_gen
-version: "2.0.0"
+version: "2.0.1"
 compatible_pkos_schema: ">=2.0.0"
 stage: exit
 stage_subindex: 5b

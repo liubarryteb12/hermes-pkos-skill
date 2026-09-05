@@ -4,7 +4,7 @@ name: hermes-pkos-skill
 
 description: "PKOS 知识流水线操作与 v4 升级：分拣/入库/lint/PPT/漫画/小说出口."
 
-version: 0.1.0
+version: "5.0.0"
 
 author: Hermes Agent
 

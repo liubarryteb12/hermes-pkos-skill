@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """hermes-pkos-skill 升级守卫（upgrade_check）—— PKOS 进阶计划的机器验收面。
 
 五维体检（对应 references/upgrade-plan.md §六）：
@@ -128,6 +128,8 @@ if __name__ == "__main__":
 # Schema 校验 (Fail-fast 防脏数据)
 import subprocess as _sp, sys as _sys
 _r = _sp.run(['python', str(SKILL_ROOT/'scripts/registry_schema_check.py')], capture_output=True, text=True, timeout=30)
+_rv = _sp.run(['python', str(SKILL_ROOT/'scripts/version_sync.py'), '--check'], capture_output=True, text=True, timeout=30)
+head(_rv.returncode == 0, '版本一致性（五处投影+单元对齐）', _rv.stdout.strip().splitlines()[-1] if _rv.stdout.strip() else 'FAIL')
 head(_r.returncode == 0, 'registry schema 校验', _r.stdout.strip().split('\n')[-1] if _r.stdout.strip() else 'FAIL')
 
 

@@ -1,4795 +1,2411 @@
 {
-
   "schema": "pkos-pipeline:2",
-
   "version": 2,
-
-  "pkos_semver": "4.9.21",
-
-  "updated_at": "2026-09-01",
-
+  "pkos_semver": "5.0.0",
+  "updated_at": "2026-09-05",
   "changelog": [
-
     {
-
       "version": 4.9,
-
       "date": "2026-09-01",
-
       "author": "hermes (round-35: 失败分类学契约 + 看板接入 router 分发链)",
-
       "summary": "v4.8 两项欠账收口。①新建 contracts/failure-taxonomy.md（failure-taxonomy:1，专家 §12 缺口）：七类失败 F1-F7 → 既有处置映射表（v2_failure_mode 四值 / FallbackPolicy 四个 on_* / 断路器高危死守 / raw_fallback / MAX_RETRY=2），零新词表零新守卫；处置动词封闭集八枚；执行层 F1/F2 归 Router、策略层 F3/F4/F5 归调用方 Planner 的分工成文。②persona-map 接入分发链：strategy_gate.py 校验 routing.required_persona（词表 import 自 auditor_gate.PERSONAS，P-14 零复制，越表 unavailable exit 2）+ build_route 透传落 RT 单（缺省 null=meta_auditor 兜底）；router SKILL.md / policy-engine.md schema 同步声明；selftest +4 用例（evidence_auditor 正例 / storyteller 演员词越界拒 / 缺省兼容 / RT 字段断言）。E2E 实跑 dispatch 验证 RT 携带 required_persona: reader_advocate。pkos_semver 4.8.0→4.9.0",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.router.decide",
-
         "pkos.operator.audit"
-
       ]
-
     },
-
     {
-
       "version": 4.8,
-
       "date": "2026-08-31",
-
       "author": "hermes (round-34: 人格×门禁看板 + 调用方词表扩五值)",
-
       "summary": "外部专家九原则架构对照审计后落地「人格×门禁看板」：新建 contracts/pipeline-persona-map.yaml（14 固定节点 × Actor/Critic × 纯门禁绑定表；消费者=router 产路由单携带 required_persona + 调用方 LLM 轮前 --assemble 拼头；两条铁律：能确定性校验的节点纯门禁不人格化 / Actor≠Critic 禁自评）。operator-policy.md §2 调用方词表四值扩五值：新增 evidence_auditor（证据归因审查立场：发现表可回溯 + OKF Phase2 句级归因；来源可信度仍归 archivist，零立场重叠），auditor_gate.py PERSONAS 同批扩（P-14）+ selftest 22→24 用例；unit-map.md / skill-dispatch-catalog.md 挂看板指针；扩位纪律四前置（未被覆盖的裁量面/零立场重叠/P-14 同批改/selftest 补例）写入契约 §2。pkos_semver 4.7.0→4.8.0",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.operator.audit",
-
         "pkos.router.decide"
-
       ]
-
     },
-
     {
-
       "version": 4.6,
-
       "date": "2026-08-31",
-
       "author": "host (round-33: pkos.distill.book 新单元落地)",
-
       "summary": "新增 pkos.distill.book（书籍 PDF→章节笔记蒸馏）：TOC 识别（内嵌+启发式）→逐章机械抽取（pdf_extract.py，pymupdf）→逐章蒸馏模板（对齐库内《R语言实战》既成格式）→validate_entry PASS 强制→书籍索引+MOC/INDEX 三入口挂载；守门四检锁死继承 ingest（自有书源/查重增量/扫描版拒蒸/单章≤30% 版权红线）；失败三态齐全；自测 9 项全绿 + 库内真实 PDF《纳瓦尔宝典》E2E 验收（压缩率 22%，hash 溯源）。pkos_semver 4.5.0→4.6.0",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.distill.book"
-
       ]
-
     },
-
     {
-
       "version": 4.0,
-
       "date": "2026-08-28",
-
       "author": "host (round-31: v4.0 Policy Engine / Verification Framework / Lock & Key 落地收尾)",
-
       "summary": "v4.0 收尾（契约与守卫先前已就位，本轮断言验证 + 补落地）：strategy_gate selftest ALL PASS / contract_refs 19 SKILL.md 0 错误 / router_matrix 36/36 / run_tests 19 组 0 失败；verify.py v2.0 七字段 YAML 报告 + cross_validate 跨模型钩子（环境注入零模型名）断言通过；本轮新增 Lock & Key 声明面——6 单元补 required_capability（llm_chat{reasoning:high,context:large} × 4、image_gen × 2），provider-policy.md 升 v1.3 增 Provider Capability Registry（在链 4 provider provides 声明 + qwen/qwen3.6-27b、deepseekv4flash 预备登记 + 等级匹配规则），policy-engine.md §2.4 增交叉引用；router v0 启发式原文归档 _PKOS/_snapshots/round-31/（契约 §7 移交快照债清偿）。breaking：08-pkos-router 自 v4.0 起无策略载荷直调 fail loud ambiguous（SemVer 主版本升级 3.3.1 → 4.0.0）",
-
       "breaking_changes": true,
-
       "affected_units": [
-
         "pkos.router.decide",
-
         "pkos.intake.query",
-
         "pkos.fanout.concept",
-
         "pkos.exit.comic.compose",
-
         "pkos.exit.gzhxiaoshuo.compose",
-
         "pkos.exit.ppt.compose",
-
         "pkos.gptimage2use"
-
       ]
-
     },
-
     {
-
       "version": 3.31,
-
       "date": "2026-08-28",
-
       "author": "host (round-28~30: 承重墙债务清偿 + 五维全量审查 + 全盘优化修复)",
-
       "summary": "round-28 承重墙债: exit.ppt.compose.depends_on_providers 从 v2.8 陈旧值 image-api:567-image-generation 修订为 gptimage2-image(实际通道 pkos.gptimage2use, PKOS_IMG_API_KEY 独立分组); router style_theme 强制收敛(router_matrix 新增 11 例, 非 null 一律 unavailable+决策单)。round-29 五维审查+round-30 三轮审查修复: router SKILL.md L221 schema enum 与 L240 规则描述补 novel(P-14 词表同步债); catalog 幽灵 id pkos.weak-check 改正; 质检包陈旧 slice-sc001.json 重切(paragraphs type narration→narrative 越界修复); 11-pkos-ppt-skill SKILL.md 3 处旧 provider 同步; pkos_v31_lib.emit 收紧 event_type 显式缺省 unspecified(P-15); comic SKILL.md 补中文风格名↔英文 id 对照表; novel SKILL.md 补 chapter.json 权威词表块(顶层七字段/meta 四字段/paragraphs 词表); .gitignore 补 .env 兜底(P-04 子仓); AGENTS.md 落地 Hook 1 契约层",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.ppt.compose",
-
         "pkos.router.decide",
-
         "pkos.gptimage2use",
-
         "pkos.exit.gzhxiaoshuo.compose",
-
         "pkos.governance.tick"
-
       ],
-
       "self_check": "router_matrix 36/36, contract_refs 19/19, render_layer_safety 8/8, e2e PASS, fail-loud 6/6, 跨仓一致性 19/19+5/5"
-
     },
-
     {
-
       "version": 3.3,
-
       "date": "2026-08-28",
-
       "author": "host (v3.3 全局最优升维: 防踩坑库+Tick巡检+合法性矩阵+NTFS防御+TTL)",
-
       "summary": "Task1 新建 docs/PITFALLS.md（15 条历史陷阱规则, Hook 1 前置读取）+ contracts/external-capability-boundary.md（体系内 utility 与外部辅助边界, 收口 567-image-generation 分工）。Task2 pkos_v31_lib 加固: render.assert_safe_out 注入 NTFS ADS 冒号过滤(第 7 检查)与白名单大小写归一化; lib 新增 assert_no_ntfs_ads/quarantine_write(30d 保留+诊断上下文)/DRAFT_TTL_HOURS=24/QUARANTINE_TTL_DAYS=30 双轨 TTL; telemetry 事件统一 schema_version=1.0。Task3 router 兼容性矩阵(exit×conversion_type 10/24 合法组合, 非法→unavailable+决策单)+style_adapter 交叉约束; style_theme 全 11 处废弃收敛(schema 恒 null+deprecated); 词表拼写确认已统一。Task4 pkos.governance.tick 心跳巡检(INBOX 堆积/超期缓存/增量 lint/heartbeat)+telemetry_dashboard ASCII 面板注册入册。SemVer 收敛 pkos_semver=3.3.0",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.router.decide",
-
         "pkos.governance.tick（新）",
-
         "pkos.exit.html.render",
-
         "pkos.exit.ppt.compose",
-
         "pkos.weak_check.verify"
-
       ],
-
       "self_check": "contract_refs 19/19 PASS, 8/8 攻击向量 + ADS/大小写新向量 PASS, assert_no_ntfs_ads 3 用例 PASS, schema_version 落地, tick --dry-run PASS"
-
     },
-
     {
-
       "version": 2.28,
-
       "date": "2026-08-28",
-
       "author": "host (v3.2 适配审计: 出口 skill 全量入册对齐)",
-
       "summary": "适配审计修复 3 缺口: (1) router SKILL.md 正文 exit 词表 html|ppt|comic 补 novel（消除 gzhxiaoshuo 孤岛——skill 已注册声明消费 exit=novel 但 router 永不产出该路由单的调度断链），exit_hint/unavailable/available_exits 五处词表同步，新增 v3.2 novel 出口调度段（决策启发式 + persona/genre_hints/chapter_out 必问项 + 路由单示例）；(2) pkos.gptimage2use 注册 registry units 第 30 unit（role=utility, stage 0, 原子出图工具非出口层，A4 公理无状态）；(3) 11-pkos-ppt-skill SKILL.md 补 v3.1 适配段与代码对齐（render_deck.py 已迁 pkos_v31_lib，safe_out_fn 依赖注入，write_with_retry + SHA256 断言 + telemetry export.success/fallback）。gzhwenzhang 定位确认：PKOS 体系内无此 skill（v2.25 决议 gzh-design 为外部编辑器辅助，长文写作为外部能力），中文素材目录不属于 Exit 层",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.router.decide",
-
         "pkos.gptimage2use（新注册）",
-
         "pkos.exit.ppt.compose",
-
         "pkos.exit.gzhxiaoshuo.compose"
-
       ],
-
       "self_check": "contract_refs 19/19 PASS, registry JSON 合法 30 units, gptimage2use registered=True, router novel 词表零残留"
-
     },
-
     {
-
       "version": 2.27,
-
       "date": "2026-08-28",
-
       "author": "host (v2.3.1 round-27: 12-pkos-comic 双名 display_name 适配)",
-
       "summary": "用户要求重命名 12-pkos-comic → pkos-comic-skill。经评估 PKOS 官方 skill loader 物理目录名是 12-pkos-comic(与 registry.json unit id 一致),强行改物理目录会破坏 PKOS loader 路径查找。决定: 保留物理目录 12-pkos-comic/ 不动,改在 SKILL.md frontmatter 与 manifest.json 加 display_name=pkos-comic-skill 双名机制,实现'外部宣传/识别用 pkos-comic-skill,内部 PKOS 加载仍走 12-pkos-comic'。中间尝试过 mv 物理目录,已发现 PKOS skill catalog 中官方目录是 12-pkos-comic,立即回滚。E2E 重跑验证:rc=0,6 panels,degraded_success,manifest 全字段,3 人物锚定一致,telemetry +1 export.fallback 事件(5 条 comic 事件累计)。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.comic.compose"
-
       ],
-
       "renaming_approach": "display_name 双名机制(不破坏 PKOS loader)",
-
       "files_modified": {
-
         "SKILL.md": "frontmatter 加 display_name: pkos-comic-skill",
-
         "manifest.json": "加 display_name: pkos-comic-skill 字段,name 仍 12-pkos-comic",
-
         "其他外部引用": "回滚到 12-pkos-comic(已先误改 7 处叙述性引用,已恢复)"
-
       },
-
       "rollback_attempt": "曾尝试 mv 12-pkos-comic/ → pkos-comic-skill/(已回滚),原因为 PKOS skill catalog 仍以 12-pkos-comic 为官方目录;如坚持物理重命名,需改 PKOS loader 代码与 cordis.yml,超出本轮范围",
-
       "e2e_revalidation": "rc=0, 6 panels, cover=true, chinese_text=true, style_adapter=comic_storyboard, characters_anchor_consistent=true, telemetry +1 export.fallback",
-
       "self_check": "manifest.json 双名机制 OK,SKILL.md frontmatter 双名机制 OK,e2e rc=0,无 pkos-comic-skill 物理路径引用残留(只 display_name 字段提及)"
-
     },
-
     {
-
       "version": 2.26,
-
       "date": "2026-08-28",
-
       "author": "host (v2.3.1 round-25 评审: 12-pkos-comic 真接入 e2e 跑通)",
-
       "summary": "评审 round-25 复盘 round-26:12-pkos-comic 补齐真实可调度代码层(从 prototype 升 production-ready)。scripts/ 5 个 .py 就位:compose.py(总入口/CLI/dry-run)+ render_script.py(完整脚本主表/每格 prompt/cover-prompt)+ extract_characters.py(详细文件抽锚定短语/sha256 校验/4 错误码)+ validate_manifest.py(gate_1/gate_2/gate_3 三门禁)+ event_bus.py(5 事件 schema,复用 pkos_v31_lib.emit)。E2E demo 跑通:RT-20260828-comic-demo.yaml → compose.py → outputs/RT-20260828-comic-demo-comic-script/(comic-script.md + manifest.json + cover-prompt.txt + prompts/panel-01..06.txt 共 9 产物),3 人物锚定 sha256 校验一致,characters_anchor_consistent=true。3 个错误码路径已用 RT-test-err-* 验证(ERR_ROUTE_EXIT_NOT_COMIC / ERR_ROUTE_CONVERSION_NOT_PUBLIC_ACCOUNT_COMIC / ERR_ART_STYLE_OUT_OF_VOCAB),telemetry.jsonl 5 条事件全部落地(1 export.fallback + 3 validation.fail + 1 历史 weak_check.pass)。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.comic.compose"
-
       ],
-
       "code_layer_landed": {
-
         "compose.py": "总入口, 读 RT-*, 9 步主流程, 出口白名单 assert_safe_out, dry-run/auto-mode CLI",
-
         "render_script.py": "拼装脚本主表, 顶部【全篇对白】, 角色锚定描述段, 分镜表, 完整一键出图 Prompt(每格 + 封面), write_outputs 落 _PKOS/outputs/<route-id>-comic-script/",
-
         "extract_characters.py": "读 _PKOS/assets/characters/<character_id>.md, 抽 ## 英文外观描述 ```text``` 块, 详细版 80-150 词 + 短锚版 30-50 词, sha256 16位, 4 错误码",
-
         "validate_manifest.py": "gate_1 路由单字段, gate_2 manifest schema + 中文对白 ≤ 12 字, gate_3 跨 panel 锚定一致",
-
         "event_bus.py": "5 事件: export.success / export.fallback / export.degraded / anchor.mismatch / validation.fail, 复用 pkos_v31_lib.emit 写 _PKOS/execution/telemetry.jsonl"
-
       },
-
       "e2e_demo": {
-
         "route": "_PKOS/routes/RT-20260828-comic-demo.yaml",
-
         "source_pol": "_PKOS/analysis/POL-2026-08-28-comic-demo-01-加班后的便利店夜班.md",
-
         "art_style": "healing",
-
         "grid": "6-grid (1200x1880 29:47)",
-
         "chinese_text": true,
-
         "style_adapter": "comic_storyboard",
-
         "panel_count": 6,
-
         "characters": [
-
           "小满",
-
           "阿鹿",
-
           "周姐"
-
         ],
-
         "outputs": "_PKOS/outputs/RT-20260828-comic-demo-comic-script/ (9 产物)",
-
         "telemetry_events": [
-
           "export.fallback x1",
-
           "validation.fail x3"
-
         ]
-
       },
-
       "self_check": "5 个 .py 语法全 OK,compose.py rc=0 e2e 通过,3 错误码路径 rc=1 全拒收,telemetry.jsonl 5 条事件落地,manifest 字段完整,characters_anchor_consistent=true,中文对白单段 ≤ 12 字 全通过"
-
     },
-
     {
-
       "version": 2.25,
-
       "date": "2026-08-28",
-
       "author": "host (v2.3.1 round-25 评审: 12-pkos-comic 6 项决议落地)",
-
       "summary": "评审 round-25 通过,comic skill 6 项决议全量落地: (1) gzh-design 收口为外部辅助,external_exits_note 同步; (2) conversion_type=公众号漫画 严格独占,html/ppt 不可消费,router frontmatter 升 v3.2 措辞+4 出口+5 风格; (3) chinese_text override 段补全,02_clarification 加 midjourney/sd_no_controlnet 自动建议切 false,4 套 themes 加净图模式 prefix; (4) _PKOS/assets/characters/ 双轨制资产库就位(小满/阿鹿/周姐 三人迁入),Agent 03 指向新路径+sha256 校验; (5) 错误码枚举化:failures 段加 error_codes 字段(15 个 ERR_* 枚举),tests 同步切换为 error_code 期望; (6) scripts/adapters/ Phase 3 接口骨架就位(NanoBanana/gptimage2/Midjourney 三个 + 可灵通义占位)。manifest 升 production。comic skill v1.0.0 production ready。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.comic.compose",
-
         "pkos.router.decide",
-
         "_PKOS/assets/characters/"
-
       ],
-
       "v23_resolutions": {
-
         "resolution_1_gzh_design": "走 A 方案,comic 接管脚本阶段,gzh-design 降为外部编辑器辅助",
-
         "resolution_2_conversion_type_exclusive": "公众号漫画 严格独占,html/ppt 拒收",
-
         "resolution_3_chinese_text_override": "默认开,midjourney/sd_no_controlnet 自动建议切 false",
-
         "resolution_4_dual_track_characters": "_PKOS/assets/characters/ 顶层资产库,详细 .md + 自动抽短语,sha256 校验",
-
         "resolution_5_error_codes": "evidence 字符串 → 15 个 ERR_* 错误码枚举",
-
         "resolution_6_adapters_phase3": "scripts/adapters/ 4 文件(2 实 + 2 占位)"
-
       },
-
       "self_check": "JSON 解析全 PASS,manifest maturity_tier=production,15 三态用例 yaml 含 error_code 期望,4 themes 加净图 prefix,_PKOS/assets/characters/ 4 文件就位,scripts/adapters/ 4 文件就位"
-
     },
-
     {
-
       "version": 3.2,
-
       "date": "2026-08-28",
-
       "author": "host (14-pkos-gzhxiaoshuo-skill: 小说中继型出口层)",
-
       "summary": "新增 pkos.exit.gzhxiaoshuo.compose —— 小说生成与多模态中继 Skill，消费 RT-* (exit=gzhxiaoshuo) + POL-*，产出三层结构化章节（元数据层 + 场景分镜层 + 实体网络），兼容 pkos-gzhxiaoshuo-skill-chapter:1 Schema。出口层第四槽位（html/ppt/comic/gzhxiaoshuo）；6 选 1 Persona 矩阵（hard_scifi/serious_drama/suspense/urban/fantasy/null）；downstream_hints 独立可选（comic/video/canvas/html-reader 按需消费）；weak_check v3.1 接入；失败三态 not_found/ambiguous/unavailable + degraded_success。router exit/conversion_type 词表同步升级。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.gzhxiaoshuo.compose（新）",
-
         "pkos.router.decide"
-
       ],
-
       "wordlist_growth": {
-
         "exit": {
-
           "before": [
-
             "html",
-
             "ppt",
-
             "comic"
-
           ],
-
           "after": [
-
             "html",
-
             "ppt",
-
             "comic",
-
             "novel"
-
           ]
-
         },
-
         "conversion_type": {
-
           "before": [
-
             "学习路径",
-
             "实战操作指南",
-
             "避坑风险清单",
-
             "wiki百科条目",
-
             "公众号漫画"
-
           ],
-
           "after": [
-
             "学习路径",
-
             "实战操作指南",
-
             "避坑风险清单",
-
             "wiki百科条目",
-
             "公众号漫画",
-
             "公众号小说",
-
             "小说"
-
           ]
-
         }
-
       },
-
       "self_check": "schema 五键齐全, 失败三态 not_found/ambiguous/unavailable 全部声明, degraded_success 路径就位, novel_tools.py validate/slice/check_wikilinks/count 4 命令就位, registry 18/18 PASS"
-
     },
-
     {
-
       "version": 3.1,
-
       "date": "2026-08-27",
-
       "author": "host (v3.1 round-25: 语义类型系统 + 独立验证矩阵 + 事件总线 + 可观测性)",
-
       "summary": "v3.1 升维：4 类型 RawEntry/FactCore/DerivedDraft/ExportArtifact + 物理 Hash 断言 + 类型守卫 + EventBus (telemetry.jsonl) + 独立弱审核模块 07-pkos-weak-check (从 polish 抽离) + 创作者 Persona 矩阵 5 选 1 (wechat_master/bioinformatician/knowledge_architect/storyteller/null) + 双链密度硬指标",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.html.render",
-
         "pkos.exit.ppt.compose",
-
         "pkos.polish.refine",
-
         "pkos.router.decide",
-
         "pkos.analysis.structure",
-
         "pkos.weak_check.verify (NEW)"
-
       ],
-
       "task_typesystem_v31": "RawEntry/FactCore/DerivedDraft/ExportArtifact 4 态生命周期 + 物理 Hash 断言 + 类型守卫 REQUIRED_FIELDS",
-
       "task_eventbus_v31": "telemetry.jsonl 单写者 (pkos_v31_lib.emit) + 11 事件 schema (router.decide/router.degraded/weak_check.pass/weak_check.fail/weak_check.degraded/export.success/export.fallback/polish.start/polish.success/polish.retry/polish.fail/analysis.start/analysis.success/analysis.rejected)",
-
       "task_weakcheck_v31": "独立模块 07-pkos-weak-check/scripts/verify.py (v3.1 从 polish 抽离) + 加权和 4 维 (entity 0.5 + number 0.2 + fact_kept 0.2 + fact_no_add 0.1) + 阈值 0.9 + MAX_RETRY=2 + ambiguous 决策单",
-
       "task_persona_v31": "5 Persona 矩阵: wechat_master (公众号主理人) / bioinformatician (生信代码) / knowledge_architect (知识库架构) / storyteller (故事化讲师) / null + 元数据屏蔽 (含 AI 助手/自动生成)",
-
       "task_moc_v31": "双向连接密度硬指标: 单笔记 bidirectional_count >= 2, 母题 outbound_count >= 3, 全库双向/总 >= 50%",
-
       "task_shared_lib_v31": "10-pkos-html/scripts/pkos_v31_lib.py (8.5KB): MAX_RETRY + hash_file + assert_unchanged + assert_vault_unchanged + assert_typed + emit/emit_render + raw_fallback + with_max_retry + write_with_retry",
-
       "self_check": "contract_refs 17/17 PASS, render_layer_safety 8/8 PASS, weak_check pass/fail/degraded 真跑通, vault 源 1154 .md 0 改动, telemetry 4 事件落地"
-
     },
-
     {
-
       "version": 2.24,
-
       "date": "2026-08-28",
-
       "author": "host (v2.3 round-24: comic 出口入册)",
-
       "summary": "新增 pkos.exit.comic.compose capability（v1.0.0 prototype）——公众号漫画出口层第三槽位，与 html/ppt 平级；专承接 conversion_type='公众号漫画'。art_style 四值词表（healing/flat_tech/comic_strip/retro_comic）；chinese_text 可选项（默认开，本 skill 独有特色能力）；4 宫/6 宫二选一必问；16:9 封面默认。router 词表同步升级：exit {html|ppt} → {html|ppt|comic}，conversion_type 4 值 → 5 值（增 公众号漫画），json schema 与 v2 失败三态解释层同步。3 出口不混装 v0 锁死继承。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.comic.compose（新）",
-
         "pkos.router.decide"
-
       ],
-
       "v23_wordlist_growth": {
-
         "exit": {
-
           "before": [
-
             "html",
-
             "ppt"
-
           ],
-
           "after": [
-
             "html",
-
             "ppt",
-
             "comic"
-
           ]
-
         },
-
         "conversion_type": {
-
           "before": [
-
             "学习路径",
-
             "实战操作指南",
-
             "避坑风险清单",
-
             "wiki百科条目"
-
           ],
-
           "after": [
-
             "学习路径",
-
             "实战操作指南",
-
             "避坑风险清单",
-
             "wiki百科条目",
-
             "公众号漫画"
-
           ]
-
         }
-
       },
-
       "router_changes": [
-
         "input.exit_hint: 增 comic 候选",
-
         "output.exit: 增 comic 候选",
-
         "output.conversion_type: 增 公众号漫画 候选",
-
         "json schema enum: 同步扩展",
-
         "决策启发式: 增 comic 必问项（art_style/grid/cover/characters/plot_outline）"
-
       ],
-
       "self_check": "schema 五键齐全（capability_id/version/compatible_pkos_schema/stage/semantic_goal）, 失败三态 not_found/ambiguous/unavailable 全部声明, 15 三态用例 PASS（6 NF + 5 AM + 3 UN + 1 DS）, 4 套画风 themes 文件就位, 9 个 agent 调度说明就位"
-
     },
-
     {
-
       "version": 3.1,
-
       "date": "2026-08-27",
-
       "author": "host (v3.1 round-25: 语义类型系统 + 独立验证矩阵 + 事件总线 + 可观测性)",
-
       "summary": "v3.1 升维：4 类型 RawEntry/FactCore/DerivedDraft/ExportArtifact + 物理 Hash 断言 + 类型守卫 + EventBus (telemetry.jsonl) + 独立弱审核模块 07-pkos-weak-check (从 polish 抽离) + 创作者 Persona 矩阵 5 选 1 (wechat_master/bioinformatician/knowledge_architect/storyteller/null) + 双链密度硬指标",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.html.render",
-
         "pkos.exit.ppt.compose",
-
         "pkos.polish.refine",
-
         "pkos.router.decide",
-
         "pkos.analysis.structure",
-
         "pkos.weak_check.verify (NEW)"
-
       ],
-
       "task_typesystem_v31": "RawEntry/FactCore/DerivedDraft/ExportArtifact 4 态生命周期 + 物理 Hash 断言 + 类型守卫 REQUIRED_FIELDS",
-
       "task_eventbus_v31": "telemetry.jsonl 单写者 (pkos_v31_lib.emit) + 11 事件 schema (router.decide/router.degraded/weak_check.pass/weak_check.fail/weak_check.degraded/export.success/export.fallback/polish.start/polish.success/polish.retry/polish.fail/analysis.start/analysis.success/analysis.rejected)",
-
       "task_weakcheck_v31": "独立模块 07-pkos-weak-check/scripts/verify.py (v3.1 从 polish 抽离) + 加权和 4 维 (entity 0.5 + number 0.2 + fact_kept 0.2 + fact_no_add 0.1) + 阈值 0.9 + MAX_RETRY=2 + ambiguous 决策单",
-
       "task_persona_v31": "5 Persona 矩阵: wechat_master (公众号主理人) / bioinformatician (生信代码) / knowledge_architect (知识库架构) / storyteller (故事化讲师) / null + 元数据屏蔽 (含 AI 助手/自动生成)",
-
       "task_moc_v31": "双向连接密度硬指标: 单笔记 bidirectional_count >= 2, 母题 outbound_count >= 3, 全库双向/总 >= 50%",
-
       "task_shared_lib_v31": "10-pkos-html/scripts/pkos_v31_lib.py (8.5KB): MAX_RETRY + hash_file + assert_unchanged + assert_vault_unchanged + assert_typed + emit/emit_render + raw_fallback + with_max_retry + write_with_retry",
-
       "self_check": "contract_refs 17/17 PASS, render_layer_safety 8/8 PASS, weak_check pass/fail/degraded 真跑通, vault 源 1154 .md 0 改动, telemetry 4 事件落地"
-
     },
-
     {
-
       "version": 3.0,
-
       "date": "2026-08-27",
-
       "author": "host (v3.0 round-24: 双核架构重塑 + 弹性自演化)",
-
       "summary": "v3.0 架构重塑：双核（不可变 vault + 智能 Router）+ Adaptive Polish 动态场景化 + 弱审核双轨回退 + MAX_RETRY=2 + Source-Unchanged 断言。render.py / render_combined.py / render_deck.py 加 assert_source_unchanged 与 raw_fallback；polish / router / analysis SKILL.md 加 style_adapter + adaptive_polish_policy + 多模态 MOC + 三段式强审核。8/8 攻击向量全拦截，vault 源 SHA256 0 改动",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.polish.refine",
-
         "pkos.router.decide",
-
         "pkos.analysis.structure",
-
         "pkos.exit.html.render",
-
         "pkos.exit.ppt.compose"
-
       ],
-
       "task_render_layer_v30": "render.py + render_combined.py + render_deck.py 加 MAX_RETRY=2 + assert_source_unchanged(source_path, pre_hash)；写失败 OSError x2 -> raw_fallback (同 fallback path 写源 markdown + degraded=true)",
-
       "task_router_v30": "Router 路由单新增 style_adapter 字段（v0 锁死 null 解锁）+ adaptive_polish_policy.weak_check_runs=2 + on_fail=raw_fallback；QC-27~30",
-
       "task_polish_v30": "Polish 5 风格场景化（html_article / comic_storyboard / video_script / novel_chapter / null）+ 弱审核（实体偏差 > 2 / 数字偏差 > 5% / 删增事实）+ Raw Fallback 5 步（落 _quarantine + 源直出 + ambiguous 决策单 + degraded=true + 不阻塞）",
-
       "task_analysis_v30": "三段式强审核（事实校验 + 结构化提纯 + Persona 注入）+ 多模态 MOC（narrative_arc 4 段式 + cross_modal_links 跨模态）+ 防水文 Persona 强化",
-
       "task_selfcheck_8vec": "vault_root / entries_dir / numbered_dir / deep_dotdot / not_html / empty_name / symlink_attack / good_export = 8/8 PASS",
-
       "task_vault_sha256_zero": "vault 源 1154 .md 跑前跑后 SHA256 完全一致",
-
       "self_check": "contract_refs 16/16 PASS, 5-step e2e Overall PASS, vault 源 SHA256 0 改动, 8/8 攻击向量全拦截"
-
     },
-
     {
-
       "version": 2.23,
-
       "date": "2026-08-27",
-
       "author": "host (v2.3.1 round-23b: hunyuan-direct endpoint 真接入)",
-
       "summary": "把 <LLM_GATEWAY_HOST>:1519 endpoint 接入 DSH llm-pi-ai hand-declared route 'hunyuan-direct'；model hy3 (含 reasoning_content)；provider-policy.md 1.1→1.2；2 cap provider_aliases 改 hunyuan-direct/hy3；web profile cordis.patch.yml 加 hunyuan-direct insert 段；端到端验证 chat 200 + reasoning_content + usage；apikey 写根 .env (gitignored)，永不入文档",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.intake.query",
-
         "pkos.fanout.concept"
-
       ],
-
       "task_endpoint_probe": "GET /v1/models 列出 3 model (deepseek-v4-flash / deepseek-v4-flash-vision-exp / hy3)；hy3 唯一含 hy3 关键词",
-
       "task_chat_verify": "POST /v1/chat/completions (max_tokens=500) 200 OK, content='2', reasoning_content='1+1=2', usage.reasoning_tokens=31",
-
       "task_credentials": "D:\\00.AIagent\\deepseekharness\\.env (gitignored) 写 HUNYUAN_BASE_URL/HUNYUAN_API_KEY/HUNYUAN_DEFAULT_MODEL",
-
       "task_dsh_patch": "C:\\Users\\18765\\.dsh\\profiles\\web\\cordis.patch.yml 加 hunyuan-direct insert (apiKeyEnv: HUNYUAN_API_KEY, baseURL: http://<LLM_GATEWAY_HOST>:1519/v1, model hy3)",
-
       "task_provider_aliases": {
-
         "hy3": {
-
           "model": "hy3",
-
           "provider_route": "hunyuan-direct",
-
           "default_effort": "auto"
-
         },
-
         "m21": {
-
           "model": "m21",
-
           "provider_route": "self-degrade"
-
         }
-
       },
-
       "task_contract_policy_v12": "provider-policy.md 1.1→1.2；alias 映射段更新为 hunyuan-direct；新增凭证安全段说明根 .env",
-
       "self_check": "contract_refs 15/15 PASS, registry.json 23 changelog entries valid, vault 0 changes (15min), root .env gitignored (git check-ignore), cordis.patch.yml hunyuan-direct insert present, apikey NOT in any SKILL.md/contract/registry"
-
     },
-
     {
-
       "version": 2.22,
-
       "date": "2026-08-27",
-
       "author": "host (v2.3.1 round-23: tencent/hy3-paid 接入)",
-
       "summary": "PKOS 内部 hy3 抽象层映射到 DSH 端 tencent/hy3-paid（通过 llm-pi-ai 的 vercel-ai-gateway 转发或 hand-declared 直连 Tencent endpoint）；provider-policy.md v1.0→v1.1 加 cordis-snippet 段；intake.query + fanout.concept 加 provider_aliases 字段；web UI settings 自填 API key + 选 model",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.intake.query",
-
         "pkos.fanout.concept"
-
       ],
-
       "task_web_ui_config": "DSH web 端 settings → llm-pi-ai → providers.vercel-ai-gateway.apiKeyEnv 填 VERCEL_AI_GATEWAY_API_KEY，tencent/hy3-paid 自动出现在 model 选择器",
-
       "task_provider_aliases": {
-
         "hy3": {
-
           "model": "tencent/hy3-paid",
-
           "provider_route": "vercel-ai-gateway",
-
           "default_effort": "auto"
-
         },
-
         "m21": {
-
           "model": "m21",
-
           "provider_route": "self-degrade"
-
         }
-
       },
-
       "task_contract_policy_v11": "provider-policy.md 加 tencent-hy3-cordis-snippet 段 + 验收段 3 条 v2.3.1 断言；原 1.0 锁死段不动",
-
       "task_no_new_package": "无需新写 llm-tencent 包；llm-pi-ai 已支持 hand-declared route 任意 OpenAI-compatible endpoint",
-
       "self_check": "contract_refs 15/15 PASS, registry.json 22 changelog entries valid"
-
     },
-
     {
-
       "version": 2.21,
-
       "date": "2026-08-27",
-
       "author": "host (v2.3.1 round-22: deep attack vectors + wikilink weaving)",
-
       "summary": "v2.3.1 深度加固：render 层双重白名单判定 (原始路径+真实路径都通过) 堵住 ..跳出和 symlink 攻击；render_combined.py 也补上断言；MOC 双链法架构段注入 analysis/router/polish (内聚双链+向上回指+横向互引)",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.html.render",
-
         "pkos.exit.ppt.compose",
-
         "pkos.analysis.structure",
-
         "pkos.router.decide",
-
         "pkos.polish.refine"
-
       ],
-
       "task1_deep_hardening": {
-
         "v23_vulns_fixed": [
-
           ".. 跳出",
-
           "symlink 攻击",
-
           "render_combined 漏补"
-
         ],
-
         "double_white_check": "原始路径 + Path.resolve() 真实路径都通过白名单才放行",
-
         "forbidden_segments": [
-
           "entries",
-
           "00-",
-
           "10-",
-
           "20-",
-
           "30-",
-
           "40-",
-
           "50-",
-
           "60-",
-
           "70-",
-
           "80-",
-
           "90-"
-
         ],
-
         "files": [
-
           "10-pkos-html/scripts/render.py",
-
           "10-pkos-html/scripts/render_combined.py",
-
           "11-pkos-ppt-skill/scripts/render_deck.py"
-
         ]
-
       },
-
       "task2_wikilink_weaving": {
-
         "principles": [
-
           "内聚双链",
-
           "向上回指",
-
           "横向互引"
-
         ],
-
         "wikilink_form": "[[目标]] 而非 [X](Y) (Obsidian 兼容)",
-
         "qc_added": [
-
           "QC-23 延伸阅读段",
-
           "QC-24 母题 wikilink",
-
           "QC-25 子题 wikilink + 场景",
-
           "QC-26 全部 [[]] 不用 []()"
-
         ]
-
       },
-
       "task3_self_check": "9/9 攻击向量断言全过, vault 1154 .md hash 0 changes"
-
     },
-
     {
-
       "version": 2.2,
-
       "date": "2026-08-27",
-
       "author": "host (v2.3 round-21: render-layer read-only + MOC/Semantic Weaving)",
-
       "summary": "v2.3 紧急修复：渲染层绝对只读（render.py + render_deck.py 加 SAFE_OUT_PREFIXES 白名单断言）+ MOC/Persona/屏蔽元数据 注入到 analysis/router/polish",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.html.render",
-
         "pkos.exit.ppt.compose",
-
         "pkos.analysis.structure",
-
         "pkos.router.decide",
-
         "pkos.polish.refine"
-
       ],
-
       "task1_render_safety": {
-
         "assert_safe_out": "vault 根 / entries/ / 数字目录拒绝 (exit=4)",
-
         "safe_out_whitelist": [
-
           "_PKOS/_Export/",
-
           "_PKOS/reports/",
-
           "_PKOS/exports/",
-
           ".staging/",
-
           "dist/",
-
           "out/",
-
           "build/"
-
         ],
-
         "self_check": "vault 1154 .md SHA256 全程 0 changes",
-
         "fix_files": [
-
           "10-pkos-html/scripts/render.py",
-
           "11-pkos-ppt-skill/scripts/render_deck.py"
-
         ]
-
       },
-
       "task2_moc_semantic_weaving": {
-
         "persona": "知识域主理人 (公众号长文 / 生信代码 / 知识库体系)",
-
         "moc_schema": "mother_theme + child_themes[logic_to_next, connects_to] + narrative_arc",
-
         "metadata_blocklist": [
-
           "文件名",
-
           "源文件",
-
           "本文",
-
           "本文档",
-
           "*.md",
-
           "*.html",
-
           "_PKOS",
-
           "front matter 字段名"
-
         ],
-
         "transition_required": true,
-
         "qc_added": [
-
           "QC-18 moc 已读",
-
           "QC-19 逻辑链全填",
-
           "QC-20 过渡段出现",
-
           "QC-21 无元数据",
-
           "QC-22 血肉感 5+ 场景"
-
         ]
-
       },
-
       "task3_e2e": "5-step PASS, vault zero pollution, render self-check 3/3 PASS"
-
     },
-
     {
-
       "version": 2.19,
-
       "date": "2026-08-27",
-
       "author": "host (v2.2 Task 2+3: D3 + model/hooks)",
-
       "summary": "v2.2 收尾：Task 2 (D3 env_mocks 全量接入 capability_runner 重写) + Task 3 (router/analysis 加 model_target + JSON schema; html/ppt 加渲染解耦 hook 嵌入 <script>pkos-data</script>)",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.maintenance.index",
-
         "pkos.knowledge_service.commit",
-
         "pkos.audit.lint",
-
         "pkos.router.decide",
-
         "pkos.analysis.structure",
-
         "pkos.exit.html.render",
-
         "pkos.exit.ppt.compose"
-
       ],
-
       "task2_capability_runner_results": {
-
         "index_pass": "10/12 (2 ambiguous design gap)",
-
         "commit_pass": "11/14 (3 yaml-script compat gap, 1 B1 gate PASS)",
-
         "lint_pass": "0/13 deep (runner 接口可调通)",
-
         "yaml_schema_fix": "target/env_mocks/options 全部从 case.arrange.* 读",
-
         "vault_zero_pollution": true
-
       },
-
       "task3_changes": {
-
         "model_target": {
-
           "primary": "qwen/qwen3.6-27b",
-
           "fallback": "deepseekv4flash",
-
           "applied_to": [
-
             "pkos.router.decide",
-
             "pkos.analysis.structure"
-
           ]
-
         },
-
         "json_schemas": [
-
           "pkos-router-schema:1 (route_id RT-YYYYMMDD-NNN, exit enum, conversion_type 4 值)",
-
           "pkos-analysis-findings:1 (severity S1/S2/S3, repairability 2 值)"
-
         ],
-
         "renderer_hooks": {
-
           "html": "<script type=application/json+pkos id=pkos-data data-version=1.0> embed",
-
           "ppt": "<script type=application/json+pkos id=pkos-deck-data> embed",
-
           "third_party_consumers": [
-
             "json-canvas",
-
             "excalidraw-diagram",
-
             "mermaid-visualizer"
-
           ]
-
         }
-
       },
-
       "e2e_overall": "PASS (5-step, step 3 capability_runner 宽容 exit=0/1)",
-
       "contract_refs": "15/15 PASS",
-
       "residual_gaps_for_v23": [
-
         "front_matter_complete=false 期望 not_found，commit 宽容解析",
-
         "atomic_write_fail_at_step 无 monkey-patch hook",
-
         "rollback fail 无触发机制",
-
         "dir_acl deny-read Windows 难模拟"
-
       ]
-
     },
-
     {
-
       "version": 2.18,
-
       "date": "2026-08-27",
-
       "author": "host (v2.2 Task 1: D1 + D2)",
-
       "summary": "v2.2 冲刺 Task 1：D1 Status Normalizer (index/commit 只读流别名映射) + D2 Path Heuristic (一级目录兜底域)。by_status 5→3 全 PKOS 合法，cross_domain_edges 0→127，by_domain 557(no domain)→40+ 真实目录桶",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.maintenance.index",
-
         "pkos.knowledge_service.commit"
-
       ],
-
       "v22_d1_aliases": [
-
         "已作答→analyzed",
-
         "待作答→triaged",
-
         "answered→analyzed",
-
         "pending→triaged",
-
         "draft→triaged",
-
         "wip→analyzed",
-
         "done→polished",
-
         "review→routed",
-
         "shipped→exported"
-
       ],
-
       "v22_d2_heuristic": "first path segment, strip _ and 数字前缀",
-
       "real_run_results": {
-
         "by_status_unique": "5 -> 3 (all PKOS legal)",
-
         "by_domain_buckets": "1 (no domain) -> 40+ real dirs",
-
         "cross_domain_edges": "0 -> 127",
-
         "capability_runner": "39/39 PASS",
-
         "vault_mtime_modified": 0
-
       },
-
       "hooks_passed": [
-
         "Pre-Patch (no contracts/30-pkos-meta touched)",
-
         "Post-Patch (ASCII docstring)",
-
         "D-6 gate_1/2/3 preserved",
-
         "D-1~D-10 axioms preserved"
-
       ]
-
     },
-
     {
-
       "version": 2.17,
-
       "date": "2026-08-27",
-
       "author": "host (e2e 真跑 + 实施发现)",
-
       "summary": "梯次 2 真跑 e2e on D:\\obsidian知识库：5/5 PASS + 4 项实施发现（F1 status 非 PKOS 值 / F2 domain 99% 空 / F3 跨域边 0 / F4 fm 覆盖率 49%）+ 4 项实施修复（IF1 PyYAML / IF2 env_mocks 留 v2.2 / IF3 TEST_MAP 路径 / IF4 mojibake 教训）。报告落 docs/pkos-v2-e2e-report.md",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.maintenance.index",
-
         "pkos.audit.lint",
-
         "pkos.knowledge_service.commit",
-
         "pkos.governance.audit",
-
         "pkos.maintenance.timeline"
-
       ],
-
       "real_run_results": {
-
         "capability_runner": "39/39 PASS",
-
         "contract_refs": "0 错",
-
         "index_on_real_vault": "total=560, exit=0",
-
         "lint_on_real_vault": "1336 reported (report-only), exit=0",
-
         "validate_entry_v0": "19/19 PASS",
-
         "e2e_runner_5step": "5/5 PASS, ~10s"
-
       },
-
       "findings_pending_decision": [
-
         "D1 F1 (a)(b)(c)",
-
         "D2 F2 path 段启发式",
-
         "D3 v2.2 env_mocks 完整接入"
-
       ]
-
     },
-
     {
-
       "version": 2.16,
-
       "date": "2026-08-27",
-
       "author": "host (execution-layer plan 梯次 1.1+1.3+1.4+2)",
-
       "summary": "梯次 1 完工：3 个机械能力补真实脚本（index.py / commit.py / lint.py）+ 2 个 LLM 能力 SKILL.md 加执行提示（fanout/query）+ 三态用例 runner（capability_runner.py）+ 契约引用校验器（contract_refs.py）+ e2e 调度器（e2e_runner.py）",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.maintenance.index",
-
         "pkos.knowledge_service.commit",
-
         "pkos.audit.lint",
-
         "pkos.fanout.concept",
-
         "pkos.intake.query"
-
       ],
-
       "new_scripts": [
-
         "21-pkos-maintenance-index/scripts/index.py",
-
         "04-pkos-knowledge-service-commit/scripts/commit.py",
-
         "22-pkos-audit-lint/scripts/lint.py",
-
         "tests/capability_runner.py",
-
         "tests/contract_refs.py",
-
         "tests/e2e_runner.py"
-
       ],
-
       "v2_landed": "机械能力从纸面契约升级为可执行；LLM 能力加执行提示；测试资产从规格描述升级为可 runner"
-
     },
-
     {
-
       "version": 2.15,
-
       "date": "2026-08-27",
-
       "author": "host (execution-layer plan 梯次 0.3+0.4)",
-
       "summary": "梯次 0.3+0.4 收口：pkos.governance.audit + pkos.maintenance.timeline v2 契约化（v0 行为完全保留）；audit/timeline 旧条目标 deprecated alias",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.governance.audit（新）",
-
         "pkos.maintenance.timeline（新）",
-
         "25-pkos-audit",
-
         "24-pkos-timeline"
-
       ]
-
     },
-
     {
-
       "version": 2.14,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 15/15, checkpoint ③ = 收口)",
-
       "summary": "v2.0 + v2.1 全 15 轮收口：D-9（v0 可清理）+ D-10（v2 锁定为基线）升号；DESIGN.md 顶部状态更新；全局优化方案 §5.5 实施发现 + §7 全局验收报告 + §8 时间表补完",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "all"
-
       ],
-
       "v2_landed": "v2.0 主线 + v2.1 c 线全部完成，23 units / 2 共享契约 / 192 三态用例 / 15 snapshots / 14 changelog"
-
     },
-
     {
-
       "version": 2.13,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 14/15, v2.1 c-轮 4)",
-
       "summary": "新增 pkos.intake.query：问答+库内高价值相关条目检索，消费 MASTER_INDEX + fanout 图；答案不自动 commit/ingest",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.intake.query（新）"
-
       ],
-
       "v2_landed": "v2.1 c 线 4 能力收口 4/4（index + lint + fanout + query）"
-
     },
-
     {
-
       "version": 2.12,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 13/15, v2.1 c-轮 3)",
-
       "summary": "新增 pkos.fanout.concept：6 扇出方向（theory/application/similar/contrast/edge_case/history）× N 子节点 + 跨域边建议，扇出草稿不自动 commit",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.fanout.concept（新）"
-
       ],
-
       "v2_landed": "v2.1 c 线 4 能力收口 3/4（index + lint + fanout）"
-
     },
-
     {
-
       "version": 2.11,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 12/15, v2.1 c-轮 2)",
-
       "summary": "新增 pkos.audit.lint：v0 audit 基础上加 auto-fix 层（4 类可修：fm-missing / fm-default-status / status-machine / tag-coverage；4 类只报告：dangling/orphan/cross-domain/status-retrograde-blocked）",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.audit.lint（新）"
-
       ],
-
       "v2_landed": "v2.1 c 线 4 能力收口 2/4（index + lint）"
-
     },
-
     {
-
       "version": 2.1,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 11/15, v2.1 c-轮 1)",
-
       "summary": "v2.1 c 线开篇：新增 pkos.maintenance.index（MASTER_INDEX 索引，v2.1 自生长地基）—— analysis/fanout/lint/KS 全部消费此索引",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.maintenance.index（新）"
-
       ],
-
       "v2_landed": "v2.1 c 线地基落库，4 个新增能力（index/lint/fanout/query）开始构建"
-
     },
-
     {
-
       "version": 2.9,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 10/15, checkpoint ②)",
-
       "summary": "v2.0 收口：(1) 新增 contracts/provider-policy.md（B3 模型回退链+退避策略 + B6 重试在契约收口）；(2) 新增 pkos.knowledge_service.commit capability（D-6 单点裁定 + atomic write + rollback token + B1 不回退 gate_1）；(3) supersedes v0 五个 skill 的 status 推进（向后兼容）",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit（新）",
-
         "05-pkos-analysis",
-
         "06-pkos-polish",
-
         "08-pkos-router",
-
         "10-pkos-html",
-
         "11-pkos-ppt-skill"
-
       ],
-
       "new_contracts": [
-
         "contracts/provider-policy.md"
-
       ],
-
       "v2_landed": "B1+B2+B3+B4+B5+B6 全部实战坑在契约层有归属"
-
     },
-
     {
-
       "version": 2.8,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 9/15)",
-
       "summary": "pkos.exit.ppt.compose 契约化：v0 比例三选一必问/两出口不混装/manifest 完整/provider 铁律/兜底不编造全部锁死继承 + 引入 degraded_success 第四态（v0 兜底路径：宁要无图完整方案）+ integrity_policy 门 1+门 2 接入 + 17 用例三态测试",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "11-pkos-ppt-skill",
-
         "pkos.exit.ppt.compose"
-
       ],
-
       "v2_extension": "degraded_success 第四态：image_api 不可用 + prompt 清单已交付时不计 failure（v0 行为锁死解读，扩展 D-5 三态为四态）"
-
     },
-
     {
-
       "version": 2.7,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 8/15)",
-
       "summary": "pkos.exit.html.render 契约化：v0 拒绝执行三件套/主题注册库/哈希一致/validate_output PASS/决策收集铁律/信息保留比例全部锁死继承 + integrity_policy 门 1+门 2 强约束（**B2 截断 HTML 落盘实战根治**）+ 19 用例三态测试",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "10-pkos-html",
-
         "pkos.exit.html.render"
-
       ]
-
     },
-
     {
-
       "version": 2.6,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 7/15, ★ 实施发现)",
-
       "summary": "pkos.router.decide 契约化：v0 路由单 schema/出口二选一/conversion_type 四值/确认强度三值/style_theme=null 锁死继承 + 失败三态解释层（schema/启停/词表拆解） + 18 用例三态测试。**实施发现**：v0 无 pkos.artifact.locate 单元（原方案假设有误），产物定位缺口移到 v2.1 c 线作为新增。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "08-pkos-router",
-
         "pkos.router.decide"
-
       ],
-
       "implementation_finding": "v0 11 个 skill 盘点后确认无 artifact-locate 目录；实战中查产物位置的痛点真实存在但 v0 未实现，作为 v2.1 c 线新增（pkos.artifact.locate），v0 这块缺位不影响轮 7 节奏。"
-
     },
-
     {
-
       "version": 2.5,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 6/15)",
-
       "summary": "pkos.polish.refine 契约化：五维评分卡/双向失败模型/R29/R30/Quick Checks 全部锁死继承 + integrity_policy 门 1+门 2 强约束生效（B1+B2 实战根治点）+ 17 用例三态测试",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "06-pkos-polish",
-
         "pkos.polish.refine"
-
       ]
-
     },
-
     {
-
       "version": 2.4,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 5/15, checkpoint ①)",
-
       "summary": "pkos.analysis.structure 契约化：沉默规则/关联推荐/写回防护全部失败三态拆解 + B5 强化（多次分析累加语义明确化）+ 14 用例三态测试",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "05-pkos-analysis",
-
         "pkos.analysis.structure"
-
       ]
-
     },
-
     {
-
       "version": 2.3,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 4/15)",
-
       "summary": "pkos.ingest.extract 契约化：v0 守门/降级链/dedup/validate 全部锁死继承，叠加失败三态解释层 + integrity_policy 接入 + 13 用例三态测试",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "03-pkos-ingest",
-
         "pkos.ingest.extract"
-
       ]
-
     },
-
     {
-
       "version": 2.2,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 3/15)",
-
       "summary": "pkos.intake.scan 契约化：gate=pass/ask/reject 保留（脚本行为不动），叠加失败三态解释层 + integrity_policy 接入 + 10 用例三态测试",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "01-pkos-intake",
-
         "pkos.intake.scan"
-
       ]
-
     },
-
     {
-
       "version": 2.1,
-
       "date": "2026-08-27",
-
       "author": "host (global plan round 2/15)",
-
       "summary": "新增产物完整性契约 contracts/artifact-integrity-policy.md（B1 不回退 + B2 完整性门槛）；registry 本体无 unit 变更",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "*落盘类单元通则（polish/html/analysis/router/ingest）"
-
       ]
-
     },
-
     {
-
       "version": 2,
-
       "date": "2026-08-27",
-
       "author": "host (v2 migration round 1/10)",
-
       "summary": "迁移至 v2 契约；新增 pkos.governance.bootstrap；保留 v0 旧条目为 deprecated alias",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "00-pkos-init",
-
         "pkos.governance.bootstrap"
-
       ]
-
     },
-
     {
-
       "version": "4.1",
-
       "date": "2026-08-30",
-
       "author": "hermes (U2 账本收敛：11 别名补 superseded_by 指针 + alias_ledger 顶层声明；website-kit 4.0 同步)",
-
       "summary": "registry 31 units = 20 有效 + 11 已收编别名；别名机读指向现役 capability_id；不做任何历史行修改",
-
       "breaking_changes": false,
-
       "affected_units": []
-
     },
-
     {
-
       "version": 4.2,
-
       "date": "2026-08-29",
-
       "author": "host (v4.2: operator-policy 调用方人格守卫落地——Meta-Auditor底座/动态子人格/断路器/陷阱预警/Code-as-Persona)",
-
       "summary": "与外部模型(Gemini)五轮人格架构评审收敛后落地调用侧对称守卫：新建 contracts/operator-policy.md (31-pkos-operator:1, 9 节)——职责边界(制片厂模型: PKOS产出层persona=演员/调用方子人格=导演/meta_auditor=永远在线元人格, Actor-Critic串行对抗)、调度子人格四值词表(archivist/reader_advocate/meta_auditor/null)、required_persona静态声明(切换决策权在PKOS路由单,禁止调用方自行猜人格)、断路器二值(STRICT|AUTO_MERGE; AER>=0.8健康线/连续5次绿灯免检/积压>=10拥塞低危放行/高危死守/自动执行失败信任清零)、三查守卫(人格越界persona_violation/断路器抗命breaker_defiance/拦截理由教条dogma_loop·SequenceMatcher>=0.8)、四陷阱预警(overreaching_butler/paranoia/dogmatic/rubber_stamp各带telemetry前兆)、动态拼装头([SYS_ROLE|SUB_ROLE|BREAKER|WARNING_TRAP]调用前1ms注入,防Prompt漂移)。新增 31-pkos-operator skill (pkos.operator.audit, stage governance 8b) + scripts/auditor_gate.py (--assemble/--persona-violation/--breaker-state/--check-defiance/--check-dogma/--selftest, 22用例ALL PASS, P-07/P-15/Hook3继承, stdlib only)。policy-engine.md §2.5 补 required_persona 载体声明。遥测事件: operator.head.assembled/operator.persona.violation/operator.breaker.trip/operator.breaker.release/operator.dogma.detected/operator.audit.suspended/operator.audit.auto_released",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.operator.audit（新）",
-
         "pkos.router.decide",
-
         "pkos.governance.tick"
-
       ],
-
       "source_review": "gemini.google.com/app/4c1498338dc32e7a (PKOS架构模块化与优化设计, 2026-08-29 五轮人格评审: Meta-Auditor定位/断路器量化/动态切换vs统一/两层人格边界/Code-as-Persona三层固化)",
-
       "operator_design": {
-
         "meta_persona": "克制元认知审计员(永远在线底座): 守系统引擎telemetry/成本/死循环/越权, 不碰.md内容层(knowledge_architect领空)",
-
         "sub_personas": "archivist(入库先验:输入皆脏)/reader_advocate(出口先验:读者缺背景,事实兜底在meta_auditor)/meta_auditor(自迭代先验:系统默认自利)/null",
-
         "breaker": "事前拦截->事后追溯动态退让: AER/MTTI/提案死亡率量化; 连续绿灯免检+拥塞低危auto-merged-by-breaker; 高危(registry/删笔记/核心代码)死守; 失败信任清零",
-
         "traps": "overreaching_butler(自动merge幻觉补链)/paranoia(AER<0.3断崖)/dogmatic(方差归零毫秒级同质拦截)/rubber_stamp(高危亚秒级审批)",
-
         "code_as_persona": "三层固化: 运行时状态层(纯Python算BREAKER_STATE)/契约配置层(required_persona随路由单流转)/动态拼装层(硬核指令头); 对等守卫auditor_gate.py查越界/抗命/教条"
-
       },
-
       "self_check": "auditor_gate --selftest 22/22 ALL PASS; 4命令端到端实跑全通(violation/breaker/defiance/dogma正负例); contract_refs 20 SKILL.md 0 错; run_tests 19 项 0 失败; evolution_gate 13/13; verify 11/11"
-
     },
-
     {
-
       "version": 4.3,
-
       "date": "2026-08-29",
-
       "author": "host (v4.3: OpenCLI 外部能力三件套入库——gemini chat/image 已实现 + video 骨架)",
-
       "summary": "Gemini 网页通道（零 API 成本，OpenCLI 驱动登录态 Chrome）固化为 PKOS 正式能力：新增 40-pkos-gemini-chat (pkos.gemini.chat, utility.external-llm: 发 prompt→轮询→抓回复→落盘 workspace)、41-pkos-gemini-image (pkos.gemini.image, utility.image: 出图→Downloads→归档 workspace→sha256/魔数校验，gptimage2use 对位低价通道，实测 1024px 出图全链路通过)、42-pkos-gemini-video (pkos.gemini.video v0.1.0 骨架，接口锁死 fail loud ERR_NOT_IMPLEMENTED，实现清单见 SKILL.md)。产出物铁律契约化：三单元 sinks=workspace-outputs，产出只落用户工作目录（--out-dir 必须已存在），绝不写 skill/套件目录。实测沉淀 3 坑入 SKILL.md：文案残留不可信（须查 blob 大图 naturalWidth>400）/下载按钮 ref 漂移（aria-label 现场定位）/Downloads 落盘延迟轮询",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.gemini.chat（新）",
-
         "pkos.gemini.image（新）",
-
         "pkos.gemini.video（新，骨架）"
-
       ],
-
       "workspace_rule": "用户铁律：产出物绝不放 skill/套件目录；一律落 workspace（pkos-outputs/<类别>/），并在回复中记录完整路径",
-
       "self_check": "py_compile 3/3; gemini_image 真实端到端跑通（下载→归档→sha256 一致→视觉验收）; registry JSON 合法"
-
     },
-
     {
-
       "version": "4.2.2",
-
       "date": "2026-08-30",
-
       "change": "新增 utility 单元 32-pkos-skillopt（capability pkos.skillopt.train）：microsoft/SkillOpt 微型训练循环适配（rollout→reflect→edit→validation gate），后端走网关 OpenAI-compatible；配套 AMAP-ML/SkillClaw 作采集分发面"
-
     },
-
     {
-
       "version": "4.3.1",
-
       "date": "2026-08-30",
-
       "author": "hermes (自进化轮: U0 演化件同步 + registry 三方合并 + BOM 防线 90 点 + tick 接线降级回路)",
-
       "summary": "①同步主库 v4.2/v4.3 演化件入 Hermes 副本（31-pkos-operator/auditor_gate、operator-policy、evolution-policy、evolution_gate，selftest 全过）；②registry 三方合并：并入 pkos.gemini.chat/image/video（主库 v4.3）+ pkos.operator.audit，保留副本 U2 成果（superseded_by×11、alias_ledger）与 pkos.skillopt.train；③全套件 41 文件 90 个读取点 utf-8→utf-8-sig（R4 BOM 教训机制化，元循环②步首例全量）；④tick.py 接线 degradation_gate（U5.1 闭环）",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "registry",
-
         "validate_entry",
-
         "全部读取侧脚本",
-
         "pkos.governance.tick"
-
       ]
-
     },
-
     {
-
       "version": "4.4.0",
-
       "date": "2026-08-31",
-
       "author": "hermes (pkos-ppt 出口 v2.0 原生 PPTX 改版，用户裁定)",
-
       "summary": "pkos.exit.ppt.compose v2.0：吸收 hugohe3/ppt-master(MIT) 设计骨架，PPT 出口从 v0.2 出图制转向**原生可编辑 PPTX**（python-pptx 原生文本框/形状），gptimage2 降级为 --images 可选插图通道。落地：①新增 scripts/deck_spec.py（POL→design_spec.json 中间层：8 页型角色确定性分类/要点拆页/整册节奏/讲稿提炼/封底结论回显）②新增 scripts/build_pptx.py（主题 native token 渲染：中西文双字体、悬挂缩进、两级要点、CJK 标点归一）③compose.py 重写为编排层并修复「永远 degraded_success」bug（旧实现全成功也标降级）④conversion_type 承接子集对齐 router v3.3 矩阵 ppt 行 4 值（旧实现 2 值属漂移）⑤aesthetics.json 升 :2 双轨（native 渲染 token + prompt_tokens 插图描述）⑥产物 schema 升 pkos-ppt-deck:2，输出目录 <route-id>-deck/。元信息不上屏规则内置（五维评分卡/R29 实测过滤、EP 编号剥离、钩子/CTA 映射演示用语）。单测 16 用例全绿；RT-20260827-ppt-test-001 端到端实跑（8 页 + 3 插图，PowerPoint COM 导出视觉验收通过）。",
-
       "breaking_changes": true,
-
       "affected_units": [
-
         "pkos.exit.ppt.compose",
-
         "11-pkos-ppt-skill"
-
       ],
-
       "supersedes": "v0.2 出图制裁定（2026-08-23 用户裁定，2026-08-31 用户裁定作废）"
-
     },
-
     {
-
       "version": "4.5.0",
-
       "date": "2026-08-31",
-
       "author": "hermes (13-pkos-wenzhang-skill 首版落地，用户裁定吸收 creator-buddy)",
-
       "summary": "新增 exit=article 第五出口槽位 pkos.exit.wenzhang.compose（units 36→38）：吸收 SpaceZephyr/creator-buddy 写作三件套方法论（gzh-longform-writer 六写法诊断路由 / gzh-short-post 短文规则 / baokuan-title-generator 16 法标题矩阵 / my-voice 个人文风档案），按 PKOS 契约移植为单元目录 13-pkos-wenzhang-skill（SKILL.md 五键 + references×4 + scripts/article_tools.py 机器质检 lint + tests）。产物四件落 _PKOS/_Export/article/（article.md + titles.md + qc-report.json + manifest，schema pkos-wenzhang-article:1）。词表 v4.5 全量同步（P-14）：conversion_type 六值→七值（增 公众号文章）、exit 四槽→五槽、style_adapter 增 gzh_article；同步点=router SKILL.md 十处 + router_matrix.py（单一事实源，43/43）+ policy-engine §2.1/§3 + dispatch catalog 2.5 卡片/速查表/总表 + knowledge-object-model/polish target_skill + relations-network。未吸收：选题监控四件套（外部 API，违反用户禁外部 API 铁律）、space-* 配图排版（与 gzh-design 职责重叠，v2.25 外部辅助边界不变）。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.wenzhang.compose",
-
         "13-pkos-wenzhang-skill",
-
         "pkos.router.decide",
-
         "06-pkos-polish",
-
         "registry",
-
         "router_matrix",
-
         "policy-engine",
-
         "skill-dispatch-catalog"
-
       ]
-
     },
-
     {
-
       "version": "4.7.0",
-
       "date": "2026-08-31",
-
       "author": "hermes (13-pkos-wenzhang-skill v1.1.0 效益最大化轮，用户裁定『吸收 creator-buddy 效益最大化』)",
-
       "summary": "wenzhang 单元 v1.0.0→1.1.0：①个人文风档案落地 _PKOS/assets/my-voice.md（5鹿7 矩阵文风，程序化提炼自 pkos-outputs/gzh 60 篇验收文案：判断句起手零预热/段中位49字单句成段44%/## 01 编号+写在最后固定节/你主轴/破折号主力/具体数字锚定/加粗克制/下一篇钩子收尾）；②档案即配置——voice-overrides JSON 块（para_cap=130/dash_max=10/matrix 600-1100/cta_required=false）接入 article_tools.py lint --voice，length_target 词表增 matrix 模式；60 篇回测校准（L1 误报 77→34 处为语料真实长段、W6 误报 58→0）；③头图通道吸收 space-gzh-cover：references/cover-spec.md（2.35:1 分享裁两次/中央 42.6% 安全区/策略 A-B-C/双道检查）+ scripts/check_cover.py（PKOS 适配：无 Pillow 降级读图头 + --json 机读报告，出图走 gptimage2use）；④article_tests 扩至 16 用例（voice 阈值 6 例 + check_cover fixture 2 例）。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.wenzhang.compose",
-
         "13-pkos-wenzhang-skill"
-
       ]
-
     },
-
     {
-
       "version": "4.9.1",
-
       "date": "2026-09-01",
-
       "author": "hermes (全量审核自进化轮: capability_runner 6 失败根因审计→2 实现缺口补齐+2 接线 bug 修复+4 known_gap)",
-
       "summary": "①commit.py 补 F3 输入失败门：front matter REQUIRED_FM 完整性校验（missing_fields）+ evidence 上游产物路径存在性校验（evidence_path_missing）；②capability_runner 修 2 接线 bug（commit_evidence 键名兼容、success 用例自动建 mock 上游）+ 新增 known_gap 机制（契约超前用例判 SKIP 不判 FAIL，failure-taxonomy F4 测试层镜像）；③index/lint 4 个 decision_card 语义用例标 known_gap 待排期；④审核发现入库 CASE-2026-09-01-capability-audit。capability_runner 33/39→35/35+4skip+0fail，全套件终验全绿，vault 红线 0-change True。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit",
-
         "tests.capability_runner",
-
         "pkos.maintenance.index",
-
         "pkos.audit.lint"
-
       ]
-
     },
-
     {
-
       "version": "4.9.2",
-
       "date": "2026-09-01",
-
       "author": "hermes (全量审核 V2 轮: 27单元逐一盘点 + 版本统一)",
-
       "summary": "①27 单元×registry 39 条全对照：26/26 有 SKILL.md 单元 v4 required_capability 全覆盖，capability_id 与 registry 全对齐（00-pkos-init 等别名走 superseded_by 正常）；②pkos.governance.tick 有登记无契约 → 补 30-pkos-meta/SKILL.md 契约化（v1.0.0）；③operator registry version 1.0.0→1.1.0 对齐 SKILL.md 权威值；④schema 分布核实：>=2.0.0×16 / >=2.1.0×5 / >=2.3.0×1 / >=3.1.0×2 / >=4.5.0×1（wenzhang 新单元），与套件 4.9.1 兼容",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.governance.tick",
-
         "pkos.operator.audit"
-
       ]
-
     },
-
     {
-
       "version": "4.9.3",
-
       "date": "2026-09-01",
-
       "author": "hermes (漫画出口结构精简: 12-pkos-comic 上位收编 comic-single-image-pipeline 实战管线)",
-
       "summary": "12-pkos-comic 升 1.1.0：v0 锁死边界修订（『不直接出图』→出图编排与发表为本 skill 职责），收编 comic-single-image-pipeline 全部实战资产（6格整图prompt公式/角色卡库制度/提示词审核卡+画后验收双关卡/gptimage2+Gemini双通道路由表/524重试纪律/发表管线草稿箱流/编号体系与双系列规划）；lessons-learned.md 迁入 12-pkos-comic/references/；原 skill 降级为兼容入口（触发语保留）。差异清单对照确认零遗漏（9 项实战资产 pkos 原全缺、4 项契约资产实战原全缺，完全互补）。capability_runner 0 fail 保持。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.comic.compose"
-
       ]
-
     },
-
     {
-
       "version": "4.9.4",
-
       "date": "2026-09-01",
-
       "author": "hermes (结构审计轮: 27 单元功能重叠扫描→10 候选对三问裁决→0 真重叠; 流程固化为 contracts/structure-audit.md)",
-
       "summary": "首轮全量功能重叠审计：27 单元→10 候选对→逐对三问裁决（输入源/互斥声明/代码引用）→结论 0 真重叠（audit×lint=上下位复用、meta×operator=互补、其余既有决议覆盖）；gemini 系公共代码不抽库裁决记录；流程固化 structure-audit.md 供自进化复用；新单元准入规则=重叠对为 0 否则走收编。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "contracts/structure-audit.md"
-
       ]
-
     },
-
     {
-
       "version": "4.9.5",
-
       "date": "2026-09-01",
-
       "author": "hermes (单元=模块/工作流=主线/枢纽=汇点 三层观落地方案A)",
-
       "summary": "①新建 20-pkos-publish 发表枢纽（pkos.publish.draft，v1.0.0）：发表是跨线共享能力，从 12-pkos-comic 收编节迁出成立，实战脚本 comic_upload_send.py 归位为 scripts/upload_weixin_draft.py，comic/wenzhang/文章HTML线只调用不内含；②出图通道政策收归 contracts/image-route-policy.md 单一真相（comic/主SKILL.md/记忆三处指针化，防漂移）；③structure-audit 补第四问「领域归属检查」（跨线共享必须抽枢纽、政策收契约）；④主SKILL.md 失效路径 opencli-browser-bridge→agent-reach 修复；⑤evolution_gate 机制→工作流环节待扩展（跟踪项）。用户体系观：单元=单一职责可拼接模块，工作流=单元串接主线，枢纽=汇点，职责抢占是大忌（关联后续员工安排与人格注入）。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.publish.draft(新)",
-
         "pkos.exit.comic.compose(瘦身)",
-
         "contracts/image-route-policy.md(新)",
-
         "contracts/structure-audit.md(第四问)"
-
       ]
-
     },
-
     {
-
       "version": "4.9.6",
-
       "date": "2026-09-01",
-
       "author": "hermes (群聊组建编制落地: 编制图谱22岗→team-roster.yaml 24 bot)",
-
       "summary": "把 D:/00.AIagent/pkos/PKOS-编制图谱.html 的 22 岗编制落地为 contracts/team-roster.yaml（v1.1.0，24 bot）：①图谱 footer 承诺的 team-roster.yaml 与交接单模板此前不存在，本次补齐；②图谱对齐 v4.9.4 缺 09-01 新岗，补发布专员·publish（pkos.publish.draft）；③去味师·humanizer 从图谱合并行独立成岗（humanizer-zh 与 gzh-design 职责不同）；④每 bot 六要素=bot名/persona/capability/mission/not_do/deliverables/hands_to/critic/trigger；⑤含禁配表 merge_bans 与精简方案 scale_options(3/7/24)。新文件 templates/交接单模板.md（NOT_actions 自查+degraded 声明+Critic 验收栏）。DSH 已同步。群聊名：PKOS 合作工作室。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "contracts/team-roster.yaml(新)",
-
         "templates/交接单模板.md(新)"
-
       ]
-
     },
-
     {
-
       "version": "4.9.7",
-
       "date": "2026-09-01",
-
       "author": "hermes (ppt 单元主题闸门修复: 静默降级→fail-loud + 风格必问闸门)",
-
       "summary": "11-pkos-ppt-skill v2.0.1：①resolve_theme 无效主题名从静默回退 paper-ink 改为 fail-loud（ThemeInvalidError→ambiguous 决策单），CLI --theme 非法值同级拒绝、合法值覆盖 route 声明（当下意图优先）；②SKILL.md 工序新增 2b「风格必问」闸门（与比例必问同级锁死）：开工前 5 主题清单（paper-ink/mo-xian/kan-shi/guang-shu/night-desk）交用户挑选，agent 不得自作主张；ambiguous 三态 when 扩展。起因：3 张测试 deck 全落 paper-ink，暴露静默降级掩盖错误 + agent 越权替用户选风格。测试 16→19 用例（+3 主题闸门回归），全绿；套件守卫 run_tests/contract_refs/capability_runner 不回归。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.exit.ppt.compose"
-
       ]
-
     },
-
     {
-
       "version": "4.9.8",
-
       "date": "2026-09-02",
-
       "author": "hermes (工单 v1.1 T-1: Schema v5.4 常驻索引地基)",
-
       "summary": "T-1 完成：schema_v54.sql（title_index 复合主键 P-2/links 无 FK P-3/objects_fts v5.4/write_ledger/provenance）+ migrate_v54.py（列嗅探 ALTER ADD 幂等，mtime_ns 置 0 不回填 P-6）。真库迁移 ok（objects 6 列新增、5 新表就位、行数守恒）。CP-1 全过：integrity ok、同名 3 行验证、无 FK 无隐式级联、旧库/新库双路径测试 7/7。五维回归零变化。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit"
-
       ]
-
     },
-
     {
-
       "version": "4.9.9",
-
       "date": "2026-09-03",
-
       "author": "hermes (P0 契约线收口 + 套件收尾三轮)",
-
       "summary": "①P0 上机九阶段全过：pkos_kb 落位（旧三件套归档 _archive_v54_legacy）、agent_threads/agent_events 建表、崩溃续跑实测逐行一致。②评审方探针体系收口：thread.py 按 SSOT 对齐（thread_id/event_type/payload_json/UNIQUE(thread_id,seq)+扩展列超集）、双 API 面共存导出、record_error 零容忍判定收进 record_event 内部、_ssot_cols 结构检查补丁落位（全表 SSOT 推导缺列）、探针 backup API 修 WAL 假阳性、契约固化为 test_thread_contract.py 回归。③bug 排查：32 处 except-pass 分类（4 真隐患加告警：exempt-zones/compose manifest 键）、失效路径 6 处修（词表引用→validate_entry.py 真相、3 单元 regression_tests 指真实文件）、内部 commit 零命中、BOM 零命中。④清理：102.3MB 移入 _trash/2026-09-03（staging 测试夹具 101MB 等，等人工确权真删）。终态：探针真 9/9、pkos_kb 149/0fail、五维全绿、verify_after [1]-[9]✅。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit",
-
         "pkos.meta"
-
       ]
-
     },
-
     {
-
       "version": "4.9.10",
-
       "date": "2026-09-03",
-
       "author": "hermes (v5.3 评估落地: frontmatter 分级解析)",
-
       "summary": "外部评审 v5.3 方案评估第③处（正则提 frontmatter 静默数据失真）自查命中同型 bug：pkos_kb/parser.py 正则解析把块级列表 tags 静默存成空串（第二标签永久丢失且看不出丢过）、布尔/数字存字符串、嵌套字典存空。修复=分级解析：简单 kv（无 YAML 结构字符/标量字面量）走正则快路径+_coerce_yaml_scalar 类型转换；缩进/列表/块标量/引号走 yaml.safe_load；解析失败 fail-loud；无 PyYAML 环境退避宁缺勿错（不存空串）。新增 4 回归用例（块级列表/多行块/标量类型/嵌套字典）。pkos_kb 153 tests 0 fail（149+4）。v5.3 其余两处：诊断两条（mtime 预筛 23×、批提交 84.5×）现有实现已覆盖；去抖停摆不适用（无 watcher 架构）。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit"
-
       ]
-
     },
-
     {
-
       "version": "4.9.11",
-
       "date": "2026-09-03",
-
       "author": "hermes (评审方 probe_frontmatter 验证轮)",
-
       "summary": "评审方 probe_frontmatter 18 项行为契约验证：修复前 12/18，3 项修复——① str/bytes 双兼容（原实现只收 bytes，probe 传 str 全炸）；② UTF-8 BOM 自动剥（Windows 笔记 \\ufeff 会卡死 ^--- 匹配）；③ 快路径空值键不存（tags: 空值宁缺勿错，不存 ''）。CRLF 原生正确（FM_RE \\r?\\n）。终端 python（有 yaml）18/18 全过；execute_code 子进程无 yaml 走降级路径 12/18 系环境差异非缺陷。探针固化 pkos_kb_tests/test_frontmatter_contract.py。SUGGESTIONS 记两条前置约束（gardener 禁自建状态机接 agent_threads、catalog links 写入路径待补探针）。pkos_kb 154 tests 0 fail。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit"
-
       ]
-
     },
-
     {
-
       "version": "4.9.12",
-
       "date": "2026-09-03",
-
       "author": "hermes (评审方 probe_frontmatter 第二轮: 八进制陷阱 + DEGRADED 落痕)",
-
       "summary": "①YAML 1.1 八进制/六十进制拦截：add_implicit_resolver 是追加非替换（默认 int 解析器先匹配），改覆写 int constructor——纯十进制转 int，前导零(007/01003)/冒号(1:30)/版本号(4.9.10)保字符串。快路径 _coerce_yaml_scalar 同步加前导零拒绝。评审方规格 11 例全过。②无 PyYAML 降级落痕：parser 加 yaml_available()/needs_degraded()/一次性 RuntimeWarning；catalog _write_index 加 index_state 参数，两调用点（commit_note/full_scan）传 DEGRADED——SQL 可捞出对账，装 pyyaml 后按清单重扫。③探针判据升 20/20（新增前导零严格版/八进制/六十进制），回归测试断言同步 + 2 新用例（DEGRADED 落痕/八进制拦截）。pkos_kb 156 tests 0 fail。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit"
-
       ]
-
     },
-
     {
-
       "version": "4.9.13",
-
       "date": "2026-09-03",
-
       "author": "hermes (P1-a: links 写入路径探针，三模块静默污染防线闭合)",
-
       "summary": "probe_links.py 10 项行为契约全过：①重 commit 出链不累积（重建前 DELETE source）②删 A 入链 target_path=NULL 行保留 ③删 A 出链行消失 ④改名出链 source_path 跟随 ⑤改名入链 target_path 跟随不误伤前缀 ⑥重复 wikilink 只存一行（extract_links 去重）⑦不存在标题 target_path=NULL ⑧歧义标题 wiki_ambiguous + resolve 最浅路径 ⑨无孤儿 source_path ⑩in_commit 事务内失败 links 零残留。契约 6/8 实测当前实现有明确定义（非 bug）。探针固化 test_links_contract.py。catalog 三模块（thread/parser/links）探针齐活，静默污染战线闭合。pkos_kb 157 tests 0 fail。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit"
-
       ]
-
     },
-
     {
-
       "version": "4.9.14",
-
       "date": "2026-09-03",
-
       "author": "hermes (P1-a 追加: P11/P12 两阶段提交后窗口)",
-
       "summary": "probe_links 补 P11/P12：post_db（DB 已 COMMIT 落盘前）/ hash_mismatch（落盘校验不符）两个失败窗口。已存在笔记补偿路径实测：a)objects.index_state='STALE'（prev 非 None 走补偿标记，新笔记 prev=None 走 _purge 行删除）b)links 出链清空 c)write_ledger 清掉 d)磁盘 os.replace 坏内容被 _compensate prev_bytes 回退到原版——评审方担心的『磁盘坏+索引 STALE 方向相反』不发生，ledger 清掉安全（无坏内容需对账）。探针 12/12，回归断言同步。_fail_at 为 keyword-only（* 后）未入 __all__。pkos_kb 158 tests 0 fail。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit"
-
       ]
-
     },
-
     {
-
       "version": "4.9.15",
-
       "date": "2026-09-03",
-
       "author": "hermes (P1-b: trash_gc 到期清理 + 三层回滚演练)",
-
       "summary": "①trash_gc.py：_trash 到期清理（CP-9'，Agent 只列清单/--report 磁盘零变更，--purge 需人工 token），8 契约探针全过——无 token 拒绝(-1)/token 错拒绝(-2)/非套件根拒绝(-4)/vault 守卫(VaultWriteAttempt)/只处理 ≥30 天到期目录/删前生成 manifest 清单留存/危险路径(vault/.obsidian/.trash)立即 abort/接 agent_threads 崩溃可续（P0 状态机首个真实消费方）。探针 P5 两层（vault 守卫用 vault_root_override 实测抛错+非套件根 rc=-4）。②三层回滚点副本演练全过：演练1 p0-20260903-123610→线程表未建态（agent_threads/events 无、pkos_kb 7文件无 thread.py、schema 可跑）；演练2 20260903-114559→旧三件在位（knowledge_service/migrate_v54/schema_v54 在、pkos_kb 不在）；演练3 catalog.db.bak-t1→v5.3 原态（无 mtime_ns/title_index，当前 migrate 重跑全建 OK）；复原验证 ✓（当前版 8 文件可还原，非单程票）。真环境零改动（全副本）。pkos_kb 158 tests 0 fail。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit",
-
         "pkos.meta"
-
       ]
-
     },
-
     {
-
       "version": "4.9.16",
-
       "date": "2026-09-03",
-
       "author": "hermes (P1-b 追加: junction/reparse point 防线)",
-
       "summary": "评审方指出的探针盲区：契约 7 字符串匹配看不出 junction（_trash/x 字符串含 vault? False 但 x 可是指向 vault 的 reparse point）。补 assert_no_reparse()（待删根 is_symlink/_is_junction 检查 + os.walk followlinks=False 逐层 + resolve 后必须仍在 _trash 下），purge 清单生成前调用（abort rc=-5）、--report 标注 [LINK] 不删。探针补 P9（junction 指向假 vault → abort 假 vault 完好）/P10（日期目录本身 junction → abort）/P11（report 标 [LINK]），11/11 全过。Windows 实测：vault 在外部时 Remove-Item -Recurse 与 cmd rmdir /s /q 均不穿透；教训已沉淀 SUGGESTIONS。pkos_kb 159 tests 0 fail。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit"
-
       ]
-
     },
-
     {
-
       "version": "4.9.17",
-
       "date": "2026-09-03",
-
       "author": "hermes (P1-c: 并发安全，探针逼出 2 个真 bug 已修)",
-
       "summary": "probe_concurrency.py 7 契约：初跑 5/7，两个 FAIL 是探针逼出的真 bug（非测试构造）——①契约2 同文件并发 commit 最后写者胜失败：DB 段与落盘段非原子，『最后落盘者』和『最后写 DB 者』可能不同 → objects.content_hash 与磁盘错位。修复：commit_note 收尾事务读磁盘实际内容写回 content_hash（磁盘=最终真相）+ tmp 名加 pid 防 WinError 32 + os.replace 5 次指数退避重试。②契约5 full_scan 并发 commit 丢行：gone 判定用 rglob 的 seen（快照后补的）做基准，扫描期间新 commit 的文件被误判为已删除 → 索引行被删（磁盘在，可自愈但静默）。修复：gone 只对『扫描开始前已在库』的路径判定。③migrate 每次 Catalog() 构造都写 schema_meta（并发下新连接构造抢写锁）→ 改为版本相同跳过。终态 7/7 全过，探针固化 test_concurrency_contract.py，pkos_kb 159 tests 0 fail。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit"
-
       ]
-
     },
-
     {
-
       "version": "4.9.18",
-
       "date": "2026-09-03",
-
       "author": "hermes (P1-c 追加: try_lock_path per-path 互斥锁)",
-
       "summary": "评审方裁定 Bug1 修法（收尾读盘回写 content_hash）只缩小窗口不关闭：0.5ms 病态压力下 149/300 仍错位 + 0.20ms/篇成本。改 try_lock_path：write_ledger 主键做 per-path 写锁（INSERT 成功=拿到/IntegrityError=被拒，TTL 30s 兜底崩溃锁自动过期），commit_note 阶段一先拿锁（3 次退避重试，拿不到抛 IndexWriteError 明确失败），收尾 DELETE 释放。去掉收尾读盘（省 0.20ms/篇，content_hash 直接 target_hash——锁保证同路径无并发写无错位窗口）。探针契约2 重构为确定性竞争（w_holder 持锁 1s + 3 进程 Barrier 同时冲 → 全 IndexWriteError 明确失败，ok=0 fail=3/3），7/7 全过；契约1 耗时 443ms（不同路径不互斥，锁不减速）。pkos_kb 159 tests 0 fail（含 P11/P12 补偿路径回归）。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit"
-
       ]
-
     },
-
     {
-
       "version": "4.9.19",
-
       "date": "2026-09-03",
-
       "author": "hermes (P2 收官: 锁缺陷/路径归一化/事件GC)",
-
       "summary": "①锁 use-after-expire+时钟源修复：_lock_owner()=pid:uuid（防 pid 复用）、_release_lock(sp,owner) 只删自己的锁（0=已易主）、_still_mine 落盘前复查（丢锁中止写盘）。②Windows 路径归一化：objects 双键（path 显示保留原大小写 NFC + path_key UNIQUE 折叠小写，变体归一行）；title_index/links/FTS 用显示 path 保持测试兼容；migrate 重建时 REBUILD_DERIVED 从 path 派生 path_key（旧库无此列）；full_scan seen/gone 统一 _path_key。③gc_events：只删 COMPLETED/DONE/FAILED 且超 keep_days 的线程事件，HALTED/运行中永不动，修正评审方片段误删 0 事件新线程问题。探针 6 个全绿（thread/frontmatter/links/concurrency/p2/trash_gc），probe_p2 14/14，pkos_kb 159 tests 0 fail。设计决策：supposed_hash 双语义保持现状+注释；时钟源用 TTL 300s（收尾清锁）+ expires_at 单判据，时钟大幅跳变人工清 ledger 的注记进 SUGGESTIONS。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit",
-
         "pkos.meta"
-
       ]
-
     },
-
     {
-
       "version": "4.9.20",
-
       "date": "2026-09-03",
-
       "author": "hermes (P2 收官: probe_p2 14/14 + 真库迁移)",
-
       "summary": "probe_p2 14/14 全过（L1-L3 锁 owner 修复/W1-W4 路径归一化/G1-G3 事件GC/S1-S4 备案）。真库 ~/.pkos/catalog.db 已迁移：path_key 列就位、0 行 0 冲突（纯预防）。objects 双键设计（path 显示原样+path_key UNIQUE 折叠）；title_index/links/FTS 显示 path 保测试兼容；migrate REBUILD_DERIVED 派生 path_key。六个探针全绿 + pkos_kb 159 tests 0 fail + 五维全绿。设计决策：supposed_hash 双语义保持现状+注释；时钟源 expires_at 单判据+TTL 300s，时钟跳变注记进 SUGGESTIONS。",
-
       "breaking_changes": false,
-
       "affected_units": [
-
         "pkos.knowledge_service.commit"
-
       ]
-
     },
-
     {
-
       "version": "4.9.21",
-
       "date": "2026-09-03",
-
       "author": "hermes (编制体系移除)",
-
       "summary": "用户裁定: 编制图谱(22岗)/工作室编制(群聊 bot 名册/交接单/人格 prompt)不在系统构思内，整体移除。清除: contracts/team-roster.yaml、templates/交接单模板.md（活性套件+DSH 双份）、pkos-studio/、PKOS-编制图谱.html、bot-personas 24 份 → _trash。保留 pipeline-persona-map.yaml（v4.8 人格×门禁机制，非编制）。changelog 历史记录保留（只追加不删）。",
-
       "breaking_changes": true,
-
       "affected_units": []
-
+    },
+    {
+      "version": "5.0.0",
+      "date": "2026-09-05",
+      "summary": "MAJOR: 目录序号化+registry 重构（breaking）。 BREAKING: 28 个单元目录改名 <stage#>-pkos-<name>（00-init…43-gptimage2use，流水线阶段序）。capability_id 不变，但按目录路径引用的下游需迁移（旧名→新名对照见 docs/MIGRATION-5.0.md） | BREAKING: registry 40→29 唯一单元（10 个空 capability_id + 1 重复清除）；新增 schema_version=1.0.0 与 Fail-fast 校验（scripts/registry_schema_check.py，已接入 upgrade_check） | DSH 副本剔除，溯源统一 generated.by=agent/hermes-pkos-skill | pkos_kb 引擎（commit 副作用式常驻索引/并发锁/path_key/事件GC）+ 6 行为探针（78 断言）+ trash_gc 固化进回归；capability 37/37 0 skip（known_gap 清零） | 版本体系统一：pkos_semver=SSOT，manifest/VERSION/SKILL.md 为只读投影（scripts/version_sync.py --check 强制） | gemini.video 从骨架转正 registered 1.0.0（Gemini 网页视频生成实测：三段产物+双轨音视频验证）",
+      "details": [
+        "BREAKING: 28 个单元目录改名 <stage#>-pkos-<name>（00-init…43-gptimage2use，流水线阶段序）。capability_id 不变，但按目录路径引用的下游需迁移（旧名→新名对照见 docs/MIGRATION-5.0.md）",
+        "BREAKING: registry 40→29 唯一单元（10 个空 capability_id + 1 重复清除）；新增 schema_version=1.0.0 与 Fail-fast 校验（scripts/registry_schema_check.py，已接入 upgrade_check）",
+        "DSH 副本剔除，溯源统一 generated.by=agent/hermes-pkos-skill",
+        "pkos_kb 引擎（commit 副作用式常驻索引/并发锁/path_key/事件GC）+ 6 行为探针（78 断言）+ trash_gc 固化进回归；capability 37/37 0 skip（known_gap 清零）",
+        "版本体系统一：pkos_semver=SSOT，manifest/VERSION/SKILL.md 为只读投影（scripts/version_sync.py --check 强制）",
+        "gemini.video 从骨架转正 registered 1.0.0（Gemini 网页视频生成实测：三段产物+双轨音视频验证）"
+      ]
     }
-
   ],
-
   "description": "pkos 流水线单元注册表 v2：role ∈ intake|process|governance|decision|exit|maintenance|knowledge_service；含 v0 兼容条目（status=deprecated）。D-7 公理要求每次新增/修改/弃用均记 changelog。",
-
   "schema_version_compat": ">=1.0",
-
   "v2_contracts": {
-
     "capability_id_format": "pkos.<domain>.<action>",
-
     "schema_required_fields": [
-
       "capability_id",
-
       "version",
-
       "compatible_pkos_schema",
-
       "stage",
-
       "semantic_goal"
-
     ],
-
     "failure_modes_required": [
-
       "not_found",
-
       "ambiguous",
-
       "unavailable"
-
     ]
-
   },
-
   "units": [
-
     {
-
       "id": "00-pkos-init",
-
       "capability_id": "00-pkos-init",
-
       "version": "1.0.0-legacy",
-
       "compatible_pkos_schema": "<2.0.0",
-
       "role": "governance",
-
       "stage": null,
-
       "consumes": "用户提供的知识库路径与模式选择",
-
       "produces": "_PKOS/ 地基骨架 + config.json(pkos-config:1)",
-
       "semantic_goal": "在指定路径初始化 PKOS 工作区骨架（v0 兼容入口）",
-
       "required": false,
-
       "status": "deprecated",
-
       "deprecated_since": "2026-08-27",
-
       "deprecated_reason": "已迁移至 pkos.governance.bootstrap；v0 入口保留以兼容老会话",
-
       "alias_of": "pkos.governance.bootstrap",
-
       "test_suite": null,
-
       "added_in_version": 1,
-
       "superseded_by": "pkos.governance.bootstrap"
-
     },
-
     {
-
       "id": "pkos.governance.bootstrap",
-
       "capability_id": "pkos.governance.bootstrap",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "governance",
-
       "stage": null,
-
       "stage_label": "governance",
-
       "consumes": "用户提供的知识库路径与模式选择",
-
       "produces": "_PKOS/ 地基骨架 + config.json(pkos-config:1)",
-
       "semantic_goal": "在指定路径初始化 PKOS 工作区骨架（_PKOS/ 地基 + config.json + 架构模式选择）",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "run_cmd"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "replaces": [
-
         "00-pkos-init"
-
       ],
-
       "supersedes": [],
-
       "depends_on_capabilities": [],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.governance.bootstrap.test.yaml",
-
       "added_in_version": 2
-
     },
-
     {
-
       "id": "pkos.governance.audit",
-
       "capability_id": "pkos.governance.audit",
-
-      "version": "1.0.0",
-
+      "version": "1.1.0",
       "compatible_pkos_schema": ">=2.1.0",
-
       "role": "governance",
-
       "stage": 8,
-
       "stage_label": "governance.audit",
-
       "consumes": "TargetConstraint(by_path_pattern) + options(prev, blindspot, max_list, outdir)",
-
       "produces": "<outdir>/YYYY-MM-DD_audit.{md,json} + blindspots.md（仅追加）",
-
       "semantic_goal": "全库只读测量 + 基线 diff 报告（front matter 覆盖率/状态机分布/孤岛悬空/空壳短笔记/重复）；v0 行为零变化",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "modify_file",
-
         "fix_anything",
-
         "content_analysis",
-
         "auto_commit"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "replaces": [
-
         "25-pkos-audit"
-
       ],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": false,
-
         "gate_2_integrity": false,
-
         "note": "报告无门禁"
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.governance.bootstrap"
-
       ],
-
       "depends_on_providers": [
-
         "filesystem",
-
         "front_matter_parser"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.governance.audit.test.yaml",
-
       "added_in_version": 2.15
-
     },
-
     {
-
       "id": "pkos.governance.tick",
-
       "capability_id": "pkos.governance.tick",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=3.3.0",
-
       "role": "governance",
-
       "stage": 8,
-
       "stage_label": "governance.tick",
-
       "consumes": "_PKOS/INBOX/* 文件清单 + _drafts/(TTL 24h) + _quarantine/(TTL 30d) 时间戳 + lint.py 可执行性",
-
       "produces": "tick 巡检报告（inbox 堆积/超期清单/增量 lint/latency）+ telemetry 事件 tick.heartbeat",
-
       "semantic_goal": "v3.3 主动式心跳巡检：INBOX 堆积探测、DerivedDraft 双轨 TTL 超期清点（_drafts 24h 可清、_quarantine 30d 仅提示不自动删）、__pycache__ 运行缓存清扫（--apply，上限 50）、增量 lint 巡检、heartbeat 遥测；默认 dry-run，--apply 才物理删除且白名单锁定 _drafts（PITFALLS P-01 零删除铁律）",
-
       "not_actions": [
-
         "delete_quarantine_auto",
-
         "touch_vault",
-
         "modify_fact_core",
-
         "decide_exit",
-
         "run_llm",
-
         "polish"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "sinks": [
-
         "telemetry.jsonl",
-
         "stdout-report"
-
       ],
-
       "safety": {
-
         "default_mode": "dry-run",
-
         "apply_whitelist": [
-
           "_drafts"
-
         ],
-
         "max_sweep_per_run": 200,
-
         "quarantine_policy": "expired-only-report (30d 归档人工裁决)"
-
       },
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true,
-
         "supports_degraded_success": true
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.audit.lint"
-
       ],
-
       "depends_on_providers": [
-
         "filesystem"
-
       ],
-
       "failure_modes_declared": true,
-
       "added_in_version": 3.3
-
     },
-
     {
-
       "id": "pkos.intake.scan",
-
       "capability_id": "pkos.intake.scan",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "intake",
-
       "stage": 0,
-
       "stage_label": "intake",
-
       "consumes": "TargetConstraint(by_path_pattern: INBOX/** + 正式收件通道) + options(limit_mb,out)",
-
       "produces": "_PKOS/manifests/*-intake.json 分拣单（12 字段 ticket，gate 三态映射层叠加）",
-
       "semantic_goal": "扫一遍指定来源，识别并分拣每件投放物，产出机读分拣单并调度规则卡",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "run_cmd"
-
       ],
-
       "required": true,
-
       "status": "registered",
-
       "replaces": [
-
         "01-pkos-intake"
-
       ],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.intake.scan.test.yaml",
-
       "added_in_version": 2.2
-
     },
-
     {
-
       "id": "pkos.intake.query",
-
       "capability_id": "pkos.intake.query",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.1.0",
-
       "role": "intake",
-
       "stage": 2,
-
       "stage_label": "intake.query",
-
       "consumes": "query(string) + options(max_relevant, include_fanout, auto_mode)",
-
       "produces": "_PKOS/queries/<时间戳>-<slug>.md + .json",
-
       "semantic_goal": "从用户问题出发，读 MASTER_INDEX.json + fanout 图找相关条目，LLM 出综合回答 + 引用源",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "modify_body",
-
         "decide_exit",
-
         "polish",
-
         "auto_commit",
-
         "auto_ingest"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.maintenance.index",
-
         "pkos.fanout.concept",
-
         "pkos.intake.scan"
-
       ],
-
       "depends_on_providers": [
-
         "hy3",
-
         "m21",
-
         "self-degrade"
-
       ],
-
       "required_capability": {
-
         "llm_chat": {
-
           "reasoning": "high",
-
           "context": "large"
-
         }
-
       },
-
       "provider_aliases": {
-
         "hy3": {
-
           "model": "hy3",
-
           "provider_route": "hunyuan-direct",
-
           "default_effort": "auto"
-
         },
-
         "m21": {
-
           "model": "m21",
-
           "provider_route": "self-degrade"
-
         }
-
       },
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.intake.query.test.yaml",
-
       "added_in_version": 2.13
-
     },
-
     {
-
       "id": "pkos.distill.book",
-
       "capability_id": "pkos.distill.book",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "process",
-
       "stage": 2,
-
       "stage_label": "process.distill",
-
       "consumes": "TargetConstraint(by_pdf | by_pdf_chapter | by_text_dir) + 用户自有书籍 PDF",
-
       "produces": "pkos-schema:1 章节条目组（status=raw）+ 书籍索引页，统一落 <库根>/书籍PDF/书本蒸馏内容留存/<书名>/ + _PKOS/manifests/<时间戳>-distill.json；不写书籍笔记/与MOC（挂载须用户明示）",
-
       "semantic_goal": "把书籍 PDF 蒸馏为一组合规章节笔记，统一落 书籍PDF/书本蒸馏内容留存/<书名>/；守门四检锁死继承 ingest",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "decide_exit",
-
         "translate"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "depends_on_capabilities": [
-
         "pkos.intake.scan"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "02-pkos-distill-book/tests/test_distill_book.py",
-
       "added_in_version": 2.4
-
     },
-
     {
-
       "id": "pkos.ingest.extract",
-
       "capability_id": "pkos.ingest.extract",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "process",
-
       "stage": 1,
-
       "stage_label": "process.extract",
-
       "consumes": "TargetConstraint(by_url | by_manifest_ticket) + intake 分拣单",
-
       "produces": "pkos-schema:1 合规条目（status=raw, domain=<slug|null>） + _PKOS/manifests/<时间戳>.json",
-
       "semantic_goal": "把外部输入抽取并装配成 pkos-schema:1 合规条目，原文一字不动",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "analyze",
-
         "polish",
-
         "decide_exit"
-
       ],
-
       "required": true,
-
       "status": "registered",
-
       "replaces": [
-
         "03-pkos-ingest"
-
       ],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "depends_on_capabilities": [
-
         "pkos.intake.scan"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.ingest.extract.test.yaml",
-
       "added_in_version": 2.3
-
     },
-
     {
-
       "id": "pkos.polish.refine",
-
       "capability_id": "pkos.polish.refine",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "process",
-
       "stage": 3,
-
       "stage_label": "process.refine",
-
       "consumes": "TargetConstraint(by_an_artifact | by_path_pattern) + analysis 发现表",
-
       "produces": "_PKOS/analysis/POL-<日期>-<slug>.md 净化稿 + 源 front matter status=polished 追加",
-
       "semantic_goal": "按 analysis 发现表逐条执行净化，产出 POL-* 净化稿与五维评分卡",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "add_facts",
-
         "modify_source",
-
         "decide_exit"
-
       ],
-
       "required": true,
-
       "status": "registered",
-
       "replaces": [
-
         "06-pkos-polish"
-
       ],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.analysis.structure"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.polish.refine.test.yaml",
-
       "added_in_version": 2.5
-
     },
-
     {
-
       "id": "pkos.analysis.structure",
-
       "capability_id": "pkos.analysis.structure",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "process",
-
       "stage": 2,
-
       "stage_label": "process.structure",
-
       "consumes": "TargetConstraint(by_path_pattern: entries/**) + AN-* 落点声明",
-
       "produces": "_PKOS/analysis/AN-<日期>-<slug>.md 6 段笔记 + 源 front matter 追加",
-
       "semantic_goal": "对已入库条目做结构化理解，产出 AN-* 分析笔记，不改正文",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "polish",
-
         "decide_exit",
-
         "modify_body"
-
       ],
-
       "required": true,
-
       "status": "registered",
-
       "replaces": [
-
         "05-pkos-analysis"
-
       ],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "depends_on_capabilities": [
-
         "pkos.ingest.extract",
-
         "pkos.maintenance.index（v2.1 C-轮 1 启用）"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.analysis.structure.test.yaml",
-
       "added_in_version": 2.4
-
     },
-
     {
-
       "id": "pkos.knowledge_service.commit",
-
       "capability_id": "pkos.knowledge_service.commit",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "knowledge_service",
-
       "stage": 6,
-
       "stage_label": "knowledge_service.commit",
-
       "consumes": "TargetConstraint(by_path_pattern | by_*_artifact) + options(from_state, to_state, commit_evidence, force, audit_trail)",
-
       "produces": "_PKOS/reports/commits/<时间戳>.json 审计记录 + atomic front matter 更新 + .commit-backup/",
-
       "semantic_goal": "集中处理 Knowledge Object 的 status 推进、source-of-truth 锁定、回写一致性、commit 失败回滚（D-6 单点裁定）",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "modify_body",
-
         "skip_audit",
-
         "bypass_integrity"
-
       ],
-
       "required": true,
-
       "status": "registered",
-
       "replaces": [],
-
       "supersedes": [
-
         "05-pkos-analysis（status 推进）",
-
         "06-pkos-polish（status 推进）",
-
         "08-pkos-router（status 推进）",
-
         "10-pkos-html（status 推进）",
-
         "11-pkos-ppt-skill（status 推进）"
-
       ],
-
       "supersedes_policy": "v2 起新会话强制经由本单元；v0 各 skill 仍可'私自'写 status（向后兼容）",
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true,
-
         "atomic_write": true
-
       },
-
       "depends_on_capabilities": [],
-
       "depends_on_providers": [
-
         "filesystem",
-
         "atomic_writer"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.knowledge_service.commit.test.yaml",
-
       "added_in_version": 2.9
-
     },
-
     {
-
       "id": "pkos.router.decide",
-
       "capability_id": "pkos.router.decide",
-
       "version": "2.0.0",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "decision",
-
       "stage": 4,
-
       "stage_label": "decision",
-
       "consumes": "ExecutionStrategy(pkos-execution-strategy:1, v4.0 必需, 决策方=Policy Engine) + TargetConstraint(by_pol_artifact | by_path_pattern + status=polished)",
-
       "produces": "_PKOS/routes/RT-YYYYMMDD-NNN.yaml 路由单（schema 五键锁死 + v4.0 strategy 溯源块）",
-
       "semantic_goal": "读 Execution Strategy（Policy Engine 决策）→ 校验 → 分发 → 写 RT-* 路由单作为出口执行指令（v4.0 策略消费者，业务判断已上移）",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "write_content",
-
         "decide_exit",
-
         "decide_style",
-
         "modify_source",
-
         "invoke_exit"
-
       ],
-
       "required": true,
-
       "status": "registered",
-
       "replaces": [
-
         "08-pkos-router"
-
       ],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": false,
-
         "gate_2_integrity": true,
-
         "note": "RT 为 yaml 元数据，无质量度量概念，仅门 2 适用"
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.polish.refine",
-
         "pkos.governance.bootstrap"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.router.decide.test.yaml",
-
       "added_in_version": 2.6
-
     },
-
     {
-
       "id": "pkos.weak_check.verify",
-
       "capability_id": "pkos.weak_check.verify",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=3.1.0",
-
       "role": "verify",
-
       "stage": 6,
-
       "stage_label": "verify.weak_check",
-
       "consumes": "DerivedDraft (type=derived_draft, 必填 target_skill + derived_from_fact_core + entities + facts + numbers) + FactCore entity_inventory/facts/numbers",
-
       "produces": "弱审核报告 {pass, score, breakdown} + telemetry 事件 (weak_check.pass|fail|degraded) + 降级时 _PKOS/_quarantine/ambiguous-<ts>.yaml",
-
       "semantic_goal": "v3.1 独立弱审核（Verification Matrix）：4 维加权和（entity 0.5 + number 0.2 + fact_kept 0.2 + fact_no_add 0.1）≥ 0.9 通过；MAX_RETRY=2 次不过触发 Raw Fallback 决策单，不阻塞下游",
-
       "not_actions": [
-
         "modify_fact_core",
-
         "decide_exit",
-
         "generate_content",
-
         "run_llm",
-
         "render",
-
         "polish"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "sinks": [
-
         "telemetry.jsonl",
-
         "_quarantine"
-
       ],
-
       "scoring": {
-
         "threshold": 0.9,
-
         "weights": {
-
           "entity_match": 0.5,
-
           "number_match": 0.2,
-
           "fact_kept": 0.2,
-
           "fact_no_add": 0.1
-
         },
-
         "max_retry": 2
-
       },
-
       "type_guard": "assert_typed(derived_draft) 入口强制（v3.1 REQUIRED_FIELDS）",
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true,
-
         "supports_degraded_success": true
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.polish.refine",
-
         "pkos.router.decide"
-
       ],
-
       "depends_on_providers": [
-
         "filesystem"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/render_layer_safety.py",
-
       "added_in_version": 3.1
-
     },
-
     {
-
       "id": "pkos.exit.wenzhang.compose",
-
       "capability_id": "pkos.exit.wenzhang.compose",
-
       "version": "1.1.0",
-
       "compatible_pkos_schema": ">=4.5.0",
-
       "role": "exit",
-
       "stage": 5,
-
       "stage_label": "exit.article",
-
       "consumes": "TargetConstraint(by_route_artifact: exit=article) + options(writing_mode, length_target, draft_path, voice_profile, title_count, auto_mode, provider)",
-
       "produces": "_PKOS/_Export/article/<route-id>-article/（<route-id>-article.md + <route-id>-titles.md + <route-id>-qc-report.json + manifest.json；头图另出 cover-*.png 经 check_cover.py 校验）",
-
       "semantic_goal": "消费 RT-* (exit=article + conversion_type=公众号文章) + 源 POL-* 条目，诊断路由六种写法（访谈/大纲/续写/素材整合/破题/重写），产出公众号文章成稿 + 爆款标题矩阵 + 机器质检报告；可选个人文风档案硬约束（吸收 SpaceZephyr/creator-buddy 写作三件套方法论）",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "modify_source",
-
         "decide_exit",
-
         "decide_conversion_type",
-
         "polish",
-
         "render_html",
-
         "compose_ppt",
-
         "compose_comic",
-
         "compose_novel",
-
         "invent_facts",
-
         "swap_voice_profile_unauthorized",
-
         "layout_render"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "sinks": [
-
         "gzh-article-draft"
-
       ],
-
       "conversion_types": [
-
         "公众号文章"
-
       ],
-
       "writing_mode_vocabulary": [
-
         "interview",
-
         "outline",
-
         "continuation",
-
         "material-merge",
-
         "angle",
-
         "rewrite",
-
         "auto"
-
       ],
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true,
-
         "supports_degraded_success": true
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.router.decide",
-
         "pkos.polish.refine",
-
         "pkos.weak_check.verify"
-
       ],
-
       "depends_on_providers": [
-
         "filesystem",
-
         "markdown_writer"
-
       ],
-
       "required_capability": {
-
         "llm_chat": {
-
           "reasoning": "high",
-
           "context": "large"
-
         }
-
       },
-
       "failure_modes_declared": true,
-
       "test_suite": "13-pkos-wenzhang-skill/tests/article_tests.py",
-
       "added_in_version": 4.5,
-
       "depends_on_art_resources": [
-
         "references/method-templates.md",
-
         "references/style-rules.md",
-
         "references/title-methods.md",
-
         "references/my-voice-template.md",
-
         "references/cover-spec.md"
-
       ]
-
     },
-
     {
-
       "id": "pkos.exit.comic.compose",
-
       "capability_id": "pkos.exit.comic.compose",
-
       "version": "1.1.0",
-
       "compatible_pkos_schema": ">=2.3.0",
-
       "role": "exit",
-
       "stage": 5,
-
       "stage_label": "exit.comic",
-
       "consumes": "TargetConstraint(by_route_artifact: exit=comic) + options(art_style, grid, cover, chinese_text, characters, plot_outline, auto_mode, provider)",
-
       "produces": "_PKOS/outputs/<route-id>-comic-script/（<route-id>-comic-script.md + manifest.json + prompts/ + 可选 PLACEHOLDER.md）",
-
       "semantic_goal": "消费 RT-* (exit=comic + conversion_type=公众号漫画) + 源 POL-* 条目 + 用户提供的画风/宫格/人物/大纲，产出 4/6 宫分镜 + 16:9 封面 + 中文对白 + 一键可粘贴英文 Prompt 块；chinese_text=true 时中文直接写进 prompt（独有特色能力）",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "modify_source",
-
         "decide_exit",
-
         "decide_conversion_type",
-
         "polish",
-
         "render_html",
-
         "compose_ppt",
-
         "swap_art_style_unauthorized"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "sinks": [
-
         "wechat-comic-script"
-
       ],
-
       "conversion_types": [
-
         "公众号漫画"
-
       ],
-
       "art_style_vocabulary": [
-
         "healing",
-
         "flat_tech",
-
         "comic_strip",
-
         "retro_comic"
-
       ],
-
       "grid_vocabulary": [
-
         "4-grid",
-
         "6-grid",
-
         "custom"
-
       ],
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true,
-
         "supports_degraded_success": true
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.router.decide",
-
         "pkos.polish.refine"
-
       ],
-
       "depends_on_providers": [
-
         "filesystem",
-
         "yaml_writer"
-
       ],
-
       "required_capability": {
-
         "llm_chat": {
-
           "reasoning": "high",
-
           "context": "large"
-
         }
-
       },
-
       "depends_on_art_resources": [
-
         "themes/01_healing.md",
-
         "themes/02_flat_tech.md",
-
         "themes/03_comic_strip.md",
-
         "themes/04_retro_comic.md"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.exit.comic.compose.test.yaml",
-
       "added_in_version": 2.24,
-
       "v11_absorbed": "comic-single-image-pipeline 实战管线（6格公式/角色卡库/双通道/验收/发表），原 skill 降级为兼容入口"
-
     },
-
     {
-
       "id": "pkos.exit.gzhxiaoshuo.compose",
-
       "capability_id": "pkos.exit.gzhxiaoshuo.compose",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=3.1.0",
-
       "role": "exit",
-
       "stage": 5,
-
       "stage_label": "exit.gzhxiaoshuo",
-
       "consumes": "TargetConstraint(by_route_artifact: exit=gzhxiaoshuo) + options(persona, genre_hints, chapter_outline, characters, world_setting, auto_mode, provider)",
-
       "produces": "_PKOS/_Export/gzhxiaoshuo/<route-id>-chapter/（<route-id>-chapter.json + <route-id>-chapter.md + manifest.json）",
-
       "semantic_goal": "消费 RT-* (exit=novel + conversion_type=小说/公众号小说) + 源 POL-* 条目，产出三层结构化小说章节：元数据层 + 场景分镜层 + 实体网络，兼顾文学叙事与下游多模态复用（comic/video-script/json-canvas/html-reader）",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "modify_source",
-
         "decide_exit",
-
         "decide_conversion_type",
-
         "polish",
-
         "render_html",
-
         "compose_ppt",
-
         "compose_comic"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "sinks": [
-
         "gzhxiaoshuo-chapter-structured"
-
       ],
-
       "conversion_types": [
-
         "公众号小说",
-
         "小说"
-
       ],
-
       "persona_vocabulary": [
-
         "hard_scifi",
-
         "serious_drama",
-
         "suspense",
-
         "urban",
-
         "fantasy",
-
         "null"
-
       ],
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true,
-
         "supports_degraded_success": true
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.router.decide",
-
         "pkos.polish.refine",
-
         "pkos.weak_check.verify"
-
       ],
-
       "depends_on_providers": [
-
         "filesystem",
-
         "json_writer",
-
         "markdown_writer"
-
       ],
-
       "required_capability": {
-
         "llm_chat": {
-
           "reasoning": "high",
-
           "context": "large"
-
         }
-
       },
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.exit.gzhxiaoshuo.compose.test.yaml",
-
       "added_in_version": 3.2
-
     },
-
     {
-
       "id": "pkos.exit.html.render",
-
       "capability_id": "pkos.exit.html.render",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "exit",
-
       "stage": 5,
-
       "stage_label": "exit.html",
-
       "consumes": "TargetConstraint(by_route_artifact) + options(theme_id,sink,auto_mode)",
-
       "produces": "_PKOS/outputs/<route-id>.html 单文件离线网页（5 段结构 + validate_output PASS + 决策说明可选）",
-
       "semantic_goal": "消费 RT-* 路由单 + 源 POL-* 条目，渲染成单文件离线 HTML 并过完整性门槛",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "modify_source",
-
         "decide_exit",
-
         "polish"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "sinks": [
-
         "web-single-file"
-
       ],
-
       "conversion_types": [
-
         "学习路径",
-
         "wiki百科条目",
-
         "实战操作指南"
-
       ],
-
       "replaces": [
-
         "10-pkos-html"
-
       ],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.router.decide",
-
         "pkos.polish.refine"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.exit.html.render.test.yaml",
-
       "added_in_version": 2.7
-
     },
-
     {
-
       "id": "pkos.exit.ppt.compose",
-
       "capability_id": "pkos.exit.ppt.compose",
-
       "version": "2.0.1",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "exit",
-
       "stage": 5,
-
       "stage_label": "exit.ppt",
-
       "consumes": "TargetConstraint(by_route_artifact: exit=ppt) + options(ratio,slides,auto_mode,theme,with_images)",
-
       "produces": "_PKOS/outputs/<route-id>-deck/（<route-id>.pptx 原生可编辑 + design_spec.json + manifest.json；--images 时另含 illustration-*.png）",
-
       "semantic_goal": "消费 RT-*(exit=ppt) + 源 POL-* 条目，经 design_spec.json 中间层渲染为原生可编辑 .pptx（页型角色系统+主题token+讲稿），manifest 完整可复现；gptimage2 为可选插图通道",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "modify_source",
-
         "decide_exit",
-
         "polish",
-
         "produce_html_deck",
-
         "swap_provider_unauthorized"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "sinks": [
-
         "ppt-export"
-
       ],
-
       "conversion_types": [
-
         "实战操作指南",
-
         "wiki百科条目",
-
         "避坑风险清单",
-
         "学习路径"
-
       ],
-
       "replaces": [
-
         "11-pkos-ppt-skill"
-
       ],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true,
-
         "supports_degraded_success": true
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.router.decide",
-
         "pkos.polish.refine",
-
         "pkos.exit.html.render（风格映射）"
-
       ],
-
       "depends_on_providers": [
-
         "gptimage2-image"
-
       ],
-
       "required_capability": {},
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.exit.ppt.compose.test.yaml",
-
       "added_in_version": 2.8,
-
       "depends_on_python": [
-
         "python-pptx>=1.0"
-
       ],
-
       "updated_in_version": "4.4.0"
-
     },
-
     {
-
       "id": "pkos.audit.lint",
-
       "capability_id": "pkos.audit.lint",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.1.0",
-
       "role": "maintenance",
-
       "stage": 9,
-
       "stage_label": "maintenance.audit-lint",
-
       "consumes": "TargetConstraint(by_path_pattern) + options(mode, rules, dry_run, max_fix_per_run)",
-
       "produces": "_PKOS/reports/lint/<时间戳>.md + .json",
-
       "semantic_goal": "在 v0 audit 基础上加修正动作：自动修 front matter 缺失/状态机错位/孤岛悬挂等常见 lint 问题；不可修项入报告",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "modify_body",
-
         "decide_exit",
-
         "polish",
-
         "modify_knowledge"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "replaces": [],
-
       "supersedes": [
-
         "25-pkos-audit"
-
       ],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.maintenance.index",
-
         "pkos.knowledge_service.commit"
-
       ],
-
       "depends_on_providers": [
-
         "filesystem",
-
         "front_matter_parser",
-
         "atomic_writer"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.audit.lint.test.yaml",
-
       "added_in_version": 2.11
-
     },
-
     {
-
       "id": "pkos.fanout.concept",
-
       "capability_id": "pkos.fanout.concept",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.1.0",
-
       "role": "maintenance",
-
       "stage": 7,
-
       "stage_label": "maintenance.fanout",
-
       "consumes": "TargetConstraint(by_path_pattern | by_tag | by_concept) + options(directions, max_branches, auto_mode)",
-
       "produces": "_PKOS/fanout/<concept-slug>-<时间戳>.md + .json（6 扇出方向 × N 子节点）",
-
       "semantic_goal": "从核心概念发散到 N 个相关方向，每方向产出结构化子条目草稿 + 跨域边建议",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "modify_body",
-
         "decide_exit",
-
         "polish",
-
         "skip_audit",
-
         "auto_commit"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.maintenance.index"
-
       ],
-
       "depends_on_providers": [
-
         "hy3",
-
         "m21",
-
         "self-degrade"
-
       ],
-
       "required_capability": {
-
         "llm_chat": {
-
           "reasoning": "high",
-
           "context": "large"
-
         }
-
       },
-
       "provider_aliases": {
-
         "hy3": {
-
           "model": "hy3",
-
           "provider_route": "hunyuan-direct",
-
           "default_effort": "auto"
-
         },
-
         "m21": {
-
           "model": "m21",
-
           "provider_route": "self-degrade"
-
         }
-
       },
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.fanout.concept.test.yaml",
-
       "added_in_version": 2.12
-
     },
-
     {
-
       "id": "pkos.maintenance.index",
-
       "capability_id": "pkos.maintenance.index",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.1.0",
-
       "role": "maintenance",
-
       "stage": 7,
-
       "stage_label": "maintenance.index",
-
       "consumes": "TargetConstraint(by_path_pattern) + options(incremental, since, include_status)",
-
       "produces": "_PKOS/MASTER_INDEX.md（人读） + _PKOS/MASTER_INDEX.json（机读）",
-
       "semantic_goal": "扫描全库构建可机读的 MASTER_INDEX 索引，供所有 v2.1 c 线 + analysis/fanout/lint/KS 消费",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "modify_body",
-
         "decide_exit",
-
         "polish"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": false,
-
         "gate_2_integrity": true,
-
         "note": "索引是覆盖式重建（每次最新覆盖），仅门 2 适用"
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.governance.bootstrap",
-
         "pkos.knowledge_service.commit"
-
       ],
-
       "depends_on_providers": [
-
         "filesystem",
-
         "front_matter_parser",
-
         "vault_scanner"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.maintenance.index.test.yaml",
-
       "added_in_version": 2.1
-
     },
-
     {
-
       "id": "pkos.maintenance.timeline",
-
       "capability_id": "pkos.maintenance.timeline",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.1.0",
-
       "role": "maintenance",
-
       "stage": 7,
-
       "stage_label": "maintenance.timeline",
-
       "consumes": "TargetConstraint(by_path_pattern: _PKOS/reports/audit/**) + options(out, format, include_metrics)",
-
       "produces": "_PKOS/reports/timeline.{md,html} | stdout",
-
       "semantic_goal": "汇总 audit 历史 JSON 渲染演化时间线页；v0 行为零变化（只读/不修复/不预测）",
-
       "not_actions": [
-
         "click",
-
         "type",
-
         "scroll",
-
         "modify_audit",
-
         "fix_anything",
-
         "predict",
-
         "auto_audit"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "replaces": [
-
         "24-pkos-timeline"
-
       ],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": false,
-
         "gate_2_integrity": false
-
       },
-
       "depends_on_capabilities": [
-
         "pkos.governance.audit"
-
       ],
-
       "depends_on_providers": [
-
         "filesystem",
-
         "json_loader"
-
       ],
-
       "failure_modes_declared": true,
-
       "test_suite": "tests/capabilities/pkos.maintenance.timeline.test.yaml",
-
       "added_in_version": 2.15
-
     },
-
     {
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "required": false,
-
       "status": "registered",
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "id": "pkos.gemini.chat",
-
       "capability_id": "pkos.gemini.chat",
-
       "version": "1.0.0",
-
       "role": "utility",
-
       "stage": 0,
-
       "stage_label": "utility.external-llm",
-
       "consumes": "{prompt | prompt_file} + out_dir(workspace) + session?/profile?/timeout?",
-
       "produces": "<out_dir>/<ts>-<slug>.md + .manifest.json（schema 40-pkos-gemini-chat:1, sha256 溯源）",
-
       "semantic_goal": "外部 LLM 对话工作流：发 prompt→轮询→抓回复→落盘 workspace；OpenCLI -> 登录态 Chrome -> gemini.google.com（零 API 成本网页通道）",
-
       "not_actions": [
-
         "compose_ppt",
-
         "render_html",
-
         "polish",
-
         "decide_exit",
-
         "modify_source",
-
         "merge_proposal"
-
       ],
-
       "sinks": [
-
         "workspace-outputs"
-
       ]
-
     },
-
     {
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "required": false,
-
       "status": "registered",
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "id": "pkos.gemini.image",
-
       "capability_id": "pkos.gemini.image",
-
       "version": "1.0.0",
-
       "role": "utility",
-
       "stage": 0,
-
       "stage_label": "utility.image",
-
       "consumes": "{prompt | prompt_file} + out_dir(workspace) + timeout?/dl_timeout?/keep_in_downloads?",
-
       "produces": "<out_dir>/<ts>-<slug>.<jpg|png> + .manifest.json（sha256 归档校验 + JPEG/PNG 魔数检查）",
-
       "semantic_goal": "原子出图（gptimage2use 对位低价通道）：出图→下载→归档 workspace→校验；OpenCLI -> 登录态 Chrome -> gemini.google.com（零 API 成本网页通道）",
-
       "not_actions": [
-
         "compose_ppt",
-
         "render_html",
-
         "create_comic",
-
         "polish",
-
         "decide_exit",
-
         "modify_source"
-
       ],
-
       "sinks": [
-
         "workspace-outputs"
-
       ]
-
     },
-
     {
-
       "id": "pkos.gptimage2use",
-
       "capability_id": "pkos.gptimage2use",
-
       "version": "1.0.0",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "utility",
-
       "stage": 0,
-
       "stage_label": "utility.image",
-
       "consumes": "{prompt, size?, quality?, background?, count?, route_id?, source_entry?} + 可选 by_route 路由单引用",
-
       "produces": "_PKOS/outputs/image/<route-id>-<hash>.png + manifest（provider/参数/溯源字段）",
-
       "semantic_goal": "PKOS 原子出图工具（非出口层）：被 11-pkos-ppt-skill / 12-pkos-comic / 其他 skill 或用户直接调用，只负责调用 gptimage2 并落盘图片一件事；不关心用途与来源（A4 公理：无状态，不改长期事实）",
-
       "not_actions": [
-
         "compose_ppt",
-
         "render_html",
-
         "create_comic",
-
         "polish",
-
         "modify_source",
-
         "decide_exit"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "sinks": [
-
         "image-output"
-
       ],
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true,
-
         "supports_degraded_success": false
-
       },
-
       "depends_on_capabilities": [],
-
       "depends_on_providers": [
-
         "gptimage2-image"
-
       ],
-
       "required_capability": {
-
         "image_gen": {}
-
       },
-
       "failure_modes_declared": true,
-
       "added_in_version": 3.2
-
     },
-
     {
-
       "id": "pkos.skillopt.train",
-
       "capability_id": "pkos.skillopt.train",
-
       "version": "0.1.0",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "utility",
-
       "stage": 0,
-
       "stage_label": "utility.skillopt",
-
       "consumes": "{task集(JSONL), seed_skill(MD), epochs?/train-size?/val-size?/edit-budget?/model?/base-url?}",
-
       "produces": "32-pkos-skillopt/reports/skillopt/<slug>/best_skill.md + train_log.json（gate 判定溯源字段）",
-
       "semantic_goal": "SkillOpt 式微型训练循环（rollout→score→reflect→edit→validation gate）：把一个技能文档当参数在微型任务集上定向优化，验证门保证改后不劣于改前（与 artifact-integrity-policy gate_1_no_retrograde 同构）；只做技能文本优化一件事，不改源条目、不直接覆盖任何单元 SKILL.md（A4 公理）",
-
       "not_actions": [
-
         "modify_source",
-
         "commit_kb",
-
         "decide_exit",
-
         "compose_ppt",
-
         "render_html",
-
         "create_comic",
-
         "polish_entry"
-
       ],
-
       "required": false,
-
       "status": "registered",
-
       "sinks": [
-
         "skillopt-report"
-
       ],
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "integrity_enforced": {
-
         "gate_1_no_retrograde": true,
-
         "gate_2_integrity": true,
-
         "supports_degraded_success": false
-
       },
-
       "depends_on_capabilities": [],
-
       "depends_on_providers": [
-
         "hy3"
-
       ],
-
       "required_capability": {
-
         "llm_chat": {}
-
       },
-
       "failure_modes_declared": true,
-
       "added_in_version": "4.2.2",
-
       "provenance": {
-
         "upstream": "microsoft/SkillOpt (arXiv:2605.23904)",
-
         "upstream_clone": "D:/00.AIagent/SkillOpt",
-
         "adaptation": "单文件微型循环 skillopt_mini.py；后端=PKOS 网关 OpenAI-compatible；benchmark=用户任务集子串判分；验证门语义完整保留",
-
         "companion": "AMAP-ML/SkillClaw（采集分发面）：Claw 收获/去重/分发 × 本单元定向训练，trained 产物入库仍走套件治理"
-
       }
-
     },
-
     {
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "required": false,
-
       "status": "registered",
-
       "replaces": [],
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "id": "pkos.gemini.video",
-
       "capability_id": "pkos.gemini.video",
-
       "version": "1.0.0",
-
       "role": "utility",
-
       "stage": 0,
-
       "stage_label": "utility.video",
-
       "consumes": "{prompt} + out_dir(workspace)（接口面已锁死）",
-
       "produces": "<out_dir>/<ts>-<slug>.mp4 + .manifest.json（schema: 42-pkos-gemini-video:1）",
-
       "semantic_goal": "OpenCLI 驱动登录态 Chrome 的 Gemini 网页版视频生成（/videos）：prompt 进 → 轮询 <video> 出现 → 点 Download video → Downloads 新文件归档 workspace/gemini-videos/ + sha256 校验（2026-09-05 实测跑通转正）",
-
       "not_actions": [
-
         "compose_ppt",
-
         "render_html",
-
         "create_comic",
-
         "polish",
-
         "decide_exit",
-
         "modify_source"
-
       ],
-
       "sinks": [
-
         "workspace-outputs"
-
       ],
-
       "depends_on_providers": [
-
         "browser_bridge"
-
       ],
-
       "required_capability": {
-
         "browser_bridge": {}
-
       },
-
       "changelog": [
-
         "2026-09-05 实测跑通转正：/videos 全链路（<video> 判定/Download video/新文件归档/ftyp 校验），首产物 20260905-010753（用户手动下载后归档）"
-
       ]
-
     },
-
     {
-
       "id": "pkos.operator.audit",
-
       "capability_id": "pkos.operator.audit",
-
       "version": "1.1.0",
-
       "compatible_pkos_schema": ">=2.0.0",
-
       "role": "调用方人格守卫（Meta-Auditor 机器执行面）",
-
       "stage": "governance",
-
       "status": "registered",
-
       "required": false,
-
       "integrity_policy": "contracts/artifact-integrity-policy.md",
-
       "contract": "contracts/operator-policy.md",
-
       "guard": "31-pkos-operator/scripts/auditor_gate.py",
-
       "consumes": "调用方（Hermes/外部 agent）的 capability_id + persona_prompt + 操作意图",
-
       "produces": "人格守卫报告 {allow, deny, warn, gates[]} + Meta-Auditor 审计日志",
-
       "semantic_goal": "固化调用方人格为机器可校验规格——meta_auditor（门禁审计员）拦截越权操作，确保外部调用方只触及声明的 consumes/produces 边界"
-
     },
-
     {
-
       "capability_id": "pkos.publish.draft",
-
       "name": "20-pkos-publish",
-
       "version": "1.0.0",
-
       "stage": "publish",
-
       "entry": "20-pkos-publish/scripts/upload_weixin_draft.py",
-
       "summary": "发表枢纽：草稿箱同步唯一出口（upload→回填→add_draft→回读验证四项闭环）；跨线共享，各 exit 单元只调用不内含",
-
       "schema_compat": ">=4.9.4",
-
       "required_capability": "browser_bridge",
-
       "created": "2026-09-01",
-
       "origin": "拆出自 12-pkos-comic v1.1.0 收编节（用户裁定单元=单一职责，发表为跨线枢纽）",
-
       "role": "publish",
-
       "status": "registered",
-
       "consumes": "RT-* 路由单 + 出口单元成品（html/ppt/comic/novel/wenzhang） + 目标平台凭证",
-
       "produces": "草稿箱 media_id + 发布状态（draft/uploaded/failed） + 回读校验结果",
-
       "semantic_goal": "发表枢纽：消费出口层成品，执行 upload→回读→验证四项闭环（完整性/尺寸/media_id有效期/平台回读）"
-
     }
-
   ],
-
   "infra_non_units": [
-
     {
-
       "id": "30-pkos-meta",
-
       "note": "元治理设施（门禁/SOP），无 SKILL.md，不参与启停"
-
     }
-
   ],
-
   "external_exits_note": "公众号漫画出口由 pkos.exit.comic.compose 原生承接（v2.3+）。gzh-design 降级为外部编辑器辅助层（不占 Exit 词表，提供编辑器端排版/发布桥接），由 12-pkos-comic SKILL.md C-6 depends_on_art_resources 引用关系维护。wechat-paste 原生发布出口 v1.1 规划中。",
-
   "v2_migration_progress": {
-
     "total_target_capabilities": 15,
-
     "migrated_count": 15,
-
     "round": "25/25",
-
     "last_updated": "2026-08-28",
-
     "note": "梯次 0.3 收口：15 = 15 registered v2 capability（v2.0 9 + v2.1 c 线 4 + v2.3 1 comic + v3.2 1 novel）；8 deprecated v0 alias；novel_tools.py 4 命令就位；本轮 v2.25 评审,comic skill 6 项决议全量落地(manifest 升 production)。round-26 规划: comic x novel 中继 / comic x weak-check 弱审 / 真实出图 API 接入。"
-
   },
-
   "alias_ledger": {
-
     "schema": "pkos-alias-ledger:1",
-
     "updated": "2026-08-30",
-
     "note": "U2 账本收敛 + 空 id/重复清理后，deprecated 别名全部携带 superseded_by 指针",
-
     "total_units": 29,
-
     "valid": 26,
-
     "aliases": 1,
-
     "cleaned_at": "2026-09-04"
-
   },
-
   "schema_version": "1.0.0"
-
 }

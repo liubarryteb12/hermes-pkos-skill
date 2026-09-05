@@ -8,7 +8,7 @@ description: OpenCLI 驱动已登录 Chrome 的 Gemini 视频生成（预留骨�
 ```yaml
 capability_id: "pkos.gemini.video"
 required_capability: "browser_bridge"  # v4.3.1 自进化轮补齐（OpenCLI 浏览器驱动）
-version: "0.1.0"          # 0.x = 骨架，未实现
+version: "1.0.0"          # 0.x = 骨架，未实现
 compatible_pkos_schema: ">=2.0.0"
 stage: utility
 semantic_goal: "（预留）OpenCLI 驱动登录态 Chrome 的 Gemini 视频生成：prompt 进 → 视频落 Downloads → 归档 workspace/gemini-videos/ + 校验。实现前一切调用 fail loud NOT_IMPLEMENTED"

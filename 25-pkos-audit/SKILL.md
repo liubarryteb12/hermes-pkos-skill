@@ -8,7 +8,7 @@ description: 知识库例行体检：扫描全库 front matter 覆盖率、状�
 ```yaml
 capability_id: "pkos.governance.audit"
 required_capability: "llm_chat{reasoning:high,context:large}"  # v4.2.1 U3 批B 铺开
-version: "1.0.0"
+version: "1.1.0"
 compatible_pkos_schema: ">=2.1.0"
 stage: governance
 stage_subindex: 8a
