@@ -5,7 +5,7 @@
 > 还没有 AI 读过这份说明书？没关系，这个项目本身就是给 AI 看的说明书。
 > 人类读者只需要记住一句话：**它帮你的 AI 把乱七八糟的资料，变成整整齐齐的知识，还能写出文章、画出漫画、做出幻灯片。**
 
-[![Version](https://img.shields.io/badge/version-4.9.21-blue)]()
+[![Release](https://img.shields.io/github/v/release/liubarryteb12/hermes-pkos-skill)](https://github.com/liubarryteb12/hermes-pkos-skill/releases)
 [![Units](https://img.shields.io/badge/capability_units-29-green)]()
 [![Tests](https://img.shields.io/badge/pkos__kb_tests-158_passed-brightgreen)]()
 [![Probes](https://img.shields.io/badge/behavior_probes-6%20%C3%97%20all--green-brightgreen)]()
@@ -125,42 +125,42 @@ python 04-pkos-knowledge-service-commit/scripts/trash_gc.py --report
 ### 入线（收快递的）
 | 单元 | 干什么 |
 |---|---|
-| `intake.scan` | 看一眼快递单，判断这是什么、该送给谁 |
-| `intake.query` | 你问"库里有没有关于 X 的"，它去翻 |
-| `ingest.extract` | 拆快递：网页/PDF/笔记 → 合规条目 |
-| `distill.book` | 整本 PDF 拆成一章一章的知识卡 |
+| `intake.scan`（`01-pkos-intake`） | 看一眼快递单，判断这是什么、该送给谁 |
+| `intake.query`（`09-pkos-intake-query`） | 你问"库里有没有关于 X 的"，它去翻 |
+| `ingest.extract`（`03-pkos-ingest`） | 拆快递：网页/PDF/笔记 → 合规条目 |
+| `distill.book`（`02-pkos-distill-book`） | 整本 PDF 拆成一章一章的知识卡 |
 
 ### 大门（登记处）
 | 单元 | 干什么 |
 |---|---|
-| `knowledge_service.commit` | 🔒 **唯一写入口**。校验、贴标签、写索引、留审计，全在这一步 |
+| `knowledge_service.commit`（`04-…-commit`）🔒 | 🔒 **唯一写入口**。校验、贴标签、写索引、留审计，全在这一步 |
 
 ### 出线（做礼物的）
 | 单元 | 干什么 |
 |---|---|
-| `analysis.structure` | 读懂一篇：一句话概述 + 核心要点 + 发现表 |
-| `polish.refine` | 去掉 AI 味，给文本洗澡，附带五维评分 |
-| `weak_check.verify` | 质检员：打分不够的稿子退回重写 |
-| `router.decide` | 司机：决定这份稿子去哪个出口 |
-| `exit.wenzhang` | 公众号文章成稿（文案+排版双产物） |
-| `exit.html.render` | 单文件离线网页 |
-| `exit.ppt.compose` | 原生可编辑 PPT（5 种主题，fail-loud 不静默降级） |
-| `exit.comic.compose` | 漫画分镜 + 出图编排 |
-| `exit.gzhxiaoshuo` | 小说章节 |
+| `analysis.structure`（`05-pkos-analysis`） | 读懂一篇：一句话概述 + 核心要点 + 发现表 |
+| `polish.refine`（`06-pkos-polish`） | 去掉 AI 味，给文本洗澡，附带五维评分 |
+| `weak_check.verify`（`07-pkos-weak-check`） | 质检员：打分不够的稿子退回重写 |
+| `router.decide`（`08-pkos-router`） | 司机：决定这份稿子去哪个出口 |
+| `exit.wenzhang`（`13-pkos-wenzhang-skill`） | 公众号文章成稿（文案+排版双产物） |
+| `exit.html.render`（`10-pkos-html`） | 单文件离线网页 |
+| `exit.ppt.compose`（`11-pkos-ppt-skill`） | 原生可编辑 PPT（5 种主题，fail-loud 不静默降级） |
+| `exit.comic.compose`（`12-pkos-comic`） | 漫画分镜 + 出图编排 |
+| `exit.gzhxiaoshuo`（`14-pkos-gzhxiaoshuo-skill`） | 小说章节 |
 
 ### 管家团（让一切保持整洁）
 | 单元 | 干什么 |
 |---|---|
-| `maintenance.index` | 总目录双产物（人读 md + 机读 json） |
-| `audit.lint` | 全库体检医生（默认只报告不动手） |
-| `fanout.concept` | 一个概念吹成 6 个方向的选题 |
-| `maintenance.timeline` | 库的成长时间线 |
-| `governance.bootstrap` | 初始化新库的地基 |
-| `governance.audit` | 深度审计 + 盲点检测 |
-| `governance.tick` | 每日心跳 |
-| `publish.draft` | 发表枢纽：上传→回读→验证 闭环 |
-| `operator.audit` | 调用方人格守卫（Meta-Auditor） |
-| `skillopt.train` | 用真实任务集训练/优化技能本身 |
+| `maintenance.index`（`21-pkos-maintenance-index`） | 总目录双产物（人读 md + 机读 json） |
+| `audit.lint`（`22-pkos-audit-lint`） | 全库体检医生（默认只报告不动手） |
+| `fanout.concept`（`23-pkos-fanout-concept`） | 一个概念吹成 6 个方向的选题 |
+| `maintenance.timeline`（`24-pkos-timeline`） | 库的成长时间线 |
+| `governance.bootstrap`（`00-pkos-init`） | 初始化新库的地基 |
+| `governance.audit`（`25-pkos-audit`） | 深度审计 + 盲点检测 |
+| `governance.tick`（`30-pkos-meta`） | 每日心跳 |
+| `publish.draft`（`20-pkos-publish`） | 发表枢纽：上传→回读→验证 闭环 |
+| `operator.audit`（`31-pkos-operator`） | 调用方人格守卫（Meta-Auditor） |
+| `skillopt.train`（`32-pkos-skillopt`） | 用真实任务集训练/优化技能本身 |
 | `gemini.chat / image / video` | 外脑：对话、生图、生视频 |
 | `gptimage2use` | 备用生图通道 |
 
@@ -230,9 +230,9 @@ upgrade_check     ALL PASS                ← 五维升级守卫 + schema 校验
 ```
 hermes-pkos-skill/
 ├── SKILL.md                  ← AI 的入口说明书（触发词+调度）
-├── pipeline/registry.json    ← 单元注册表（29 units, schema 校验守护）
+├── pipeline/registry.json    ← 单元注册表（29 units · pkos_semver=版本 SSOT）
 ├── contracts/                ← 权威契约（词表/路由/通道政策/失败分类）
-├── pkos-*/                   ← 29 个单元，每个有自己的 SKILL.md
+├── 00-pkos-init … 43-pkos-*  ← 29 个单元（目录序号=流水线阶段，见下表）
 ├── 04-pkos-knowledge-service-commit/
 │   └── scripts/
 │       ├── pkos_kb/          ← 知识库引擎（SQLite WAL 单写者）
@@ -243,6 +243,27 @@ hermes-pkos-skill/
 ├── tests/                    ← run_tests / contract_refs / capability_runner
 └── references/               ← unit-map 速查表 / 词表 / 升级计划
 ```
+
+---
+
+## 🔢 版本体系（单一事实源）
+
+`pipeline/registry.json` 的 `pkos_semver` 是**唯一版本号来源**。
+`manifest.json` / `VERSION` / `SKILL.md` 都只是它的只读投影——
+`python scripts/version_sync.py --check` 校验一致性（已进 upgrade_check 门禁，漂移即 FAIL）。
+
+### 发版流程
+
+```bash
+# 1. 改代码，改完 bump registry.pkos_semver
+# 2. 同步投影 + 校验
+python scripts/version_sync.py --apply && python scripts/version_sync.py --check
+# 3. 规范 commit（Conventional Commits: feat|fix|refactor|docs|chore|test(scope): 摘要）
+# 4. tag + GitHub Release（notes = changelog 最新条目）
+```
+
+**从 v4.x 升级到 v5.0.0**：单元目录已全部改为 `<序号>-pkos-<功能>` 命名，
+旧→新对照表见 [docs/MIGRATION-5.0.md](docs/MIGRATION-5.0.md)。`capability_id` 与脚本 CLI 参数均未变。
 
 ---
 
