@@ -15,34 +15,34 @@
 | 06-pkos-polish | `pkos.polish.refine` | process | （SKILL.md 流程，无脚本） | 文本净化/风格适配，产出 DerivedDraft |
 | 08-pkos-router | `pkos.router.decide` | decision | `scripts/strategy_gate.py` | 产出 RT-*.yaml 路由单（v4 无策略载荷直调 fail-loud） |
 | 07-pkos-weak-check | `pkos.weak_check.verify` | verify | `scripts/verify.py` | 弱审闸门：结构/语义/证据五维核验 |
-| 32-pkos-skillopt | `pkos.skillopt.train` | utility | `scripts/skillopt_mini.py` | SkillOpt 微型训练循环：任务集上 rollout→评分→改写→验证门，产出 best_skill.md |
-| 31-pkos-operator | `pkos.operator.audit` | governance | `scripts/auditor_gate.py` | 调用方人格守卫（Meta-Auditor 机器执行面，契约 operator-policy.md） |
-| 40-pkos-gemini-chat | `pkos.gemini.chat` | utility | `scripts/gemini_chat.py` | Gemini 网页对话通道（OpenCLI 驱动登录态 Chrome，零 API 成本） |
-| 41-pkos-gemini-image | `pkos.gemini.image` | utility | `scripts/gemini_image.py` | Gemini 网页出图通道（同上） |
-| 42-pkos-gemini-video | `pkos.gemini.video` | utility | `scripts/gemini_video.py` | Gemini 网页视频通道（骨架，未验证） |
+| 23-pkos-skillopt | `pkos.skillopt.train` | utility | `scripts/skillopt_mini.py` | SkillOpt 微型训练循环：任务集上 rollout→评分→改写→验证门，产出 best_skill.md |
+| 22-pkos-operator | `pkos.operator.audit` | governance | `scripts/auditor_gate.py` | 调用方人格守卫（Meta-Auditor 机器执行面，契约 operator-policy.md） |
+| 24-pkos-gemini-chat | `pkos.gemini.chat` | utility | `scripts/gemini_chat.py` | Gemini 网页对话通道（OpenCLI 驱动登录态 Chrome，零 API 成本） |
+| 25-pkos-gemini-image | `pkos.gemini.image` | utility | `scripts/gemini_image.py` | Gemini 网页出图通道（同上） |
+| 26-pkos-gemini-video | `pkos.gemini.video` | utility | `scripts/gemini_video.py` | Gemini 网页视频通道（骨架，未验证） |
 | 10-pkos-html | `pkos.exit.html.render` | exit | `scripts/render.py`、`render_combined.py`、`pkos_v31_lib.py`、`build_themes.py`、`lint_theme.py`、`validate_output.py` | HTML 页面/报告出口 |
 | 11-pkos-ppt-skill | `pkos.exit.ppt.compose` | exit | `scripts/compose.py`、`deck_spec.py`、`build_pptx.py` | PPT 出口 v2.0：原生可编辑 PPTX（design_spec 中间层；gptimage2 仅 --images 插图） |
 | 12-pkos-comic | `pkos.exit.comic.compose` | exit | `scripts/compose.py`（+ render_panels 式出图编排） | 漫画全链：分镜→出图编排（双通道）→发表管线（v1.1.0 收编实战管线） |
 | 14-pkos-gzhxiaoshuo-skill | `pkos.exit.gzhxiaoshuo.compose` | exit | `scripts/gzhxiaoshuo_tools.py` | 公众号小说/长文出口 |
 | 13-pkos-wenzhang-skill | `pkos.exit.wenzhang.compose` | exit | `scripts/article_tools.py`（lint/stats/selftest）、`scripts/check_cover.py` | 公众号文章出口 v1.1：六写法诊断 + 成稿+标题矩阵+机器质检 + my-voice 档案即配置 + 头图安全区校验（吸收 creator-buddy） |
-| 20-pkos-publish | `pkos.publish.draft` | publish | `scripts/upload_weixin_draft.py` | 发表枢纽：草稿箱同步唯一出口（upload→回填→add_draft→回读验证）；跨线共享，各 exit 只调用 |
-| 43-pkos-gptimage2use | `pkos.gptimage2use` | utility | `scripts/generate.py` | gptimage2 图像生成通用通道（需 PKOS_IMG_API_KEY） |
-| 24-pkos-timeline | `pkos.maintenance.timeline` | maintenance | `scripts/build_timeline.py` | vault 时间线构建 |
-| 21-pkos-maintenance-index | `pkos.maintenance.index` | maintenance | `scripts/index.py` | 索引维护 |
-| 25-pkos-audit | `pkos.governance.audit` | governance | `scripts/audit.py` | 治理审计 |
-| 22-pkos-audit-lint | `pkos.audit.lint` | maintenance | `scripts/lint.py` | vault 全量 lint（默认 report-only） |
+| 15-pkos-publish | `pkos.publish.draft` | publish | `scripts/upload_weixin_draft.py` | 发表枢纽：草稿箱同步唯一出口（upload→回填→add_draft→回读验证）；跨线共享，各 exit 只调用 |
+| 27-pkos-gptimage2use | `pkos.gptimage2use` | utility | `scripts/generate.py` | gptimage2 图像生成通用通道（需 PKOS_IMG_API_KEY） |
+| 19-pkos-timeline | `pkos.maintenance.timeline` | maintenance | `scripts/build_timeline.py` | vault 时间线构建 |
+| 16-pkos-maintenance-index | `pkos.maintenance.index` | maintenance | `scripts/index.py` | 索引维护 |
+| 20-pkos-audit | `pkos.governance.audit` | governance | `scripts/audit.py` | 治理审计 |
+| 17-pkos-audit-lint | `pkos.audit.lint` | maintenance | `scripts/lint.py` | vault 全量 lint（默认 report-only） |
 | 00-pkos-init | `pkos.governance.bootstrap` | governance | `scripts/init_kb.py` | 初始化/引导新知识库 |
-| 23-pkos-fanout-concept | `pkos.fanout.concept` | maintenance | （SKILL.md 流程，无脚本） | 概念扇出/关联展开 |
-| 32-pkos-skillopt | `pkos.skillopt.train` | utility | `scripts/skillopt_mini.py` | SkillOpt 微型训练循环：任务集上 rollout→反思改写→验证门→best_skill.md（上游 microsoft/SkillOpt 适配；配合 SkillClaw 采集分发） |
-| 30-pkos-meta | `pkos.governance.tick` | governance | `scripts/tick.py`、`telemetry_dashboard.py`、`meta_gate.py` | 心跳巡检 / 遥测面板 / meta 门禁 |
+| 18-pkos-fanout-concept | `pkos.fanout.concept` | maintenance | （SKILL.md 流程，无脚本） | 概念扇出/关联展开 |
+| 23-pkos-skillopt | `pkos.skillopt.train` | utility | `scripts/skillopt_mini.py` | SkillOpt 微型训练循环：任务集上 rollout→反思改写→验证门→best_skill.md（上游 microsoft/SkillOpt 适配；配合 SkillClaw 采集分发） |
+| 21-pkos-meta | `pkos.governance.tick` | governance | `scripts/tick.py`、`telemetry_dashboard.py`、`meta_gate.py` | 心跳巡检 / 遥测面板 / meta 门禁 |
 | 02-pkos-distill-book | `pkos.distill.book` | process | （见 SKILL.md） | 书籍蒸馏出口（落点契约：书籍PDF/书本蒸馏内容留存/<书名>/） |
 | 13-pkos-wenzhang-skill | `pkos.exit.wenzhang.compose` | exit | `scripts/`（voice 档案 _PKOS/assets/my-voice.md） | 公众号文章成稿出口（文案+HTML 四件产物） |
-| 32-pkos-skillopt | `pkos.skillopt.train` | utility | `scripts/skillopt_mini.py` | 技能文本定向训练（rollout→验证门→best_skill） |
-| 31-pkos-operator | `pkos.operator.audit` | governance | `scripts/auditor_gate.py` | 调用方人格守卫（Meta-Auditor 机器执行面） |
+| 23-pkos-skillopt | `pkos.skillopt.train` | utility | `scripts/skillopt_mini.py` | 技能文本定向训练（rollout→验证门→best_skill） |
+| 22-pkos-operator | `pkos.operator.audit` | governance | `scripts/auditor_gate.py` | 调用方人格守卫（Meta-Auditor 机器执行面） |
 
 ## 典型任务 → 单元链
 
 - 「处理收件箱」：intake（triage）→ ingest（extract/assemble）→ knowledge-service-commit（入库）
-- 「体检/巡检」：30-pkos-meta tick + audit-lint + tests/vault_integrity.py
+- 「体检/巡检」：21-pkos-meta tick + audit-lint + tests/vault_integrity.py
 - 「做一篇 HTML 报告/PPT/漫画/小说」：前置条目 →（analysis → polish）→ router.decide → weak-check → 对应 exit 单元
 - 「找东西」：intake-query 或 maintenance-index / timeline

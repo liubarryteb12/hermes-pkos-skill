@@ -109,9 +109,9 @@ python scripts/registry_schema_check.py   # 应输出 PASS (29 单元, 0 警告)
 
 ```bash
 # 体检（全部只读，跑不坏）
-python 30-pkos-meta/scripts/tick.py --json              # 心跳巡检
-python 22-pkos-audit-lint/scripts/lint.py --vault "你的库路径" --mode report-only
-python 21-pkos-maintenance-index/scripts/index.py --vault "你的库路径" --json
+python 21-pkos-meta/scripts/tick.py --json              # 心跳巡检
+python 17-pkos-audit-lint/scripts/lint.py --vault "你的库路径" --mode report-only
+python 16-pkos-maintenance-index/scripts/index.py --vault "你的库路径" --json
 python 04-pkos-knowledge-service-commit/scripts/verify_after.py   # 引擎终检
 
 # 垃圾桶报告（绝不直接删）
@@ -151,16 +151,16 @@ python 04-pkos-knowledge-service-commit/scripts/trash_gc.py --report
 ### 管家团（让一切保持整洁）
 | 单元 | 干什么 |
 |---|---|
-| `maintenance.index`（`21-pkos-maintenance-index`） | 总目录双产物（人读 md + 机读 json） |
-| `audit.lint`（`22-pkos-audit-lint`） | 全库体检医生（默认只报告不动手） |
-| `fanout.concept`（`23-pkos-fanout-concept`） | 一个概念吹成 6 个方向的选题 |
-| `maintenance.timeline`（`24-pkos-timeline`） | 库的成长时间线 |
+| `maintenance.index`（`16-pkos-maintenance-index`） | 总目录双产物（人读 md + 机读 json） |
+| `audit.lint`（`17-pkos-audit-lint`） | 全库体检医生（默认只报告不动手） |
+| `fanout.concept`（`18-pkos-fanout-concept`） | 一个概念吹成 6 个方向的选题 |
+| `maintenance.timeline`（`19-pkos-timeline`） | 库的成长时间线 |
 | `governance.bootstrap`（`00-pkos-init`） | 初始化新库的地基 |
-| `governance.audit`（`25-pkos-audit`） | 深度审计 + 盲点检测 |
-| `governance.tick`（`30-pkos-meta`） | 每日心跳 |
-| `publish.draft`（`20-pkos-publish`） | 发表枢纽：上传→回读→验证 闭环 |
-| `operator.audit`（`31-pkos-operator`） | 调用方人格守卫（Meta-Auditor） |
-| `skillopt.train`（`32-pkos-skillopt`） | 用真实任务集训练/优化技能本身 |
+| `governance.audit`（`20-pkos-audit`） | 深度审计 + 盲点检测 |
+| `governance.tick`（`21-pkos-meta`） | 每日心跳 |
+| `publish.draft`（`15-pkos-publish`） | 发表枢纽：上传→回读→验证 闭环 |
+| `operator.audit`（`22-pkos-operator`） | 调用方人格守卫（Meta-Auditor） |
+| `skillopt.train`（`23-pkos-skillopt`） | 用真实任务集训练/优化技能本身 |
 | `gemini.chat / image / video` | 外脑：对话、生图、生视频 |
 | `gptimage2use` | 备用生图通道 |
 
@@ -232,7 +232,7 @@ hermes-pkos-skill/
 ├── SKILL.md                  ← AI 的入口说明书（触发词+调度）
 ├── pipeline/registry.json    ← 单元注册表（29 units · pkos_semver=版本 SSOT）
 ├── contracts/                ← 权威契约（词表/路由/通道政策/失败分类）
-├── 00-pkos-init … 43-pkos-*  ← 29 个单元（目录序号=流水线阶段，见下表）
+├── 00-pkos-init … 27-pkos-*  ← 29 个单元（目录序号 00-27 连续=流水线阶段）
 ├── 04-pkos-knowledge-service-commit/
 │   └── scripts/
 │       ├── pkos_kb/          ← 知识库引擎（SQLite WAL 单写者）

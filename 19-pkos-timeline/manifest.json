@@ -1,0 +1,18 @@
+{
+  "name": "19-pkos-timeline",
+  "version": "1.0.0",
+  "owner": "PKOS Maintainers",
+  "updated_at": "2026-08-24",
+  "review_due": "2026-11-22",
+  "status": "active",
+  "maturity_tier": "production",
+  "lifecycle_stage": "production",
+  "context_budget_tier": "production",
+  "review_cadence": "quarterly",
+  "target_platforms": [
+    "openai",
+    "claude",
+    "generic",
+    "agent-skills-compatible"
+  ]
+}

@@ -30,8 +30,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = {
-    "index": ROOT / "21-pkos-maintenance-index" / "scripts" / "index.py",
-    "lint": ROOT / "22-pkos-audit-lint" / "scripts" / "lint.py",
+    "index": ROOT / "16-pkos-maintenance-index" / "scripts" / "index.py",
+    "lint": ROOT / "17-pkos-audit-lint" / "scripts" / "lint.py",
     "capability_runner": ROOT / "tests" / "capability_runner.py",
     "contract_refs": ROOT / "tests" / "contract_refs.py",
     "validate_entry_test": ROOT / "tests" / "run_tests.py",

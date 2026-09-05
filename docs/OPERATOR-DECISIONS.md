@@ -1,7 +1,7 @@
 # PKOS v4.2 Operator 人格守卫决策记录
 
 > **日期**: 2026-08-29 | **来源**: 与外部模型 Gemini 的五轮人格架构评审（[对话存档](https://gemini.google.com/app/4c1498338dc32e7a)）
-> **结论**: 调用方（Hermes）人格规格固化为 `contracts/operator-policy.md`（31-pkos-operator:1）+ `31-pkos-operator/scripts/auditor_gate.py`；与 v4.1 `evolution-policy` 构成**调用侧/被调侧对称守卫**。
+> **结论**: 调用方（Hermes）人格规格固化为 `contracts/operator-policy.md`（22-pkos-operator:1）+ `22-pkos-operator/scripts/auditor_gate.py`；与 v4.1 `evolution-policy` 构成**调用侧/被调侧对称守卫**。
 
 ## 五轮评审收敛路径
 

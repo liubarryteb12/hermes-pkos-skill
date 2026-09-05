@@ -27,7 +27,7 @@ v4.0 的演化机制（索引对账、提案确权、交叉验证、DAG 执行�
 
 - **配置**（`_PKOS/config/evolution_policy.json`，缺省时用本表默认值）：`index_reconcile_cadence_days`（默认 7）、`mtime_probe_enabled`（默认 true）。
 - **幽灵节点自愈顺序不变**：任何一层发现 404 节点 → 从索引移除 + emit `index.reconcile` 事件；commit 闸门的物理验真仍是最后防线。
-- `21-pkos-maintenance-index` 的增量失败降级全量语义**不变**；本契约只新增 L2 探测层与 L3 节奏。
+- `16-pkos-maintenance-index` 的增量失败降级全量语义**不变**；本契约只新增 L2 探测层与 L3 节奏。
 
 ## 2. 提案确权 Git 语义（优化 #2）
 

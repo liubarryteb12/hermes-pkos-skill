@@ -80,7 +80,7 @@ U1 的守卫脚本一天内可完成且保护价值最高——**先做 U1**。
 | G1b | **article/novel 分流机判**（断点C） | U1.4 | 知识条目关系边类型决定引擎：`followed_by/caused_by/conflict_with` → novel 引擎；`is_a/contains/compare_to` → article 直出；混杂/缺失 → 决策单挂用户。规范见 `contracts/csm-schema.json` routing_rule | ✅ 规则已定稿入 CSM 契约 |
 | G2 | **敏感写操作 Dry-run Gate 通用条款** | U1.5 | 固化纪律：任何批量覆写/全局索引重构/跨条目重命名，默认 dry-run 产出 Change Log 挂起，用户确认后 --apply。写进主 SKILL.md Pitfalls + lint/commit 既有纪律对齐 |
 | G3 | **Telemetry 动态降级回路** | U5.1 | tick/巡检消费 telemetry.jsonl：错误率/降级率超阈值 → 生成降级建议单（退纯文本、暂缓富媒体），挂用户裁决，不自动改路由 |
-| G4 | **Vault 一致性巡检 GC** | U5.2 | 25-pkos-audit 增补死链/孤立节点扫描（只读），产出补丁提案单走 Dry-run Gate |
+| G4 | **Vault 一致性巡检 GC** | U5.2 | 20-pkos-audit 增补死链/孤立节点扫描（只读），产出补丁提案单走 Dry-run Gate |
 | G5 | **出口并发限定 Gemini 通道** | U5.3 | 出图默认走 Gemini chat（用户 Pro 订阅），可并发；gptimage2 API 保持串行防 524 |
 | G6 | **否决存档** | — | 内存管道、DLQ 大模型自愈、并发行级锁：经对抗验证否决（文件驱动=溯源/断点续渲；weak_check 已闭环；单agent无并发）。后人重提前先读 Gemini评审收敛报告 R2 |
 
@@ -91,7 +91,7 @@ U1 的守卫脚本一天内可完成且保护价值最高——**先做 U1**。
 | # | 报告问题 | Hermes 副本实况 |
 |---|---|---|
 | 1 | 文档路径全线失效（deepseekharness） | **活代码已修**（迁移时改相对定位）；仅 SKILL.md 文档示例与历史账本残留 → U1 |
-| 2 | 30-pkos-meta 未安装，tick/telemetry 调不到 | **已解决**：迁移时已入副本并实跑通过 |
+| 2 | 21-pkos-meta 未安装，tick/telemetry 调不到 | **已解决**：迁移时已入副本并实跑通过 |
 | 3 | v4.0 只落地 1/19 | **确认**：required_capability 仅 router 有 → U3 |
 | 4 | website-kit 停在 3.3.1 | **确认** → U2.3 |
 | 5 | registry 10 个空 capability_id 别名 | **实测 11 个** → U2.2 |

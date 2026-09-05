@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "skill": "20-pkos-audit",
+  "approved_by": "PKOS Builder",
+  "approved_at": "2026-08-24",
+  "review_due": "2026-11-22",
+  "capabilities": {
+    "file_write": {
+      "decision": "approved",
+      "reviewer": "PKOS Builder",
+      "scope": "_PKOS/reports 审计报告",
+      "reason": "体检 JSON/MD 落盘才能基线对比并供 timeline 聚合",
+      "evidence": [
+        "tests/run_tests.py 19 组契约测试全 PASS（2026-08-24）",
+        "21-pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
+        "yao-meta-skill trust_check PASS（reports/security_trust_report.json）",
+        "yao-meta-skill package-verify PASS（2026-08-24）"
+      ],
+      "target_enforcement": {
+        "generic": "宿主文件沙箱按 _PKOS/ 路径边界拦截越界写入；路径校验由调用方执行"
+      },
+      "expires_at": "2026-11-22"
+    }
+  }
+}

@@ -12,7 +12,7 @@
       "reason": "润色净本 POL-* 落盘，带更改摘要与评分卡",
       "evidence": [
         "tests/run_tests.py 19 组契约测试全 PASS（2026-08-24）",
-        "30-pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
+        "21-pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
         "yao-meta-skill trust_check PASS（reports/security_trust_report.json）",
         "yao-meta-skill package-verify PASS（2026-08-24）"
       ],

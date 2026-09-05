@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """hermes-pkos-skill 升级守卫（upgrade_check）—— PKOS 进阶计划的机器验收面。
 
 五维体检（对应 references/upgrade-plan.md §六）：
@@ -31,10 +31,10 @@ GUARD_DIRS = ["01-pkos-intake", "09-pkos-intake-query", "03-pkos-ingest", "04-pk
               "05-pkos-analysis", "06-pkos-polish", "08-pkos-router", "07-pkos-weak-check",
               "10-pkos-html", "11-pkos-ppt-skill", "12-pkos-comic", "14-pkos-gzhxiaoshuo-skill",
               "13-pkos-wenzhang-skill",
-              "43-pkos-gptimage2use", "24-pkos-timeline", "21-pkos-maintenance-index",
-              "25-pkos-audit", "22-pkos-audit-lint", "00-pkos-init", "23-pkos-fanout-concept",
-              "30-pkos-meta", "32-pkos-skillopt", "31-pkos-operator",
-              "40-pkos-gemini-chat", "41-pkos-gemini-image", "42-pkos-gemini-video",
+              "27-pkos-gptimage2use", "19-pkos-timeline", "16-pkos-maintenance-index",
+              "20-pkos-audit", "17-pkos-audit-lint", "00-pkos-init", "18-pkos-fanout-concept",
+              "21-pkos-meta", "23-pkos-skillopt", "22-pkos-operator",
+              "24-pkos-gemini-chat", "25-pkos-gemini-image", "26-pkos-gemini-video",
               "contracts", "tests"]
 CODE_EXTS = {".py", ".json", ".yaml", ".yml"}
 

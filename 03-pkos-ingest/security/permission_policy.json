@@ -12,7 +12,7 @@
       "reason": "合规条目归位挂载与清单写入",
       "evidence": [
         "tests/run_tests.py 19 组契约测试全 PASS（2026-08-24）",
-        "30-pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
+        "21-pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
         "yao-meta-skill trust_check PASS（reports/security_trust_report.json）",
         "yao-meta-skill package-verify PASS（2026-08-24）"
       ],
@@ -28,7 +28,7 @@
       "reason": "PDF/docx 抽取调用本地工具进程，无网络行为",
       "evidence": [
         "tests/run_tests.py 19 组契约测试全 PASS（2026-08-24）",
-        "30-pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
+        "21-pkos-meta/scripts/meta_gate.py all PASS（2026-08-24）",
         "yao-meta-skill trust_check PASS（reports/security_trust_report.json）",
         "yao-meta-skill package-verify PASS（2026-08-24）"
       ],

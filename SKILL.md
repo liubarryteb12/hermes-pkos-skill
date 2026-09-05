@@ -50,7 +50,7 @@ Personal Knowledge OS（PKOS）套件的 Hermes 原生封装。套件根 = 本�
 
   - **工作汇报/内容聚合 HTML** → 加载 `html-anything` 技能（note-taking/html-anything，已 build `dist/cli.js`）：把用户的文档、工作记录、任意数据源汇成一份精美单文件 HTML。它服务「工作汇报」场景，与公众号文章无关，不要互相替代。
 
-- **技能自优化（32-pkos-skillopt，08-30 接入）**：「训练/优化某个 PKOS 技能」→ `32-pkos-skillopt/scripts/skillopt_mini.py`（microsoft/SkillOpt 微型循环：rollout→反思改写→验证门→best_skill.md，验证门=改后 val 不得低于改前，与 artifact-integrity gate_1_no_retrograde 同构）。模型实测可用组合=`HERMES_CUSTOM_7_API_KEY`+`qwen3.8-flash`（deepseek-v4-flash 公益分组 503 无通道；glm-5.3-flash thinking 禁用）。产物只进 `reports/skillopt/`，覆盖任何单元 SKILL.md 必须人工评审+套件治理。配合 AMAP-ML/SkillClaw（已装守护进程，原生 Hermes 集成，代理 :30000）：Claw 管会话经验收获/去重/分发，skillopt 管定向训练，两者产物入库都走套件治理。
+- **技能自优化（23-pkos-skillopt，08-30 接入）**：「训练/优化某个 PKOS 技能」→ `23-pkos-skillopt/scripts/skillopt_mini.py`（microsoft/SkillOpt 微型循环：rollout→反思改写→验证门→best_skill.md，验证门=改后 val 不得低于改前，与 artifact-integrity gate_1_no_retrograde 同构）。模型实测可用组合=`HERMES_CUSTOM_7_API_KEY`+`qwen3.8-flash`（deepseek-v4-flash 公益分组 503 无通道；glm-5.3-flash thinking 禁用）。产物只进 `reports/skillopt/`，覆盖任何单元 SKILL.md 必须人工评审+套件治理。配合 AMAP-ML/SkillClaw（已装守护进程，原生 Hermes 集成，代理 :30000）：Claw 管会话经验收获/去重/分发，skillopt 管定向训练，两者产物入库都走套件治理。
 
 - **出图统一口径**：所有生图（comic/gptimage2use/ppt 插图槽位）走 `contracts/image-size-spec.json` 的白名单与 remap 表；漫画出图用 `12-pkos-comic/scripts/render_panels.py --manifest <RT-...>/manifest.json`（compose 只产脚本，出图必须显式跑渲染器）。**ppt 出口 v2.0 起为原生 PPTX 渲染（python-pptx），gptimage2 仅作 `--images` 可选插图通道**（2026-08-31 用户裁定，v0.2 出图制作废）。
 
@@ -242,19 +242,19 @@ python 01-pkos-intake/scripts/intake_tools.py dedup-key <file>    # 去重键 fi
 
 # 心跳巡检（INBOX 堆积 + 草稿/隔离区超期 + lint 巡检，默认 dry-run）
 
-python 30-pkos-meta/scripts/tick.py
+python 21-pkos-meta/scripts/tick.py
 
 
 
 # 遥测面板（读 _PKOS/execution/telemetry.jsonl）
 
-python 30-pkos-meta/scripts/telemetry_dashboard.py
+python 21-pkos-meta/scripts/telemetry_dashboard.py
 
 
 
 # vault 全量 lint（report-only 默认；--apply 才写修复）
 
-python 22-pkos-audit-lint/scripts/lint.py
+python 17-pkos-audit-lint/scripts/lint.py
 
 
 

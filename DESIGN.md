@@ -375,7 +375,7 @@ workspace/skills/personal-knowledge-os/
 - **存储与展示解耦**：落盘 `output_dir`，展示走 `display.http_base` 的 http(s) URL（Web GUI 只认 http URL）。
 - **换网关回归门**：最小 4 条用例（默认图 / 横版 / 透明背景 / 伪造 401）全过才允许切换 provider。
 
-### 4.8 30-pkos-meta（元层质量门——M4 第三方接入的机制基础）
+### 4.8 21-pkos-meta（元层质量门——M4 第三方接入的机制基础）
 
 双评测器互补（吸收 skill-creator × yao-meta-skill）：**skill-creator 回答「有没有变好」**——with-skill vs baseline 双臂对照（必须同 turn 并发保证公平）、grading.json 硬契约 `{text, passed, evidence}`、benchmark 出 pass_rate/time/tokens 的 mean±stddev+delta；**yao-meta-skill 回答「会不会变坏」**——晋升硬条件 = 五类 holdout 全不回退 + route confusion 干净。
 
@@ -411,19 +411,19 @@ workspace/skills/personal-knowledge-os/
 - **安装方式**：每模块以 NTFS junction 链接至 `~/.dsh/skills/<模块名>`，源在仓库内；
   改仓库即改线上，无拷贝漂移。
 - **清单**：01-pkos-intake / 03-pkos-ingest / 05-pkos-analysis / 06-pkos-polish / 08-pkos-router /
-  10-pkos-html / 11-pkos-ppt-skill / 25-pkos-audit —— 8/8 新会话目录可见且热生效（audit 曾因缺
+  10-pkos-html / 11-pkos-ppt-skill / 20-pkos-audit —— 8/8 新会话目录可见且热生效（audit 曾因缺
   SKILL.md 未注册，补齐后即时出现，实证热更新）。
-- **元层质量门**：`30-pkos-meta/scripts/meta_gate.py`（validate/boundary_check/trigger_eval/
-  optimize 最小版）；触发基线 `30-pkos-meta/triggers.json` 每模块 ≥4 正例 + ≥2 近失负例，
+- **元层质量门**：`21-pkos-meta/scripts/meta_gate.py`（validate/boundary_check/trigger_eval/
+  optimize 最小版）；触发基线 `21-pkos-meta/triggers.json` 每模块 ≥4 正例 + ≥2 近失负例，
   keyword-overlap-v0 打分器；上下文预算 SKILL.md ≤8KB、description ≤400 字——
   当前最大 4210B，全部免裁剪达标。
 
-## 4.10 外部接入登记（工单 11，SOP 见 30-pkos-meta/ONBOARDING-SOP.md）
+## 4.10 外部接入登记（工单 11，SOP 见 21-pkos-meta/ONBOARDING-SOP.md）
 
 | 接入项 | 类型 | 版本 | 风险档 | 日期 | 回归证据 |
 |---|---|---|---|---|---|
 | night-desk（夜案） | 主题 | 0.1.0 | — | 2026-08-23 | lint 0 ERROR；自验页 web-single-file 十项 PASS |
-| 24-pkos-timeline | skill | 0.1.0 | L2 | 2026-08-23 | v1 负准入拒绝 2 项→v2 meta_gate all PASS（holdout 无回退） |
+| 19-pkos-timeline | skill | 0.1.0 | L2 | 2026-08-23 | v1 负准入拒绝 2 项→v2 meta_gate all PASS（holdout 无回退） |
 
 ---
 

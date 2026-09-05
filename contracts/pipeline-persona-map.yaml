@@ -115,7 +115,7 @@ nodes:
 
   - id: meta-tick
     stage: governance
-    unit: 30-pkos-meta
+    unit: 21-pkos-meta
     actor: "script(tick.py)"
     critic: meta_auditor
     gate: "telemetry 阈值（AER ≥0.8 / MTTI / 提案死亡率）"

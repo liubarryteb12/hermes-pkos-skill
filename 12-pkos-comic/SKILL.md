@@ -289,7 +289,7 @@ replaces: []
 
 ## 职责边界（v0 锁死）
 
-做：按路由单把已有内容转成公众号漫画分镜脚本与 prompt 块，并按 contracts/image-route-policy.md 编排出图；发表交 20-pkos-publish 枢纽，输出每格可粘贴的英文 prompt 块 + 中文对白清单 + 拼图指引。
+做：按路由单把已有内容转成公众号漫画分镜脚本与 prompt 块，并按 contracts/image-route-policy.md 编排出图；发表交 15-pkos-publish 枢纽，输出每格可粘贴的英文 prompt 块 + 中文对白清单 + 拼图指引。
 
 1. **不改写原意**（文案以 polished 素材为准）
 2. **不出网页版**（v0 锁死）
@@ -403,7 +403,7 @@ chinese_text=true 时，prompt 必带三件套：
 
 ## 发表
 
-成品（HTML+图+文案）交 **20-pkos-publish** 枢纽（`pkos.publish.draft`）执行草稿箱同步与回读验证——发表是跨线共享能力，本单元不含发表流程，只调用。
+成品（HTML+图+文案）交 **15-pkos-publish** 枢纽（`pkos.publish.draft`）执行草稿箱同步与回读验证——发表是跨线共享能力，本单元不含发表流程，只调用。
 
 ## 系列与编号（用户定稿）
 
@@ -415,4 +415,4 @@ chinese_text=true 时，prompt 必带三件套：
 ## 交付物与位置
 
 - 产出只落 `D:/00.AIagent/hermesagent/pkos-outputs/comic/`（产物铁律：不写 skill 目录）。
-- 实战脚本：`pkos-outputs/comic/_tools/gen_6grid_gpt2.py`（gptimage2）、`gen_6grid_gemini.py`（Gemini），换 PANELS 段落即复用；单格补图用 `gen_story_gpt2.py`。发表走 20-pkos-publish 枢纽。
+- 实战脚本：`pkos-outputs/comic/_tools/gen_6grid_gpt2.py`（gptimage2）、`gen_6grid_gemini.py`（Gemini），换 PANELS 段落即复用；单格补图用 `gen_story_gpt2.py`。发表走 15-pkos-publish 枢纽。

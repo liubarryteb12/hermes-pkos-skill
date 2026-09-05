@@ -5,7 +5,7 @@
   "steps": [
     {
       "step": "maintenance.index",
-      "cmd": "C:\\Users\\18765\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe C:\\Users\\18765\\AppData\\Local\\hermes\\skills\\note-taking\\hermes-pkos-skill\\21-pkos-maintenance-index\\scripts\\index.py --vault D:\\obsidian --out _PKOS --json",
+      "cmd": "C:\\Users\\18765\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe C:\\Users\\18765\\AppData\\Local\\hermes\\skills\\note-taking\\hermes-pkos-skill\\16-pkos-maintenance-index\\scripts\\index.py --vault D:\\obsidian --out _PKOS --json",
       "exit_code": 0,
       "stdout": "{\n  \"total\": 0,\n  \"by_status\": {},\n  \"by_domain_summary\": {},\n  \"cross_domain_edges\": 0\n}\n",
       "stderr": "",
@@ -13,7 +13,7 @@
     },
     {
       "step": "audit.lint.report-only",
-      "cmd": "C:\\Users\\18765\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe C:\\Users\\18765\\AppData\\Local\\hermes\\skills\\note-taking\\hermes-pkos-skill\\22-pkos-audit-lint\\scripts\\lint.py --vault D:\\obsidian --mode report-only --json",
+      "cmd": "C:\\Users\\18765\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe C:\\Users\\18765\\AppData\\Local\\hermes\\skills\\note-taking\\hermes-pkos-skill\\17-pkos-audit-lint\\scripts\\lint.py --vault D:\\obsidian --mode report-only --json",
       "exit_code": 0,
       "stdout": "{\n  \"applied_count\": 0,\n  \"reported_count\": 0,\n  \"applied\": [],\n  \"reported\": []\n}\n",
       "stderr": "",

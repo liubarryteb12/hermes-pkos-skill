@@ -42,15 +42,15 @@
       "role": "PPT 出口 v0.2 出图制：gptimage2 直接生成投屏图，生图前必问比例"
     },
     {
-      "id": "25-pkos-audit",
+      "id": "20-pkos-audit",
       "role": "全库体检：front matter 覆盖率/孤岛/悬空双链/空壳笔记"
     },
     {
-      "id": "24-pkos-timeline",
+      "id": "19-pkos-timeline",
       "role": "演化时间线：历次审计 JSON 聚合健康度趋势页"
     },
     {
-      "id": "30-pkos-meta",
+      "id": "21-pkos-meta",
       "role": "元治理（非触发式）：meta_gate 门禁 + 外部接入 SOP"
     }
   ],
@@ -66,7 +66,7 @@
   ],
   "quality_gates": [
     "tests/run_tests.py（19 组契约测试）",
-    "30-pkos-meta/scripts/meta_gate.py all（validate + triggers）",
+    "21-pkos-meta/scripts/meta_gate.py all（validate + triggers）",
     "10-pkos-html/scripts/lint_theme.py（新主题 0 ERROR 准入）",
     "10-pkos-html/scripts/build_themes.py --check（index 同源）",
     "10-pkos-html/scripts/validate_output.py --sink web-single-file|web-combined"

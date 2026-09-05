@@ -2,11 +2,10 @@
 
 ## Breaking：单元目录全部改名（capability_id 不变）
 
-v5.0.0 把 28 个单元目录改为 `<流水线阶段序号>-pkos-<功能>` 命名。
-**capability_id（`pkos.exit.html.render` 等）与全部脚本入口参数不变**；
-只有按目录路径引用的地方需要更新。
+28 个单元目录改为 `<流水线阶段序号>-pkos-<功能>`，**序号 00-27 全局连续**（主线 00-09 / 出口 10-14 / 管家 15-20 / 元层 21-23 / 通道 24-27）。
+**capability_id（`pkos.exit.html.render` 等）与全部脚本 CLI 参数不变**；只有按目录路径引用的地方需要更新。
 
-| 旧目录 | 新目录 |
+| 旧目录（v4） | 新目录（v5.0.0） |
 |---|---|
 | `pkos-init/` | `00-pkos-init/` |
 | `pkos-intake/` | `01-pkos-intake/` |
@@ -23,19 +22,19 @@ v5.0.0 把 28 个单元目录改为 `<流水线阶段序号>-pkos-<功能>` 命�
 | `pkos-comic/` | `12-pkos-comic/` |
 | `pkos-wenzhang-skill/` | `13-pkos-wenzhang-skill/` |
 | `pkos-gzhxiaoshuo-skill/` | `14-pkos-gzhxiaoshuo-skill/` |
-| `pkos-publish/` | `20-pkos-publish/` |
-| `pkos-maintenance-index/` | `21-pkos-maintenance-index/` |
-| `pkos-audit-lint/` | `22-pkos-audit-lint/` |
-| `pkos-fanout-concept/` | `23-pkos-fanout-concept/` |
-| `pkos-timeline/` | `24-pkos-timeline/` |
-| `pkos-audit/` | `25-pkos-audit/` |
-| `pkos-meta/` | `30-pkos-meta/` |
-| `pkos-operator/` | `31-pkos-operator/` |
-| `pkos-skillopt/` | `32-pkos-skillopt/` |
-| `pkos-gemini-chat/` | `40-pkos-gemini-chat/` |
-| `pkos-gemini-image/` | `41-pkos-gemini-image/` |
-| `pkos-gemini-video/` | `42-pkos-gemini-video/` |
-| `pkos-gptimage2use/` | `43-pkos-gptimage2use/` |
+| `pkos-publish/` | `15-pkos-publish/` |
+| `pkos-maintenance-index/` | `16-pkos-maintenance-index/` |
+| `pkos-audit-lint/` | `17-pkos-audit-lint/` |
+| `pkos-fanout-concept/` | `18-pkos-fanout-concept/` |
+| `pkos-timeline/` | `19-pkos-timeline/` |
+| `pkos-audit/` | `20-pkos-audit/` |
+| `pkos-meta/` | `21-pkos-meta/` |
+| `pkos-operator/` | `22-pkos-operator/` |
+| `pkos-skillopt/` | `23-pkos-skillopt/` |
+| `pkos-gemini-chat/` | `24-pkos-gemini-chat/` |
+| `pkos-gemini-image/` | `25-pkos-gemini-image/` |
+| `pkos-gemini-video/` | `26-pkos-gemini-video/` |
+| `pkos-gptimage2use/` | `27-pkos-gptimage2use/` |
 
 ## 其他 breaking / 行为变更
 

@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-for _p in (ROOT / "tests", ROOT / "10-pkos-html" / "scripts", ROOT / "31-pkos-operator" / "scripts"):
+for _p in (ROOT / "tests", ROOT / "10-pkos-html" / "scripts", ROOT / "22-pkos-operator" / "scripts"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 

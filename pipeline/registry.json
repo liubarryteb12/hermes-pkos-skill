@@ -577,7 +577,7 @@
         "vault_mtime_modified": 0
       },
       "hooks_passed": [
-        "Pre-Patch (no contracts/30-pkos-meta touched)",
+        "Pre-Patch (no contracts/21-pkos-meta touched)",
         "Post-Patch (ASCII docstring)",
         "D-6 gate_1/2/3 preserved",
         "D-1~D-10 axioms preserved"
@@ -624,9 +624,9 @@
         "pkos.intake.query"
       ],
       "new_scripts": [
-        "21-pkos-maintenance-index/scripts/index.py",
+        "16-pkos-maintenance-index/scripts/index.py",
         "04-pkos-knowledge-service-commit/scripts/commit.py",
-        "22-pkos-audit-lint/scripts/lint.py",
+        "17-pkos-audit-lint/scripts/lint.py",
         "tests/capability_runner.py",
         "tests/contract_refs.py",
         "tests/e2e_runner.py"
@@ -642,8 +642,8 @@
       "affected_units": [
         "pkos.governance.audit（新）",
         "pkos.maintenance.timeline（新）",
-        "25-pkos-audit",
-        "24-pkos-timeline"
+        "20-pkos-audit",
+        "19-pkos-timeline"
       ]
     },
     {
@@ -832,7 +832,7 @@
       "version": 4.2,
       "date": "2026-08-29",
       "author": "host (v4.2: operator-policy 调用方人格守卫落地——Meta-Auditor底座/动态子人格/断路器/陷阱预警/Code-as-Persona)",
-      "summary": "与外部模型(Gemini)五轮人格架构评审收敛后落地调用侧对称守卫：新建 contracts/operator-policy.md (31-pkos-operator:1, 9 节)——职责边界(制片厂模型: PKOS产出层persona=演员/调用方子人格=导演/meta_auditor=永远在线元人格, Actor-Critic串行对抗)、调度子人格四值词表(archivist/reader_advocate/meta_auditor/null)、required_persona静态声明(切换决策权在PKOS路由单,禁止调用方自行猜人格)、断路器二值(STRICT|AUTO_MERGE; AER>=0.8健康线/连续5次绿灯免检/积压>=10拥塞低危放行/高危死守/自动执行失败信任清零)、三查守卫(人格越界persona_violation/断路器抗命breaker_defiance/拦截理由教条dogma_loop·SequenceMatcher>=0.8)、四陷阱预警(overreaching_butler/paranoia/dogmatic/rubber_stamp各带telemetry前兆)、动态拼装头([SYS_ROLE|SUB_ROLE|BREAKER|WARNING_TRAP]调用前1ms注入,防Prompt漂移)。新增 31-pkos-operator skill (pkos.operator.audit, stage governance 8b) + scripts/auditor_gate.py (--assemble/--persona-violation/--breaker-state/--check-defiance/--check-dogma/--selftest, 22用例ALL PASS, P-07/P-15/Hook3继承, stdlib only)。policy-engine.md §2.5 补 required_persona 载体声明。遥测事件: operator.head.assembled/operator.persona.violation/operator.breaker.trip/operator.breaker.release/operator.dogma.detected/operator.audit.suspended/operator.audit.auto_released",
+      "summary": "与外部模型(Gemini)五轮人格架构评审收敛后落地调用侧对称守卫：新建 contracts/operator-policy.md (22-pkos-operator:1, 9 节)——职责边界(制片厂模型: PKOS产出层persona=演员/调用方子人格=导演/meta_auditor=永远在线元人格, Actor-Critic串行对抗)、调度子人格四值词表(archivist/reader_advocate/meta_auditor/null)、required_persona静态声明(切换决策权在PKOS路由单,禁止调用方自行猜人格)、断路器二值(STRICT|AUTO_MERGE; AER>=0.8健康线/连续5次绿灯免检/积压>=10拥塞低危放行/高危死守/自动执行失败信任清零)、三查守卫(人格越界persona_violation/断路器抗命breaker_defiance/拦截理由教条dogma_loop·SequenceMatcher>=0.8)、四陷阱预警(overreaching_butler/paranoia/dogmatic/rubber_stamp各带telemetry前兆)、动态拼装头([SYS_ROLE|SUB_ROLE|BREAKER|WARNING_TRAP]调用前1ms注入,防Prompt漂移)。新增 22-pkos-operator skill (pkos.operator.audit, stage governance 8b) + scripts/auditor_gate.py (--assemble/--persona-violation/--breaker-state/--check-defiance/--check-dogma/--selftest, 22用例ALL PASS, P-07/P-15/Hook3继承, stdlib only)。policy-engine.md §2.5 补 required_persona 载体声明。遥测事件: operator.head.assembled/operator.persona.violation/operator.breaker.trip/operator.breaker.release/operator.dogma.detected/operator.audit.suspended/operator.audit.auto_released",
       "breaking_changes": false,
       "affected_units": [
         "pkos.operator.audit（新）",
@@ -853,7 +853,7 @@
       "version": 4.3,
       "date": "2026-08-29",
       "author": "host (v4.3: OpenCLI 外部能力三件套入库——gemini chat/image 已实现 + video 骨架)",
-      "summary": "Gemini 网页通道（零 API 成本，OpenCLI 驱动登录态 Chrome）固化为 PKOS 正式能力：新增 40-pkos-gemini-chat (pkos.gemini.chat, utility.external-llm: 发 prompt→轮询→抓回复→落盘 workspace)、41-pkos-gemini-image (pkos.gemini.image, utility.image: 出图→Downloads→归档 workspace→sha256/魔数校验，gptimage2use 对位低价通道，实测 1024px 出图全链路通过)、42-pkos-gemini-video (pkos.gemini.video v0.1.0 骨架，接口锁死 fail loud ERR_NOT_IMPLEMENTED，实现清单见 SKILL.md)。产出物铁律契约化：三单元 sinks=workspace-outputs，产出只落用户工作目录（--out-dir 必须已存在），绝不写 skill/套件目录。实测沉淀 3 坑入 SKILL.md：文案残留不可信（须查 blob 大图 naturalWidth>400）/下载按钮 ref 漂移（aria-label 现场定位）/Downloads 落盘延迟轮询",
+      "summary": "Gemini 网页通道（零 API 成本，OpenCLI 驱动登录态 Chrome）固化为 PKOS 正式能力：新增 24-pkos-gemini-chat (pkos.gemini.chat, utility.external-llm: 发 prompt→轮询→抓回复→落盘 workspace)、25-pkos-gemini-image (pkos.gemini.image, utility.image: 出图→Downloads→归档 workspace→sha256/魔数校验，gptimage2use 对位低价通道，实测 1024px 出图全链路通过)、26-pkos-gemini-video (pkos.gemini.video v0.1.0 骨架，接口锁死 fail loud ERR_NOT_IMPLEMENTED，实现清单见 SKILL.md)。产出物铁律契约化：三单元 sinks=workspace-outputs，产出只落用户工作目录（--out-dir 必须已存在），绝不写 skill/套件目录。实测沉淀 3 坑入 SKILL.md：文案残留不可信（须查 blob 大图 naturalWidth>400）/下载按钮 ref 漂移（aria-label 现场定位）/Downloads 落盘延迟轮询",
       "breaking_changes": false,
       "affected_units": [
         "pkos.gemini.chat（新）",
@@ -866,13 +866,13 @@
     {
       "version": "4.2.2",
       "date": "2026-08-30",
-      "change": "新增 utility 单元 32-pkos-skillopt（capability pkos.skillopt.train）：microsoft/SkillOpt 微型训练循环适配（rollout→reflect→edit→validation gate），后端走网关 OpenAI-compatible；配套 AMAP-ML/SkillClaw 作采集分发面"
+      "change": "新增 utility 单元 23-pkos-skillopt（capability pkos.skillopt.train）：microsoft/SkillOpt 微型训练循环适配（rollout→reflect→edit→validation gate），后端走网关 OpenAI-compatible；配套 AMAP-ML/SkillClaw 作采集分发面"
     },
     {
       "version": "4.3.1",
       "date": "2026-08-30",
       "author": "hermes (自进化轮: U0 演化件同步 + registry 三方合并 + BOM 防线 90 点 + tick 接线降级回路)",
-      "summary": "①同步主库 v4.2/v4.3 演化件入 Hermes 副本（31-pkos-operator/auditor_gate、operator-policy、evolution-policy、evolution_gate，selftest 全过）；②registry 三方合并：并入 pkos.gemini.chat/image/video（主库 v4.3）+ pkos.operator.audit，保留副本 U2 成果（superseded_by×11、alias_ledger）与 pkos.skillopt.train；③全套件 41 文件 90 个读取点 utf-8→utf-8-sig（R4 BOM 教训机制化，元循环②步首例全量）；④tick.py 接线 degradation_gate（U5.1 闭环）",
+      "summary": "①同步主库 v4.2/v4.3 演化件入 Hermes 副本（22-pkos-operator/auditor_gate、operator-policy、evolution-policy、evolution_gate，selftest 全过）；②registry 三方合并：并入 pkos.gemini.chat/image/video（主库 v4.3）+ pkos.operator.audit，保留副本 U2 成果（superseded_by×11、alias_ledger）与 pkos.skillopt.train；③全套件 41 文件 90 个读取点 utf-8→utf-8-sig（R4 BOM 教训机制化，元循环②步首例全量）；④tick.py 接线 degradation_gate（U5.1 闭环）",
       "breaking_changes": false,
       "affected_units": [
         "registry",
@@ -938,7 +938,7 @@
       "version": "4.9.2",
       "date": "2026-09-01",
       "author": "hermes (全量审核 V2 轮: 27单元逐一盘点 + 版本统一)",
-      "summary": "①27 单元×registry 39 条全对照：26/26 有 SKILL.md 单元 v4 required_capability 全覆盖，capability_id 与 registry 全对齐（00-pkos-init 等别名走 superseded_by 正常）；②pkos.governance.tick 有登记无契约 → 补 30-pkos-meta/SKILL.md 契约化（v1.0.0）；③operator registry version 1.0.0→1.1.0 对齐 SKILL.md 权威值；④schema 分布核实：>=2.0.0×16 / >=2.1.0×5 / >=2.3.0×1 / >=3.1.0×2 / >=4.5.0×1（wenzhang 新单元），与套件 4.9.1 兼容",
+      "summary": "①27 单元×registry 39 条全对照：26/26 有 SKILL.md 单元 v4 required_capability 全覆盖，capability_id 与 registry 全对齐（00-pkos-init 等别名走 superseded_by 正常）；②pkos.governance.tick 有登记无契约 → 补 21-pkos-meta/SKILL.md 契约化（v1.0.0）；③operator registry version 1.0.0→1.1.0 对齐 SKILL.md 权威值；④schema 分布核实：>=2.0.0×16 / >=2.1.0×5 / >=2.3.0×1 / >=3.1.0×2 / >=4.5.0×1（wenzhang 新单元），与套件 4.9.1 兼容",
       "breaking_changes": false,
       "affected_units": [
         "pkos.governance.tick",
@@ -969,7 +969,7 @@
       "version": "4.9.5",
       "date": "2026-09-01",
       "author": "hermes (单元=模块/工作流=主线/枢纽=汇点 三层观落地方案A)",
-      "summary": "①新建 20-pkos-publish 发表枢纽（pkos.publish.draft，v1.0.0）：发表是跨线共享能力，从 12-pkos-comic 收编节迁出成立，实战脚本 comic_upload_send.py 归位为 scripts/upload_weixin_draft.py，comic/wenzhang/文章HTML线只调用不内含；②出图通道政策收归 contracts/image-route-policy.md 单一真相（comic/主SKILL.md/记忆三处指针化，防漂移）；③structure-audit 补第四问「领域归属检查」（跨线共享必须抽枢纽、政策收契约）；④主SKILL.md 失效路径 opencli-browser-bridge→agent-reach 修复；⑤evolution_gate 机制→工作流环节待扩展（跟踪项）。用户体系观：单元=单一职责可拼接模块，工作流=单元串接主线，枢纽=汇点，职责抢占是大忌（关联后续员工安排与人格注入）。",
+      "summary": "①新建 15-pkos-publish 发表枢纽（pkos.publish.draft，v1.0.0）：发表是跨线共享能力，从 12-pkos-comic 收编节迁出成立，实战脚本 comic_upload_send.py 归位为 scripts/upload_weixin_draft.py，comic/wenzhang/文章HTML线只调用不内含；②出图通道政策收归 contracts/image-route-policy.md 单一真相（comic/主SKILL.md/记忆三处指针化，防漂移）；③structure-audit 补第四问「领域归属检查」（跨线共享必须抽枢纽、政策收契约）；④主SKILL.md 失效路径 opencli-browser-bridge→agent-reach 修复；⑤evolution_gate 机制→工作流环节待扩展（跟踪项）。用户体系观：单元=单一职责可拼接模块，工作流=单元串接主线，枢纽=汇点，职责抢占是大忌（关联后续员工安排与人格注入）。",
       "breaking_changes": false,
       "affected_units": [
         "pkos.publish.draft(新)",
@@ -1242,7 +1242,7 @@
       "required": false,
       "status": "registered",
       "replaces": [
-        "25-pkos-audit"
+        "20-pkos-audit"
       ],
       "integrity_policy": "contracts/artifact-integrity-policy.md",
       "integrity_enforced": {
@@ -2011,7 +2011,7 @@
       "status": "registered",
       "replaces": [],
       "supersedes": [
-        "25-pkos-audit"
+        "20-pkos-audit"
       ],
       "integrity_policy": "contracts/artifact-integrity-policy.md",
       "integrity_enforced": {
@@ -2153,7 +2153,7 @@
       "required": false,
       "status": "registered",
       "replaces": [
-        "24-pkos-timeline"
+        "19-pkos-timeline"
       ],
       "integrity_policy": "contracts/artifact-integrity-policy.md",
       "integrity_enforced": {
@@ -2184,7 +2184,7 @@
       "stage": 0,
       "stage_label": "utility.external-llm",
       "consumes": "{prompt | prompt_file} + out_dir(workspace) + session?/profile?/timeout?",
-      "produces": "<out_dir>/<ts>-<slug>.md + .manifest.json（schema 40-pkos-gemini-chat:1, sha256 溯源）",
+      "produces": "<out_dir>/<ts>-<slug>.md + .manifest.json（schema 24-pkos-gemini-chat:1, sha256 溯源）",
       "semantic_goal": "外部 LLM 对话工作流：发 prompt→轮询→抓回复→落盘 workspace；OpenCLI -> 登录态 Chrome -> gemini.google.com（零 API 成本网页通道）",
       "not_actions": [
         "compose_ppt",
@@ -2275,7 +2275,7 @@
       "stage": 0,
       "stage_label": "utility.skillopt",
       "consumes": "{task集(JSONL), seed_skill(MD), epochs?/train-size?/val-size?/edit-budget?/model?/base-url?}",
-      "produces": "32-pkos-skillopt/reports/skillopt/<slug>/best_skill.md + train_log.json（gate 判定溯源字段）",
+      "produces": "23-pkos-skillopt/reports/skillopt/<slug>/best_skill.md + train_log.json（gate 判定溯源字段）",
       "semantic_goal": "SkillOpt 式微型训练循环（rollout→score→reflect→edit→validation gate）：把一个技能文档当参数在微型任务集上定向优化，验证门保证改后不劣于改前（与 artifact-integrity-policy gate_1_no_retrograde 同构）；只做技能文本优化一件事，不改源条目、不直接覆盖任何单元 SKILL.md（A4 公理）",
       "not_actions": [
         "modify_source",
@@ -2327,7 +2327,7 @@
       "stage": 0,
       "stage_label": "utility.video",
       "consumes": "{prompt} + out_dir(workspace)（接口面已锁死）",
-      "produces": "<out_dir>/<ts>-<slug>.mp4 + .manifest.json（schema: 42-pkos-gemini-video:1）",
+      "produces": "<out_dir>/<ts>-<slug>.mp4 + .manifest.json（schema: 26-pkos-gemini-video:1）",
       "semantic_goal": "OpenCLI 驱动登录态 Chrome 的 Gemini 网页版视频生成（/videos）：prompt 进 → 轮询 <video> 出现 → 点 Download video → Downloads 新文件归档 workspace/gemini-videos/ + sha256 校验（2026-09-05 实测跑通转正）",
       "not_actions": [
         "compose_ppt",
@@ -2361,17 +2361,17 @@
       "required": false,
       "integrity_policy": "contracts/artifact-integrity-policy.md",
       "contract": "contracts/operator-policy.md",
-      "guard": "31-pkos-operator/scripts/auditor_gate.py",
+      "guard": "22-pkos-operator/scripts/auditor_gate.py",
       "consumes": "调用方（Hermes/外部 agent）的 capability_id + persona_prompt + 操作意图",
       "produces": "人格守卫报告 {allow, deny, warn, gates[]} + Meta-Auditor 审计日志",
       "semantic_goal": "固化调用方人格为机器可校验规格——meta_auditor（门禁审计员）拦截越权操作，确保外部调用方只触及声明的 consumes/produces 边界"
     },
     {
       "capability_id": "pkos.publish.draft",
-      "name": "20-pkos-publish",
+      "name": "15-pkos-publish",
       "version": "1.0.0",
       "stage": "publish",
-      "entry": "20-pkos-publish/scripts/upload_weixin_draft.py",
+      "entry": "15-pkos-publish/scripts/upload_weixin_draft.py",
       "summary": "发表枢纽：草稿箱同步唯一出口（upload→回填→add_draft→回读验证四项闭环）；跨线共享，各 exit 单元只调用不内含",
       "schema_compat": ">=4.9.4",
       "required_capability": "browser_bridge",
@@ -2386,7 +2386,7 @@
   ],
   "infra_non_units": [
     {
-      "id": "30-pkos-meta",
+      "id": "21-pkos-meta",
       "note": "元治理设施（门禁/SOP），无 SKILL.md，不参与启停"
     }
   ],

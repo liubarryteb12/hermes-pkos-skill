@@ -33,7 +33,7 @@ for f in ["trap.md", "X.html", "X.txt"]:
 
 # 跑 index.py（不修改源 .md，只生成 MASTER_INDEX）
 r = subprocess.run(
-    [sys.executable, str(base / "21-pkos-maintenance-index" / "scripts" / "index.py"),
+    [sys.executable, str(base / "16-pkos-maintenance-index" / "scripts" / "index.py"),
      "--vault", str(vault), "--out", str(vault / "_PKOS" / "MASTER_INDEX.json")],
     capture_output=True, text=True, encoding="utf-8"
 )

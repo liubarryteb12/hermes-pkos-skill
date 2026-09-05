@@ -233,5 +233,5 @@ depends_on_providers: ["filesystem", "python:pymupdf", "python:pdf_extract"]
 - **物理页 vs 书页**：TOC 页码是书内印刷页码，PDF 物理页 = 书页 + 前置偏移（封面/目录/前言）。先抽一章校准偏移量再批量。
 - **扫描版陷阱**：`info` 显示页数正常不代表有文本层，`chapter` 抽出空文本即暴露；先 OCR。
 - **双栏 PDF**：`get_text("text")` 可能串列，必要时用 `get_text("blocks")` 或先单栏化再蒸。
-- **wikilink 纪律**：Step 4 的「与其他章节关联」只链库内真实存在的笔记，否则留章节号纯文本——25-pkos-audit 的悬空双链检查会抓。
+- **wikilink 纪律**：Step 4 的「与其他章节关联」只链库内真实存在的笔记，否则留章节号纯文本——20-pkos-audit 的悬空双链检查会抓。
 - **长书上下文**：>300 页的书严禁把整本读进上下文，严格逐章分批；每批落盘后再进下一批。
