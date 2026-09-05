@@ -1,29 +1,68 @@
 {
   "name": "567-personal-knowledgedatabase",
   "product": "personal-knowledge-os",
-  "version": "0.0.1",
-  "release_date": "2026-08-24",
+  "version": "4.9.21",
+  "release_date": "2026-09-04",
   "description": "个人知识库操作系统：从收集、理解、净化到多出口产出的完整流水线",
   "schema": {
     "entry_contract": "pkos-schema:1（锁死，变更须 bump 并评审）",
     "kb_config": "pkos-config:1"
   },
   "skills": [
-    { "id": "pkos-init",     "role": "初始化：库路径确认 + 三种架构模式（MOC/OKF/INDEX）建骨架" },
-    { "id": "pkos-intake",   "role": "入口分拣：扫描 INBOX 识别投放物并调度规则卡" },
-    { "id": "pkos-ingest",   "role": "抽取入库：外部输入 → pkos-schema:1 合规条目归位挂载" },
-    { "id": "pkos-analysis", "role": "结构化分析：概述/要点/发现表/可复用性/跨域关联" },
-    { "id": "pkos-polish",   "role": "诊断驱动净化：R1–R20 规则库，改动可追溯，五维评分卡" },
-    { "id": "pkos-router",   "role": "纯决策：路由单 YAML（出口 html|ppt · 转化类型四值词表）" },
-    { "id": "pkos-html",     "role": "HTML 出口：5 主题注册库（纸墨/夜案/墨线/刊式/光栅），确定性渲染" },
-    { "id": "pkos-ppt-skill",      "role": "PPT 出口 v0.2 出图制：gptimage2 直接生成投屏图，生图前必问比例" },
-    { "id": "pkos-audit",    "role": "全库体检：front matter 覆盖率/孤岛/悬空双链/空壳笔记" },
-    { "id": "pkos-timeline", "role": "演化时间线：历次审计 JSON 聚合健康度趋势页" },
-    { "id": "pkos-meta",     "role": "元治理（非触发式）：meta_gate 门禁 + 外部接入 SOP" }
+    {
+      "id": "pkos-init",
+      "role": "初始化：库路径确认 + 三种架构模式（MOC/OKF/INDEX）建骨架"
+    },
+    {
+      "id": "pkos-intake",
+      "role": "入口分拣：扫描 INBOX 识别投放物并调度规则卡"
+    },
+    {
+      "id": "pkos-ingest",
+      "role": "抽取入库：外部输入 → pkos-schema:1 合规条目归位挂载"
+    },
+    {
+      "id": "pkos-analysis",
+      "role": "结构化分析：概述/要点/发现表/可复用性/跨域关联"
+    },
+    {
+      "id": "pkos-polish",
+      "role": "诊断驱动净化：R1–R20 规则库，改动可追溯，五维评分卡"
+    },
+    {
+      "id": "pkos-router",
+      "role": "纯决策：路由单 YAML（出口 html|ppt · 转化类型四值词表）"
+    },
+    {
+      "id": "pkos-html",
+      "role": "HTML 出口：5 主题注册库（纸墨/夜案/墨线/刊式/光栅），确定性渲染"
+    },
+    {
+      "id": "pkos-ppt-skill",
+      "role": "PPT 出口 v0.2 出图制：gptimage2 直接生成投屏图，生图前必问比例"
+    },
+    {
+      "id": "pkos-audit",
+      "role": "全库体检：front matter 覆盖率/孤岛/悬空双链/空壳笔记"
+    },
+    {
+      "id": "pkos-timeline",
+      "role": "演化时间线：历次审计 JSON 聚合健康度趋势页"
+    },
+    {
+      "id": "pkos-meta",
+      "role": "元治理（非触发式）：meta_gate 门禁 + 外部接入 SOP"
+    }
   ],
   "external_dependencies": [
-    { "name": "gzh-design", "purpose": "公众号排版出口（快路径桥接），未随包分发，需单独安装" },
-    { "name": "567-image-generation", "purpose": "pkos-ppt-skill 生图的图像网关封装，需另行配置密钥" }
+    {
+      "name": "gzh-design",
+      "purpose": "公众号排版出口（快路径桥接），未随包分发，需单独安装"
+    },
+    {
+      "name": "567-image-generation",
+      "purpose": "pkos-ppt-skill 生图的图像网关封装，需另行配置密钥"
+    }
   ],
   "quality_gates": [
     "tests/run_tests.py（19 组契约测试）",
