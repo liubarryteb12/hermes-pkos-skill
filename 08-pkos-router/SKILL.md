@@ -14,6 +14,7 @@ stage_subindex: 4
 semantic_goal: "读 Execution Strategy（Policy Engine 决策）→ 校验 → 分发 → 写 RT-* 路由单作为出口执行指令（v4.0 策略消费者，业务判断已上移）"
 NOT_actions: ["click", "type", "scroll", "write_content", "decide_exit", "decide_style", "modify_source", "invoke_exit"]
 replaces: ["08-pkos-router"]
+required_capability: "llm_chat{reasoning:high,context:large}"
 ```
 
 # 理论层定位

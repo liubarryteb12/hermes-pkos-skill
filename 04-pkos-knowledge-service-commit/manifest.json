@@ -1,9 +1,9 @@
 {
-  "name": "20-pkos-audit",
-  "version": "1.1.0",
+  "name": "pkos.knowledge_service.commit",
+  "version": "1.0.0",
   "owner": "PKOS Maintainers",
-  "updated_at": "2026-08-24",
-  "review_due": "2026-11-22",
+  "updated_at": "2026-09-08",
+  "review_due": "2026-12-08",
   "status": "active",
   "maturity_tier": "production",
   "lifecycle_stage": "production",
@@ -14,5 +14,6 @@
     "claude",
     "generic",
     "agent-skills-compatible"
-  ]
+  ],
+  "role": "knowledge_service"
 }

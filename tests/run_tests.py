@@ -156,8 +156,15 @@ with tmpdir() as td:
 rc, out, err = run_cli(str(SAMPLES / "valid-clipping.md"))
 check("人读模式可用", rc == 0 and "== " in out, out[:200])
 
+# 单元注册完整性（registry↔目录↔SKILL.md↔manifest 四方对齐）
+import subprocess as _sp
+_r = _sp.run([sys.executable, str(ROOT / "tests" / "test_unit_registry.py")],
+             capture_output=True, text=True, timeout=60, encoding="utf-8", errors="replace")
+check("单元注册完整性（32 单元四方对齐）", _r.returncode == 0,
+      (_r.stdout + _r.stderr).strip().splitlines()[-1] if (_r.stdout + _r.stderr).strip() else "FAIL")
+
 print()
-print(f"共 {len(URL_CASES) + 13} 项检查，失败 {len(failures)} 项")
+print(f"共 {len(URL_CASES) + 14} 项检查，失败 {len(failures)} 项")
 if failures:
     print("失败清单: " + ", ".join(failures))
 sys.exit(1 if failures else 0)

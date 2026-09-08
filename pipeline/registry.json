@@ -1,9 +1,39 @@
 {
   "schema": "pkos-pipeline:2",
   "version": 2,
-  "pkos_semver": "5.0.0",
-  "updated_at": "2026-09-05",
+  "pkos_semver": "5.4.1",
+  "updated_at": "2026-09-08",
   "changelog": [
+    {
+      "version": 5.4,
+      "date": "2026-09-07",
+      "author": "hermes (round-39: 31-pkos-imageprompt 提示词工程单元准入)",
+      "summary": "新单元 31-pkos-imageprompt（pkos.imageprompt.compose，stage=utility）准入：五段命名提示词工程（M母题-S子题-F风格-U用途-A审美 + P模特/S安全/C参数），题词资产库 16 子题 320 条 SSOT 在单元 references/prompt-library/（与工作区双活同步）；只题材词不出图，与 27-pkos-gptimage2use 分工写死。2026-09-07 用户裁定沉淀本次会话的 ModelScope 题词体系工作流"
+    },
+    {
+      "version": 5.3,
+      "date": "2026-09-06",
+      "author": "hermes (round-38: 30-pkos-scorecard 质量评分门准入)",
+      "summary": "新单元 30-pkos-scorecard（pkos.scorecard.judge，stage=verify）准入：文章/文案质量加权评分门，2026-09-06 用户裁定独立单元（改评分离，不糅入 13-wenzhang，对标 07-pkos-weak-check 同层正交：weak_check 管真不真/scorecard 管好不好）。双通道判定：机械项脚本跑（占位符>0→E≤4、字数<300→E≤4、最长段>40%→C≤5）+ LLM 六维 A–F 锚点评分（各带权重/及格线/红旗封顶，逐分必附 verbatim 引用）。权威聚合 scorecard_calc.py：命门(B/E)未过线→REJECT，单维未过线→封顶及格+REVISION，总分四级映射（优秀≥85/良好≥75/中等≥65/及格≥55），exit code 0/4/5 供 15-publish 门禁。标准 SSOT=contracts/scorecard-policy.md (scorecard-policy:1)，注册面四处（registry units/主 SKILL.md/unit-map/dispatch catalog 2.8 节）+ 13 配合表指针。selftest 5 算例+ambiguous+schema 全绿，E2E 实跑机械压分→REJECT 验证。pkos_semver 5.2.0→5.3.0。",
+      "breaking_changes": false,
+      "affected_units": [
+        "pkos.scorecard.judge",
+        "pkos.exit.wenzhang.compose",
+        "pkos.publish.draft"
+      ]
+    },
+    {
+      "version": 5.2,
+      "date": "2026-09-05",
+      "author": "hermes (round-37: 28-pkos-topic v2.0 升格 + 29-pkos-trend 外置准入)",
+      "summary": "用户裁定内容运营三层架构：①28-pkos-topic v2.0 升格为产品经理/产品运营式选题中枢（新增母题/栏目运营、选题池五维评分[时效/受众/兑现成本/差异化/系列潜力]、排期三池；路径B 重写为内容运营选题方案）；②热点采集外置新单元 29-pkos-trend（pkos.trend.collect，渠道白名单全免费，产出 trend-digest 情报单，只采集不决策；latest 指针供 28 消费）；③文案出口统一 wenzhang：新增 references/voice-styles.md 风格模板注册库（voice-styles:1，四风格起步[保姆级教程/亲测复盘/横评选型/热点快评]，七字段规范，my-voice 档案永远优先），选题单以 style_hint 传递建议。版本 bump 5.1.0→5.2.0。"
+    },
+    {
+      "version": 5.1,
+      "date": "2026-09-05",
+      "author": "hermes (round-36: 28-pkos-topic 准入，吸收 bigpeng-hot-gzh)",
+      "summary": "新单元 28-pkos-topic（pkos.topic.generate，stage=pre-exit）准入：上位收编 BigPengSays/bigpeng-hot-gzh（MIT）方法论四件套（7型标题公式/8选题模板/标题语料/QA清单→references/，QA确定性子集→scripts/qa_check.py）。structure-audit 五步裁决=与 13-pkos-wenzhang 标题矩阵互补分工（成稿前最前端 vs 成稿后出口段；输入/时机/产物三不同），边界声明落入双方 SKILL.md。注册面：registry units 追加 + 主 SKILL.md When-to-Use 与 unit-map + dispatch catalog 增 2.8 节 + 命令速查表一行。版本 bump 5.0.0→5.1.0。"
+    },
     {
       "version": 4.9,
       "date": "2026-09-01",
@@ -334,7 +364,7 @@
       "version": 2.23,
       "date": "2026-08-27",
       "author": "host (v2.3.1 round-23b: hunyuan-direct endpoint 真接入)",
-      "summary": "把 <LLM_GATEWAY_HOST>:1519 endpoint 接入 DSH llm-pi-ai hand-declared route 'hunyuan-direct'；model hy3 (含 reasoning_content)；provider-policy.md 1.1→1.2；2 cap provider_aliases 改 hunyuan-direct/hy3；web profile cordis.patch.yml 加 hunyuan-direct insert 段；端到端验证 chat 200 + reasoning_content + usage；apikey 写根 .env (gitignored)，永不入文档",
+      "summary": "把 47.108.25.114:1519 endpoint 接入 DSH llm-pi-ai hand-declared route 'hunyuan-direct'；model hy3 (含 reasoning_content)；provider-policy.md 1.1→1.2；2 cap provider_aliases 改 hunyuan-direct/hy3；web profile cordis.patch.yml 加 hunyuan-direct insert 段；端到端验证 chat 200 + reasoning_content + usage；apikey 写根 .env (gitignored)，永不入文档",
       "breaking_changes": false,
       "affected_units": [
         "pkos.intake.query",
@@ -343,7 +373,7 @@
       "task_endpoint_probe": "GET /v1/models 列出 3 model (deepseek-v4-flash / deepseek-v4-flash-vision-exp / hy3)；hy3 唯一含 hy3 关键词",
       "task_chat_verify": "POST /v1/chat/completions (max_tokens=500) 200 OK, content='2', reasoning_content='1+1=2', usage.reasoning_tokens=31",
       "task_credentials": "D:\\00.AIagent\\deepseekharness\\.env (gitignored) 写 HUNYUAN_BASE_URL/HUNYUAN_API_KEY/HUNYUAN_DEFAULT_MODEL",
-      "task_dsh_patch": "C:\\Users\\18765\\.dsh\\profiles\\web\\cordis.patch.yml 加 hunyuan-direct insert (apiKeyEnv: HUNYUAN_API_KEY, baseURL: http://<LLM_GATEWAY_HOST>:1519/v1, model hy3)",
+      "task_dsh_patch": "C:\\Users\\18765\\.dsh\\profiles\\web\\cordis.patch.yml 加 hunyuan-direct insert (apiKeyEnv: HUNYUAN_API_KEY, baseURL: http://47.108.25.114:1519/v1, model hy3)",
       "task_provider_aliases": {
         "hy3": {
           "model": "hy3",
@@ -1152,6 +1182,11 @@
         "版本体系统一：pkos_semver=SSOT，manifest/VERSION/SKILL.md 为只读投影（scripts/version_sync.py --check 强制）",
         "gemini.video 从骨架转正 registered 1.0.0（Gemini 网页视频生成实测：三段产物+双轨音视频验证）"
       ]
+    },
+    {
+      "version": "5.4.1",
+      "date": "2026-09-08",
+      "summary": "联动补齐：①4 新单元（topic/trend/scorecard/imageprompt）SKILL.md 补 required_capability+stage+语义 name ②registry 补 depends_on（topic→trend+router、scorecard→router+weak_check）③4 单元补 manifest.json ④SKILL.md 加「下游与协作技能层」（5 外部技能挂接契约）"
     }
   ],
   "description": "pkos 流水线单元注册表 v2：role ∈ intake|process|governance|decision|exit|maintenance|knowledge_service；含 v0 兼容条目（status=deprecated）。D-7 公理要求每次新增/修改/弃用均记 changelog。",
@@ -2269,7 +2304,7 @@
     {
       "id": "pkos.skillopt.train",
       "capability_id": "pkos.skillopt.train",
-      "version": "0.1.0",
+      "version": "0.2.1",
       "compatible_pkos_schema": ">=2.0.0",
       "role": "utility",
       "stage": 0,
@@ -2382,6 +2417,89 @@
       "consumes": "RT-* 路由单 + 出口单元成品（html/ppt/comic/novel/wenzhang） + 目标平台凭证",
       "produces": "草稿箱 media_id + 发布状态（draft/uploaded/failed） + 回读校验结果",
       "semantic_goal": "发表枢纽：消费出口层成品，执行 upload→回读→验证四项闭环（完整性/尺寸/media_id有效期/平台回读）"
+    },
+    {
+      "capability_id": "pkos.topic.generate",
+      "name": "28-pkos-topic",
+      "version": "2.0.0",
+      "stage": "pre-exit",
+      "entry": "28-pkos-topic/scripts/qa_check.py",
+      "summary": "公众号内容运营选题中枢（产品经理/产品运营式）：母题/栏目规划 + 选题池五维评分 + 标题生成（A: 6条跨公式 / B: 内容运营选题方案）；热点输入消费 29-pkos-trend 情报单",
+      "schema_compat": ">=2.1.0",
+      "required_capability": "llm_chat{reasoning:medium} + web_search(路径B空输入分支)",
+      "created": "2026-09-05",
+      "origin": "上位收编 BigPengSays/bigpeng-hot-gzh（MIT）：7型标题公式+8选题模板+标题语料+QA清单，用户裁定 pkos 作上位吸收",
+      "role": "pre-exit",
+      "status": "registered",
+      "consumes": "想法/关键词/草稿片段/空输入 + trend-digest 情报单（来自 29-pkos-trend）",
+      "produces": "母题提案（落 INBOX type=method）+ 排期建议（时效/常青/情绪三池）+ 候选标题组 Markdown（qa_check.py 自检）+ style_hint 建议字段",
+      "semantic_goal": "以产品运营方法做公众号选题：母题/栏目规划 + 选题池评分排序 + 跨公式候选标题，产出可排期的选题单",
+      "depends_on_capabilities": [
+        "pkos.trend.collect",
+        "pkos.router.decide"
+      ]
+    },
+    {
+      "capability_id": "pkos.trend.collect",
+      "name": "29-pkos-trend",
+      "version": "1.0.0",
+      "stage": "pre-exit",
+      "entry": "（SKILL.md 流程，无脚本）",
+      "summary": "热点信号采集与情报单：免费渠道（搜索/GitHub/V2EX/HN-RSS/bili/yt-dlp/可选OpenCLI登录态）采集热点，产出 trend-digest（信号+热度证据+时效窗口），不做选题决策",
+      "schema_compat": ">=2.1.0",
+      "required_capability": "web_search",
+      "created": "2026-09-05",
+      "origin": "2026-09-05 用户裁定：追热点是专栏母题方向但属信号采集职责，从 28-pkos-topic v2.0 外置为独立单元",
+      "role": "pre-exit",
+      "status": "registered",
+      "consumes": "采集窗口（默认近7天）+ 可选领域关键词",
+      "produces": "_PKOS/analysis/trend-digest-YYYYMMDD.md + trend-digest-latest.md 指针；有沉淀价值的信号复制进 _PKOS/INBOX/（type=clipping）",
+      "semantic_goal": "周期性采集热点信号并产出结构化情报单（信号/来源/热度证据/时效窗口），不做任何选题决策",
+      "depends_on_capabilities": []
+    },
+    {
+      "capability_id": "pkos.scorecard.judge",
+      "name": "30-pkos-scorecard",
+      "version": "1.0.0",
+      "stage": "verify",
+      "entry": "30-pkos-scorecard/scripts/scorecard_calc.py",
+      "summary": "文章/文案质量加权评分门（Quality Gate）：双通道判定（机械项脚本跑 + LLM 六维 A–F 锚点评分），权威聚合出总分/四级判定（及格/中等/良好/优秀）/verdict（PASS 才放行去 15-publish）",
+      "schema_compat": ">=4.5.0",
+      "required_capability": "llm_chat{reasoning:high}",
+      "created": "2026-09-06",
+      "origin": "2026-09-06 用户裁定独立单元（改评分离，不糅入 13-wenzhang）；方法整合自 Paper-WorkFlow quality-rubric / promptfoo llm-rubric / prometheus SCORE_RUBRIC_TEMPLATE / evaluation-rubrics methodology / rubrify / dingo",
+      "role": "verify",
+      "status": "registered",
+      "consumes": "出口层成稿（当前仅 D:/00.AIagent/hermesagent/workspace/pkos-exports/article/<route-id>-article/；小说/漫画文案接入待裁定）+ 可选 13 的 qc-report.json",
+      "produces": "<route-id>-scorecard.json（pkos-scorecard:1，与成稿同目录落 workspace/pkos-exports/）+ telemetry 三事件",
+      "semantic_goal": "出口成稿六维加权评分门：双通道判定 → 总分/等级/verdict → PASS 才可发表；REVISION 进打分→修改→再打分回环（≤2轮，30出工序单+复判、13执行修改）；标准 SSOT=contracts/scorecard-policy.md (scorecard-policy:1)",
+      "depends_on_capabilities": [
+        "pkos.router.decide",
+        "pkos.weak_check.verify"
+      ]
+    },
+    {
+      "capability_id": "pkos.imageprompt.compose",
+      "name": "31-pkos-imageprompt",
+      "version": "1.0.0",
+      "stage": "utility",
+      "entry": "（SKILL.md 流程，题词库在 references/prompt-library/）",
+      "summary": "五段命名提示词工程：按母题-子题-风格-用途-审美编号定位/组装/新写生图题词，强制过 S00 安全层消毒与 C00 参数规范；只题材词不出图（出图走 27-gptimage2use），320 条题词资产库 SSOT 在 references/prompt-library/",
+      "schema_compat": ">=2.0.0",
+      "required_capability": "llm_chat{reasoning:medium}",
+      "created": "2026-09-07",
+      "origin": "2026-09-07 用户裁定：ModelScope 生图题词体系（五段命名 320 条）沉淀为套件单元；与 27 出图通道职责分离",
+      "role": "utility",
+      "status": "registered",
+      "consumes": "编号或自然语言生图需求 + 可选模特锚点/题材变量",
+      "produces": "题词包五键 {code, positive, negative, anchor, params}；create 模式回写题词库并登记索引",
+      "NOT_actions": [
+        "call_image_api",
+        "generate_image",
+        "modify_source",
+        "decide_exit"
+      ],
+      "depends_on_capabilities": []
     }
   ],
   "infra_non_units": [
