@@ -7,6 +7,7 @@
   3. 套件三测试（run_tests / contract_refs / router_matrix）
   4. 活代码旧路径守卫（D:\\00.AIagent / deepseekharness；账本与产物/演示区白名单外，基线 0）
   5. 主库漂移提示（仅提示，不判失败）
+  6. Handoff 门禁（开工必读，机械强制）—— 09-08 用户裁定
 
 退出码：0 = 必需项全过；1 = 有必需项失败。
 用法：python scripts/upgrade_check.py [--quick]   # --quick 跳过套件三测试
@@ -17,6 +18,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +39,7 @@ GUARD_DIRS = ["01-pkos-intake", "09-pkos-intake-query", "03-pkos-ingest", "04-pk
               "24-pkos-gemini-chat", "25-pkos-gemini-image", "26-pkos-gemini-video",
               "contracts", "tests"]
 CODE_EXTS = {".py", ".json", ".yaml", ".yml"}
+HANDOFF_DIR = Path(r"D:/obsidian知识库/obsidian知识库/_PKOS/handoffs")
 
 fails: list[str] = []
 
@@ -117,6 +120,22 @@ def main() -> int:
         print(f"  [HINT] 主库未提交改动 {n} 处（回写主库前先在主库 commit）")
     except Exception:  # noqa: BLE001
         print("  [HINT] 主库 git 状态不可读（跳过）")
+
+    # 6) Handoff 门禁（开工必读，机械强制）——09-08 用户裁定
+    # 每个 scope 若无 handoff 或超 24h 未更新 → 阻断，提示先 read
+    stale_h = []
+    for scope in ("kb", "writing", "route"):
+        lp = HANDOFF_DIR / f"HANDOFF-{scope}-latest.md"
+        if not lp.exists():
+            stale_h.append(f"{scope}:无 handoff")
+        else:
+            age_h = (time.time() - lp.stat().st_mtime) / 3600
+            if age_h > 24:
+                stale_h.append(f"{scope}:{age_h:.0f}h 未更新")
+    if stale_h:
+        head(False, "Handoff 门禁（开工必读）", "; ".join(stale_h) + " → 先 python 22-pkos-operator/scripts/handoff_gate.py read --scope <s>")
+    else:
+        head(True, "Handoff 门禁（开工必读）", "kb/writing/route 均在 24h 内更新")
 
     print(f"\n=== 结果: {'ALL PASS' if not fails else 'FAIL: ' + '; '.join(fails)} ===")
     return 1 if fails else 0

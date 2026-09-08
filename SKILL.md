@@ -1,4 +1,4 @@
----
+﻿---
 name: hermes-pkos-skill
 description: "PKOS 知识流水线操作与 v4 升级：分拣/入库/lint/PPT/漫画/小说出口."
 version: "5.4.1"
@@ -95,6 +95,14 @@ Personal Knowledge OS（PKOS）套件的 Hermes 原生封装。套件根 = 本�
 ```bash
 cd "C:/Users/18765/AppData/Local/hermes/skills/note-taking/hermes-pkos-skill"
 ```
+
+
+### 0. Handoff 门禁（09-08 起，任何 PKOS 会话）
+
+- **开工**：`python 22-pkos-operator/scripts/handoff_gate.py read --scope <kb|writing|route>` —— 读上次交接的 PITFALLS/NEXT，输出 JSON。无历史 → 提示确认是否新建工作流。
+- **收尾**：`python 22-pkos-operator/scripts/handoff_gate.py write --scope <s> --summary "<完成+证据>" --pitfalls "<坑>" --next "<下一会话第一动作>"` —— summary 必填，空 handoff 会被拒（exit 2）。**收尾标准序列（强制）**：`write` → `diff --scope <s>` 自检 NEXT 是否推进 → `check --since <会话开始>` 验证已更新。diff 是收尾验收：NEXT 未推进 = handoff 不合格。
+- **强制点**：收尾钩子用 `check --since <会话开始时间>`，latest 未更新 → exit 2（handoff-stale）。
+- **回顾**：`diff --scope <s>` 输出 latest vs prev 的五段结构化 diff。
 
 ## Procedure
 
