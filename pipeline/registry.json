@@ -5,6 +5,15 @@
   "updated_at": "2026-09-08",
   "changelog": [
     {
+      "version": "5.4.1",
+      "date": "2026-09-08",
+      "changes": [
+        "31-imageprompt 升格为全体系出图文案唯一输出中心（用户裁定）：出口单元 comic/wenzhang/ppt/html 补 depends_on=pkos.imageprompt.compose",
+        "修悬空依赖 2 条：analysis.structure 与 exit.ppt.compose 的 cid 带中文备注污染，指向不存在的 capability_id",
+        "31 version 1.0.0→1.1.0（semantic_goal/consumes 升格）"
+      ]
+    },
+    {
       "version": 5.4,
       "date": "2026-09-07",
       "author": "hermes (round-39: 31-pkos-imageprompt 提示词工程单元准入)",
@@ -1556,7 +1565,7 @@
       "integrity_policy": "contracts/artifact-integrity-policy.md",
       "depends_on_capabilities": [
         "pkos.ingest.extract",
-        "pkos.maintenance.index（v2.1 C-轮 1 启用）"
+        "pkos.maintenance.index"
       ],
       "failure_modes_declared": true,
       "test_suite": "tests/capabilities/pkos.analysis.structure.test.yaml",
@@ -1755,7 +1764,8 @@
       "depends_on_capabilities": [
         "pkos.router.decide",
         "pkos.polish.refine",
-        "pkos.weak_check.verify"
+        "pkos.weak_check.verify",
+        "pkos.imageprompt.compose"
       ],
       "depends_on_providers": [
         "filesystem",
@@ -1829,7 +1839,8 @@
       },
       "depends_on_capabilities": [
         "pkos.router.decide",
-        "pkos.polish.refine"
+        "pkos.polish.refine",
+        "pkos.imageprompt.compose"
       ],
       "depends_on_providers": [
         "filesystem",
@@ -1958,7 +1969,8 @@
       },
       "depends_on_capabilities": [
         "pkos.router.decide",
-        "pkos.polish.refine"
+        "pkos.polish.refine",
+        "pkos.imageprompt.compose"
       ],
       "failure_modes_declared": true,
       "test_suite": "tests/capabilities/pkos.exit.html.render.test.yaml",
@@ -2008,7 +2020,8 @@
       "depends_on_capabilities": [
         "pkos.router.decide",
         "pkos.polish.refine",
-        "pkos.exit.html.render（风格映射）"
+        "pkos.exit.html.render",
+        "pkos.imageprompt.compose"
       ],
       "depends_on_providers": [
         "gptimage2-image"
@@ -2481,7 +2494,7 @@
     {
       "capability_id": "pkos.imageprompt.compose",
       "name": "31-pkos-imageprompt",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "stage": "utility",
       "entry": "（SKILL.md 流程，题词库在 references/prompt-library/）",
       "summary": "五段命名提示词工程：按母题-子题-风格-用途-审美编号定位/组装/新写生图题词，强制过 S00 安全层消毒与 C00 参数规范；只题材词不出图（出图走 27-gptimage2use），320 条题词资产库 SSOT 在 references/prompt-library/",
@@ -2491,7 +2504,7 @@
       "origin": "2026-09-07 用户裁定：ModelScope 生图题词体系（五段命名 320 条）沉淀为套件单元；与 27 出图通道职责分离",
       "role": "utility",
       "status": "registered",
-      "consumes": "编号或自然语言生图需求 + 可选模特锚点/题材变量",
+      "consumes": "编号或自然语言生图需求（全体系任意出口单元的封面/配图/插图）+ 可选模特锚点/题材变量",
       "produces": "题词包五键 {code, positive, negative, anchor, params}；create 模式回写题词库并登记索引",
       "NOT_actions": [
         "call_image_api",
@@ -2499,7 +2512,8 @@
         "modify_source",
         "decide_exit"
       ],
-      "depends_on_capabilities": []
+      "depends_on_capabilities": [],
+      "semantic_goal": "全体系出图文案唯一输出中心（用户 09-08 裁定）：消费 {编号或自然语言需求, 可选模特/题材变量}，从题词库定位/组装/新写正向+负向提示词，强制过 S00 安全层与 C00 参数规范，返回可粘贴题词包。一切出口单元（comic/wenzhang/ppt/html）的封面与配图题词一律经本单元产出；优化反馈只落本单元题词库"
     }
   ],
   "infra_non_units": [

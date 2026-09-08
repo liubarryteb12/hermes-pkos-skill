@@ -1,4 +1,4 @@
----
+﻿---
 name: 10-pkos-html
 description: HTML 出口层：消费路由单，从主题注册库取组件，把条目渲染成单文件离线 HTML。版式稳定靠组件装配、风格一致靠主题 token。触发语：「把这篇做成网页」「出个 HTML 版」。**v2 双重身份**：保留 v0 `10-pkos-html`（deprecated）兼容入口；新会话用 `pkos.exit.html.render`。
 ---
@@ -198,6 +198,8 @@ themes/
 # 决策收集铁律（v0 锁死）
 
 确认点逐项独立确认：主题建议、内容起点、受众口径分别给选项与推荐，**禁止打包成"全部 OK 吗"式 yes/no**；可以推荐但不代选。
+
+> **题词纪律（09-08 裁定）**：封面/配图/插图的生图题词一律经 `31-pkos-imageprompt`（pkos.imageprompt.compose）产出，本单元不自写题词、不做题词补强；出图执行走 `27-pkos-gptimage2use`。
 
 ## 全自动逃生口（v0 锁死）
 

@@ -1,6 +1,6 @@
----
+﻿---
 name: pkos-ppt
-description: PPT 出口层（v2.0 原生 PPTX 制，2026-08-31 用户裁定改版）：消费路由单，把 POL 素材经 design_spec 中间层渲染为真·可编辑 PowerPoint（原生文本框/形状），gptimage2 降级为可选插图通道。触发语：「做成幻灯片」「出个 deck」「演示版」「PPT」。v0 出图制与 v0.2 出图裁定已作废（见 变更记录）。
+description: PPT 出口层（v2.0.1 原生 PPTX 制，2026-08-31 用户裁定改版）：消费路由单，把 POL 素材经 design_spec 中间层渲染为真·可编辑 PowerPoint（原生文本框/形状），gptimage2 降级为可选插图通道。触发语：「做成幻灯片」「出个 deck」「演示版」「PPT」。v0 出图制与 v0.2 出图裁定已作废（见 变更记录）。
 ---
 
 # Capability 身份 (v2 契约 C-1)
@@ -97,8 +97,8 @@ failures:
       - "源 POL 路径不可达"
     caller_action: ["continue", "report"]
   ambiguous:
-    meaning: "比例未确认（v0 锁死继承：必问，不得默认横版）"
-    when: ["ratio=null 且 auto_mode=false"]
+    meaning: "比例未确认（v0 锁死继承：必问，不得默认横版）/ 主题无效（v2.0.1：fail-loud）"
+    when: ["ratio=null 且 auto_mode=false", "style_theme 或 --theme 不在 5 主题白名单（ThemeInvalidError）"]
     caller_action: ["add_constraint", "ask_user"]
     decision_card: "ratio 三选一独立列出（16:9/4:3/3:4）"
   unavailable:
@@ -169,11 +169,14 @@ replaces: ["pkos-ppt"]
 
 1. 读路由单 → 验证 exit=ppt + 承接子集 4 值 + 源可达 + status≥polished；
 2. **比例必问**（v0 锁死继承；auto 模式默认 16:9 留痕）；
+2b. **风格必问**（v2.0.1 锁死，2026-09-01 用户裁定）：开工前把 5 主题清单（paper-ink 纸墨 / mo-xian 墨黑科技 / kan-shi 期刊鎏金 / guang-shu 极简白 / night-desk 夜间琥珀）交用户挑选，用户未指定时**不得自作主张**；auto 模式可默认 paper-win 但须 decision_note 留痕；路由单声明了白名单外主题 → fail-loud 决策单（ThemeInvalidError），不静默回退；
 3. `deck_spec.build_deck_spec`：POL → design_spec.json（页型分类/要点拆页/节奏/讲稿/封底结论）；
 4. （可选 `--images`）`fill_image_slots`：至多 3 页升级 image-right，gptimage2 出插图（尺寸走 image-size-spec 白名单，prompt 含 no text 防乱码）；
 5. `build_pptx.build`：spec + 主题 native token → 原生 pptx（悬挂缩进/两级要点/中西文归一）；
 6. 校验门：重开 pptx 数页 + sha256；
 7. manifest.json 落盘（schema pkos-ppt-deck:2，全链可复现）。
+
+> **题词纪律（09-08 裁定）**：封面/配图/插图的生图题词一律经 `31-pkos-imageprompt`（pkos.imageprompt.compose）产出，本单元不自写题词、不做题词补强；出图执行走 `27-pkos-gptimage2use`。
 
 ## CLI 用法
 
@@ -200,6 +203,8 @@ python -c "import sys; sys.path.insert(0,'11-pkos-ppt-skill/scripts'); import js
 受众 / 风格主题（默认继承路由单）/ **比例三选一（必问）** / 页数节奏 / （可选）要不要 AI 插图。自主轮次答案取自路由单并在 manifest 留痕。
 
 # 变更记录
+
+- **v2.0.1（2026-09-01）**：①主题解析 fail-loud——无效主题名（白名单外）从静默回退 paper-ink 改为 ambiguous 决策单（ThemeInvalidError），CLI --theme 非法值同级拒绝；②新增「风格必问」闸门（工序 2b，与比例必问同级锁死）：开工前 5 主题清单交用户挑选，用户未指定不得自作主张。起因：测试三连出图全落 paper-ink，暴露静默降级掩盖错误 + agent 越权替用户选风格。
 
 - **v2.0（2026-08-31，用户裁定）**：转向原生可编辑 PPTX（吸收 ppt-master 设计骨架），**v0.2 出图制裁定作废**；gptimage2 降级为 --images 可选插图通道；conversion_type 承接子集对齐 router v3.3 矩阵 4 值（修漂移）；修复旧 compose.py「永远 degraded_success」bug（全成功也标降级）；产物 schema 升 `pkos-ppt-deck:2`，输出目录 `<route-id>-deck/`（旧 `-deck-images/` 保留历史）。
 - v0.2（2026-08-23，已作废）：出图制——每页 gptimage2 直接生成投屏图片。

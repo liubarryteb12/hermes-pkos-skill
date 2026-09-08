@@ -1,4 +1,4 @@
----
+﻿---
 name: 12-pkos-comic
 display_name: pkos-comic-skill
 description: 公众号漫画出口层 v3.2（v1 原生入册）：消费 RT-* 路由单（exit=comic + conversion_type=公众号漫画 + style_adapter=comic_storyboard），按 4 套画风（healing/flat_tech/comic_strip/retro_comic）之一产出 4 宫 / 6 宫 / 16:9 头图分镜脚本 + 中文对白 + 一键可粘贴英文 Prompt；接收 v3.1 DerivedDraft + 接 EventBus（export.success/fallback/degraded）。**中文进图** chinese_text=true（默认开，可关），中文文字直接写进 prompt 让出图模型渲染，失败可后期 Figma/PPT 兜底。触发语：「这篇做公众号漫画」「出个漫画脚本」「按这套人物做一话」/「把这篇长文改成条漫」。**v2/v3 双重身份**：保留 v0 `12-pkos-comic`（deprecated）兼容入口；新会话用 `pkos.exit.comic.compose`。
@@ -96,6 +96,8 @@ inputs:
 # v3.0 联动:style_adapter 接收 (评审 round-25 通过)
 
 > **决议**:本 skill 接收 `style_adapter=comic_storyboard` 作为可选输入,当 router 在 RT-* 路由单中显式声明该字段时,comic skill 按"每段 50-100 字、视觉引导符号、对话独立"的方式处理 polish 后的 DerivedDraft 文本。
+
+> **题词纪律（09-08 裁定）**：封面/配图/插图的生图题词一律经 `31-pkos-imageprompt`（pkos.imageprompt.compose）产出，本单元不自写题词、不做题词补强；出图执行走 `27-pkos-gptimage2use`。
 
 ## 接收契约
 

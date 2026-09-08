@@ -1,6 +1,6 @@
----
+﻿---
 name: "pkos.imageprompt.compose"
-version: 1.0.0
+version: 1.1.0
 description: 五段命名提示词工程（pkos.imageprompt.compose）：生图题词的资产化编排——按「母题-子题-风格-用途-审美」定位/组装/新写题词，强制过安全层消毒与参数规范。只做题词与参数组装，不调 API 不出图（出图走 27-pkos-gptimage2use 或外部通道）。触发语：「出提示词」「写个生图提示词」「题词怎么写」「按编号出题词」「M01-S03 那套」「换个审美风格」。
 ---
 
@@ -9,10 +9,10 @@ description: 五段命名提示词工程（pkos.imageprompt.compose）：生图�
 ```yaml
 capability_id: "pkos.imageprompt.compose"
 required_capability: "llm_chat{reasoning:medium}"
-version: "1.0.0"
+version: "1.1.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: utility
-semantic_goal: "消费 {编号或自然语言需求, 可选模特Pxx/题材变量}，从题词库定位/组装/新写正向+负向提示词，强制过 S00 安全层与 C00 参数规范，返回可粘贴题词包"
+semantic_goal: "全体系出图文案唯一输出中心（09-08 用户裁定）：消费 {编号或自然语言需求, 可选模特Pxx/题材变量}，从题词库定位/组装/新写正向+负向提示词，强制过 S00 安全层与 C00 参数规范，返回可粘贴题词包；出口单元（comic/wenzhang/ppt/html）封面与配图题词一律经本单元产出"
 NOT_actions:
   - "call_image_api"
   - "generate_image"
@@ -25,7 +25,7 @@ replaces: []
 
 # 理论层定位
 
-> **31-pkos-imageprompt 是题词资产层的编排单元，不是出图工具。** 它与 27-pkos-gptimage2use（原子出图）职责干净分离：31 管「题词怎么来」，27 管「图怎么出」。分工铁律：本单元产出题词+参数建议，绝不出图；27 只吃现成 prompt，不生产/改写题词语义。
+> **31-pkos-imageprompt 是全体系出图文案的唯一输出中心（09-08 用户裁定），不是出图工具。** 出口单元（12-comic/13-wenzhang/11-ppt/10-html）的封面、配图、插图题词一律经本单元产出；出图反馈/优化改进只落本单元题词库，其他单元不做题词补强。 它与 27-pkos-gptimage2use（原子出图）职责干净分离：31 管「题词怎么来」，27 管「图怎么出」。分工铁律：本单元产出题词+参数建议，绝不出图；27 只吃现成 prompt，不生产/改写题词语义。
 >
 > - 题词库 SSOT 在 `references/prompt-library/`（与工作区 `D:/00.AIagent/hermesagent/workspace/modelscope-prompts/` 同步维护，改库先改工作区再同步过来）
 > - 不改写源条目（A4 公理）；新题词/新风格/新审美按「登记制」追加，编号不回收不复用
