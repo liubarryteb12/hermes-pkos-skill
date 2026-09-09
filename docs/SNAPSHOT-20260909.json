@@ -1,0 +1,630 @@
+{
+ "semver": "5.4.2",
+ "units": [
+  {
+   "cid": "00-pkos-init",
+   "ver": "1.0.0-legacy",
+   "status": "deprecated",
+   "role": "governance",
+   "stage": null,
+   "deps": [],
+   "consumes": "用户提供的知识库路径与模式选择",
+   "produces": "_PKOS/ 地基骨架 + config.json(pkos-config:1)"
+  },
+  {
+   "cid": "pkos.governance.bootstrap",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "governance",
+   "stage": null,
+   "deps": [],
+   "consumes": "用户提供的知识库路径与模式选择",
+   "produces": "_PKOS/ 地基骨架 + config.json(pkos-config:1)"
+  },
+  {
+   "cid": "pkos.governance.audit",
+   "ver": "1.1.0",
+   "status": "registered",
+   "role": "governance",
+   "stage": 8,
+   "deps": [
+    "pkos.governance.bootstrap"
+   ],
+   "consumes": "TargetConstraint(by_path_pattern) + options(prev, blindspot, max_list, outdir)",
+   "produces": "<outdir>/YYYY-MM-DD_audit.{md,json} + blindspots.md（仅追加）"
+  },
+  {
+   "cid": "pkos.governance.tick",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "governance",
+   "stage": 8,
+   "deps": [
+    "pkos.audit.lint"
+   ],
+   "consumes": "_PKOS/INBOX/* 文件清单 + _drafts/(TTL 24h) + _quarantine/(TTL 30d) 时间戳 + lint.py 可执行性",
+   "produces": "tick 巡检报告（inbox 堆积/超期清单/增量 lint/latency）+ telemetry 事件 tick.heartbeat"
+  },
+  {
+   "cid": "pkos.intake.scan",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "intake",
+   "stage": 0,
+   "deps": [],
+   "consumes": "TargetConstraint(by_path_pattern: INBOX/** + 正式收件通道) + options(limit_mb,out)",
+   "produces": "_PKOS/manifests/*-intake.json 分拣单（12 字段 ticket，gate 三态映射层叠加）"
+  },
+  {
+   "cid": "pkos.intake.query",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "intake",
+   "stage": 2,
+   "deps": [
+    "pkos.maintenance.index",
+    "pkos.fanout.concept",
+    "pkos.intake.scan"
+   ],
+   "consumes": "query(string) + options(max_relevant, include_fanout, auto_mode)",
+   "produces": "_PKOS/queries/<时间戳>-<slug>.md + .json"
+  },
+  {
+   "cid": "pkos.distill.book",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "process",
+   "stage": 2,
+   "deps": [
+    "pkos.intake.scan"
+   ],
+   "consumes": "TargetConstraint(by_pdf | by_pdf_chapter | by_text_dir) + 用户自有书籍 PDF",
+   "produces": "pkos-schema:1 章节条目组（status=raw）+ 书籍索引页，统一落 <库根>/书籍PDF/书本蒸馏内容留存/<书名>/ + _PKOS/manifests/<时间戳>-distill.json；不写书籍笔记/与MOC（挂载"
+  },
+  {
+   "cid": "pkos.ingest.extract",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "process",
+   "stage": 1,
+   "deps": [
+    "pkos.intake.scan"
+   ],
+   "consumes": "TargetConstraint(by_url | by_manifest_ticket) + intake 分拣单",
+   "produces": "pkos-schema:1 合规条目（status=raw, domain=<slug|null>） + _PKOS/manifests/<时间戳>.json"
+  },
+  {
+   "cid": "pkos.polish.refine",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "process",
+   "stage": 3,
+   "deps": [
+    "pkos.analysis.structure"
+   ],
+   "consumes": "TargetConstraint(by_an_artifact | by_path_pattern) + analysis 发现表",
+   "produces": "_PKOS/analysis/POL-<日期>-<slug>.md 净化稿 + 源 front matter status=polished 追加"
+  },
+  {
+   "cid": "pkos.analysis.structure",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "process",
+   "stage": 2,
+   "deps": [
+    "pkos.ingest.extract",
+    "pkos.maintenance.index"
+   ],
+   "consumes": "TargetConstraint(by_path_pattern: entries/**) + AN-* 落点声明",
+   "produces": "_PKOS/analysis/AN-<日期>-<slug>.md 6 段笔记 + 源 front matter 追加"
+  },
+  {
+   "cid": "pkos.knowledge_service.commit",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "knowledge_service",
+   "stage": 6,
+   "deps": [],
+   "consumes": "TargetConstraint(by_path_pattern | by_*_artifact) + options(from_state, to_state, commit_evidence, force, audit_trail)",
+   "produces": "_PKOS/reports/commits/<时间戳>.json 审计记录 + atomic front matter 更新 + .commit-backup/"
+  },
+  {
+   "cid": "pkos.router.decide",
+   "ver": "2.0.0",
+   "status": "registered",
+   "role": "decision",
+   "stage": 4,
+   "deps": [
+    "pkos.polish.refine",
+    "pkos.governance.bootstrap"
+   ],
+   "consumes": "ExecutionStrategy(pkos-execution-strategy:1, v4.0 必需, 决策方=Policy Engine) + TargetConstraint(by_pol_artifact | by_path_pa",
+   "produces": "_PKOS/routes/RT-YYYYMMDD-NNN.yaml 路由单（schema 五键锁死 + v4.0 strategy 溯源块）"
+  },
+  {
+   "cid": "pkos.weak_check.verify",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "verify",
+   "stage": 6,
+   "deps": [
+    "pkos.polish.refine",
+    "pkos.router.decide"
+   ],
+   "consumes": "DerivedDraft (type=derived_draft, 必填 target_skill + derived_from_fact_core + entities + facts + numbers) + FactCore enti",
+   "produces": "弱审核报告 {pass, score, breakdown} + telemetry 事件 (weak_check.pass|fail|degraded) + 降级时 _PKOS/_quarantine/ambiguous-<ts>.yam"
+  },
+  {
+   "cid": "pkos.exit.wenzhang.compose",
+   "ver": "1.2.0",
+   "status": "registered",
+   "role": "exit",
+   "stage": 5,
+   "deps": [
+    "pkos.router.decide",
+    "pkos.polish.refine",
+    "pkos.weak_check.verify",
+    "pkos.imageprompt.compose"
+   ],
+   "consumes": "TargetConstraint(by_route_artifact: exit=article) + options(writing_mode, length_target, draft_path, voice_profile, titl",
+   "produces": "_PKOS/_Export/article/<route-id>-article/（<route-id>-article.md + <route-id>-titles.md + <route-id>-qc-report.json + man"
+  },
+  {
+   "cid": "pkos.exit.comic.compose",
+   "ver": "1.1.0",
+   "status": "registered",
+   "role": "exit",
+   "stage": 5,
+   "deps": [
+    "pkos.router.decide",
+    "pkos.polish.refine",
+    "pkos.imageprompt.compose"
+   ],
+   "consumes": "TargetConstraint(by_route_artifact: exit=comic) + options(art_style, grid, cover, chinese_text, characters, plot_outline",
+   "produces": "_PKOS/outputs/<route-id>-comic-script/（<route-id>-comic-script.md + manifest.json + prompts/ + 可选 PLACEHOLDER.md）"
+  },
+  {
+   "cid": "pkos.exit.gzhxiaoshuo.compose",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "exit",
+   "stage": 5,
+   "deps": [
+    "pkos.router.decide",
+    "pkos.polish.refine",
+    "pkos.weak_check.verify"
+   ],
+   "consumes": "TargetConstraint(by_route_artifact: exit=gzhxiaoshuo) + options(persona, genre_hints, chapter_outline, characters, world",
+   "produces": "_PKOS/_Export/gzhxiaoshuo/<route-id>-chapter/（<route-id>-chapter.json + <route-id>-chapter.md + manifest.json）"
+  },
+  {
+   "cid": "pkos.exit.html.render",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "exit",
+   "stage": 5,
+   "deps": [
+    "pkos.router.decide",
+    "pkos.polish.refine",
+    "pkos.imageprompt.compose"
+   ],
+   "consumes": "TargetConstraint(by_route_artifact) + options(theme_id,sink,auto_mode)",
+   "produces": "_PKOS/outputs/<route-id>.html 单文件离线网页（5 段结构 + validate_output PASS + 决策说明可选）"
+  },
+  {
+   "cid": "pkos.exit.ppt.compose",
+   "ver": "2.0.1",
+   "status": "registered",
+   "role": "exit",
+   "stage": 5,
+   "deps": [
+    "pkos.router.decide",
+    "pkos.polish.refine",
+    "pkos.exit.html.render",
+    "pkos.imageprompt.compose"
+   ],
+   "consumes": "TargetConstraint(by_route_artifact: exit=ppt) + options(ratio,slides,auto_mode,theme,with_images)",
+   "produces": "_PKOS/outputs/<route-id>-deck/（<route-id>.pptx 原生可编辑 + design_spec.json + manifest.json；--images 时另含 illustration-*.png）"
+  },
+  {
+   "cid": "pkos.audit.lint",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "maintenance",
+   "stage": 9,
+   "deps": [
+    "pkos.maintenance.index",
+    "pkos.knowledge_service.commit"
+   ],
+   "consumes": "TargetConstraint(by_path_pattern) + options(mode, rules, dry_run, max_fix_per_run)",
+   "produces": "_PKOS/reports/lint/<时间戳>.md + .json"
+  },
+  {
+   "cid": "pkos.fanout.concept",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "maintenance",
+   "stage": 7,
+   "deps": [
+    "pkos.maintenance.index"
+   ],
+   "consumes": "TargetConstraint(by_path_pattern | by_tag | by_concept) + options(directions, max_branches, auto_mode)",
+   "produces": "_PKOS/fanout/<concept-slug>-<时间戳>.md + .json（6 扇出方向 × N 子节点）"
+  },
+  {
+   "cid": "pkos.maintenance.index",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "maintenance",
+   "stage": 7,
+   "deps": [
+    "pkos.governance.bootstrap",
+    "pkos.knowledge_service.commit"
+   ],
+   "consumes": "TargetConstraint(by_path_pattern) + options(incremental, since, include_status)",
+   "produces": "_PKOS/MASTER_INDEX.md（人读） + _PKOS/MASTER_INDEX.json（机读）"
+  },
+  {
+   "cid": "pkos.maintenance.timeline",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "maintenance",
+   "stage": 7,
+   "deps": [
+    "pkos.governance.audit"
+   ],
+   "consumes": "TargetConstraint(by_path_pattern: _PKOS/reports/audit/**) + options(out, format, include_metrics)",
+   "produces": "_PKOS/reports/timeline.{md,html} | stdout"
+  },
+  {
+   "cid": "pkos.gemini.chat",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "utility",
+   "stage": 0,
+   "deps": [],
+   "consumes": "{prompt | prompt_file} + out_dir(workspace) + session?/profile?/timeout?",
+   "produces": "<out_dir>/<ts>-<slug>.md + .manifest.json（schema 24-pkos-gemini-chat:1, sha256 溯源）"
+  },
+  {
+   "cid": "pkos.gemini.image",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "utility",
+   "stage": 0,
+   "deps": [],
+   "consumes": "{prompt | prompt_file} + out_dir(workspace) + timeout?/dl_timeout?/keep_in_downloads?",
+   "produces": "<out_dir>/<ts>-<slug>.<jpg|png> + .manifest.json（sha256 归档校验 + JPEG/PNG 魔数检查）"
+  },
+  {
+   "cid": "pkos.gptimage2use",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "utility",
+   "stage": 0,
+   "deps": [],
+   "consumes": "{prompt, size?, quality?, background?, count?, route_id?, source_entry?} + 可选 by_route 路由单引用",
+   "produces": "_PKOS/outputs/image/<route-id>-<hash>.png + manifest（provider/参数/溯源字段）"
+  },
+  {
+   "cid": "pkos.skillopt.train",
+   "ver": "0.2.1",
+   "status": "registered",
+   "role": "utility",
+   "stage": 0,
+   "deps": [],
+   "consumes": "{task集(JSONL), seed_skill(MD), epochs?/train-size?/val-size?/edit-budget?/model?/base-url?}",
+   "produces": "23-pkos-skillopt/reports/skillopt/<slug>/best_skill.md + train_log.json（gate 判定溯源字段）"
+  },
+  {
+   "cid": "pkos.gemini.video",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "utility",
+   "stage": 0,
+   "deps": [],
+   "consumes": "{prompt} + out_dir(workspace)（接口面已锁死）",
+   "produces": "<out_dir>/<ts>-<slug>.mp4 + .manifest.json（schema: 26-pkos-gemini-video:1）"
+  },
+  {
+   "cid": "pkos.operator.audit",
+   "ver": "1.1.0",
+   "status": "registered",
+   "role": "调用方人格守卫（Meta-Auditor 机器执行面）",
+   "stage": "governance",
+   "deps": [],
+   "consumes": "调用方（Hermes/外部 agent）的 capability_id + persona_prompt + 操作意图",
+   "produces": "人格守卫报告 {allow, deny, warn, gates[]} + Meta-Auditor 审计日志"
+  },
+  {
+   "cid": "pkos.publish.draft",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "publish",
+   "stage": "publish",
+   "deps": [],
+   "consumes": "RT-* 路由单 + 出口单元成品（html/ppt/comic/novel/wenzhang） + 目标平台凭证",
+   "produces": "草稿箱 media_id + 发布状态（draft/uploaded/failed） + 回读校验结果"
+  },
+  {
+   "cid": "pkos.topic.generate",
+   "ver": "2.0.0",
+   "status": "registered",
+   "role": "pre-exit",
+   "stage": "pre-exit",
+   "deps": [
+    "pkos.trend.collect",
+    "pkos.router.decide"
+   ],
+   "consumes": "想法/关键词/草稿片段/空输入 + trend-digest 情报单（来自 29-pkos-trend）",
+   "produces": "母题提案（落 INBOX type=method）+ 排期建议（时效/常青/情绪三池）+ 候选标题组 Markdown（qa_check.py 自检）+ style_hint 建议字段"
+  },
+  {
+   "cid": "pkos.trend.collect",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "pre-exit",
+   "stage": "pre-exit",
+   "deps": [],
+   "consumes": "采集窗口（默认近7天）+ 可选领域关键词",
+   "produces": "_PKOS/analysis/trend-digest-YYYYMMDD.md + trend-digest-latest.md 指针；有沉淀价值的信号复制进 _PKOS/INBOX/（type=clipping）"
+  },
+  {
+   "cid": "pkos.scorecard.judge",
+   "ver": "1.0.0",
+   "status": "registered",
+   "role": "verify",
+   "stage": "verify",
+   "deps": [
+    "pkos.router.decide",
+    "pkos.weak_check.verify"
+   ],
+   "consumes": "出口层成稿（当前仅 D:/00.AIagent/hermesagent/workspace/pkos-exports/article/<route-id>-article/；小说/漫画文案接入待裁定）+ 可选 13 的 qc-report.",
+   "produces": "<route-id>-scorecard.json（pkos-scorecard:1，与成稿同目录落 workspace/pkos-exports/）+ telemetry 三事件"
+  },
+  {
+   "cid": "pkos.imageprompt.compose",
+   "ver": "1.1.0",
+   "status": "registered",
+   "role": "utility",
+   "stage": "utility",
+   "deps": [],
+   "consumes": "编号或自然语言生图需求（全体系任意出口单元的封面/配图/插图）+ 可选模特锚点/题材变量",
+   "produces": "题词包五键 {code, positive, negative, anchor, params}；create 模式回写题词库并登记索引"
+  }
+ ],
+ "changelog_top3": [
+  {
+   "version": "5.4.2",
+   "date": "2026-09-09",
+   "changes": [
+    "13-wenzhang 1.2.0：新增 inherit_images 配图继承策略（auto=AI 自判佐证图继承，09-09 用户裁定），manifest 增 inherited_images 字段"
+   ]
+  },
+  {
+   "version": "5.4.1",
+   "date": "2026-09-08",
+   "changes": [
+    "31-imageprompt 升格为全体系出图文案唯一输出中心（用户裁定）：出口单元 comic/wenzhang/ppt/html 补 depends_on=pkos.imageprompt.compose",
+    "修悬空依赖 2 条：analysis.structure 与 exit.ppt.compose 的 cid 带中文备注污染，指向不存在的 capability_id",
+    "31 version 1.0.0→1.1.0（semantic_goal/consumes 升格）"
+   ]
+  },
+  {
+   "version": 5.4,
+   "date": "2026-09-07",
+   "author": "hermes (round-39: 31-pkos-imageprompt 提示词工程单元准入)",
+   "summary": "新单元 31-pkos-imageprompt（pkos.imageprompt.compose，stage=utility）准入：五段命名提示词工程（M母题-S子题-F风格-U用途-A审美 + P模特/S安全/C参数），题词资产库 16 子题 320 条 SSOT 在单元 references/prompt-library/（与工作区双活同步）；只题材词不出图，与 27-pkos-gptimage2use 分工写死。2026-09-07 用户裁定沉淀本次会话的 ModelScope 题词体系工作流"
+  }
+ ],
+ "gate_live": {
+  "rc": 0,
+  "checks": [
+   "[OK  ] registry units >= 29 — 实际 33 (40→29 因空id/重复清理)",
+   "[OK  ] deprecated 别名 == 1 — 实际 1（U2.2 补 superseded_by 后此数含义变为'已收编'）",
+   "[OK  ] >=21 个单元 SKILL.md — 实际 32",
+   "[OK  ] v4 覆盖 >= 1（router 基线）",
+   "[OK  ] run_tests（validate_entry 测试组） — 共 21 项检查，失败 0 项",
+   "[OK  ] contract_refs（20 契约引用） — === 32 SKILL.md 扫描完成，0 错误 ===",
+   "[OK  ] router_matrix（36 例） — router matrix: 43/43 cases PASS (legal=11 illegal=12 style=8 style_theme=11)",
+   "[OK  ] 活代码旧路径守卫（扫描 175 文件，基线 0）",
+   "[HINT] 主库未提交改动 0 处（回写主库前先在主库 commit）",
+   "[OK  ] Handoff 门禁（开工必读） — kb/writing/route 均在 24h 内更新",
+   "[OK  ] 双包全量同步（live→main 0 漂移） — sync_to_main: live→main 漂移 0 处（缺 0 / 异 0 / 多 2；净化豁免 17）"
+  ],
+  "result": "=== 结果: ALL PASS ==="
+ },
+ "gate_main": {
+  "rc": 0,
+  "checks": [
+   "[OK  ] registry units >= 29 — 实际 33 (40→29 因空id/重复清理)",
+   "[OK  ] deprecated 别名 == 1 — 实际 1（U2.2 补 superseded_by 后此数含义变为'已收编'）",
+   "[OK  ] >=21 个单元 SKILL.md — 实际 32",
+   "[OK  ] v4 覆盖 >= 1（router 基线）",
+   "[OK  ] run_tests（validate_entry 测试组） — 共 21 项检查，失败 0 项",
+   "[OK  ] contract_refs（20 契约引用） — === 32 SKILL.md 扫描完成，0 错误 ===",
+   "[OK  ] router_matrix（36 例） — router matrix: 43/43 cases PASS (legal=11 illegal=12 style=8 style_theme=11)",
+   "[OK  ] 活代码旧路径守卫（扫描 175 文件，基线 0）",
+   "[HINT] 主库未提交改动 0 处（回写主库前先在主库 commit）",
+   "[OK  ] Handoff 门禁（开工必读） — kb/writing/route 均在 24h 内更新",
+   "[OK  ] 双包全量同步（live→main 0 漂移） — sync_to_main: live→main 漂移 0 处（缺 0 / 异 0 / 多 2；净化豁免 17）"
+  ],
+  "result": "=== 结果: ALL PASS ==="
+ },
+ "run_tests": "共 21 项检查，失败 0 项",
+ "capability": "?",
+ "probes": {
+  "thread": "通过 9/9   关键失败 0   建议改进 0",
+  "frontmatter": "通过 20/20   失败 0",
+  "links": "通过 12/12   失败 0",
+  "concurrency": "通过 7/7   失败 0   耗时 10.4s",
+  "p2": "通过 14/14   失败 0",
+  "trash_gc": "通过 11/11   失败 0"
+ },
+ "unit_dirs": [
+  {
+   "dir": "00-pkos-init",
+   "files": 6
+  },
+  {
+   "dir": "01-pkos-intake",
+   "files": 6
+  },
+  {
+   "dir": "02-pkos-distill-book",
+   "files": 4
+  },
+  {
+   "dir": "03-pkos-ingest",
+   "files": 14
+  },
+  {
+   "dir": "04-pkos-knowledge-service-commit",
+   "files": 37
+  },
+  {
+   "dir": "05-pkos-analysis",
+   "files": 5
+  },
+  {
+   "dir": "06-pkos-polish",
+   "files": 6
+  },
+  {
+   "dir": "07-pkos-weak-check",
+   "files": 3
+  },
+  {
+   "dir": "08-pkos-router",
+   "files": 7
+  },
+  {
+   "dir": "09-pkos-intake-query",
+   "files": 3
+  },
+  {
+   "dir": "10-pkos-html",
+   "files": 38
+  },
+  {
+   "dir": "11-pkos-ppt-skill",
+   "files": 18
+  },
+  {
+   "dir": "12-pkos-comic",
+   "files": 30
+  },
+  {
+   "dir": "13-pkos-wenzhang-skill",
+   "files": 12
+  },
+  {
+   "dir": "14-pkos-gzhxiaoshuo-skill",
+   "files": 6
+  },
+  {
+   "dir": "15-pkos-publish",
+   "files": 3
+  },
+  {
+   "dir": "16-pkos-maintenance-index",
+   "files": 4
+  },
+  {
+   "dir": "17-pkos-audit-lint",
+   "files": 4
+  },
+  {
+   "dir": "18-pkos-fanout-concept",
+   "files": 3
+  },
+  {
+   "dir": "19-pkos-timeline",
+   "files": 6
+  },
+  {
+   "dir": "20-pkos-audit",
+   "files": 6
+  },
+  {
+   "dir": "21-pkos-meta",
+   "files": 7
+  },
+  {
+   "dir": "22-pkos-operator",
+   "files": 4
+  },
+  {
+   "dir": "23-pkos-skillopt",
+   "files": 24
+  },
+  {
+   "dir": "24-pkos-gemini-chat",
+   "files": 4
+  },
+  {
+   "dir": "25-pkos-gemini-image",
+   "files": 3
+  },
+  {
+   "dir": "26-pkos-gemini-video",
+   "files": 3
+  },
+  {
+   "dir": "27-pkos-gptimage2use",
+   "files": 9
+  },
+  {
+   "dir": "28-pkos-topic",
+   "files": 7
+  },
+  {
+   "dir": "29-pkos-trend",
+   "files": 2
+  },
+  {
+   "dir": "30-pkos-scorecard",
+   "files": 3
+  },
+  {
+   "dir": "31-pkos-imageprompt",
+   "files": 27
+  }
+ ],
+ "handoffs": [
+  {
+   "scope": "kb",
+   "mtime": "09-08 23:33",
+   "goal": "三枢纽建模验证",
+   "pending": "31→27出图链端到端战例",
+   "next": "出图任务时补31→27战例"
+  },
+  {
+   "scope": "route",
+   "mtime": "09-09 14:42",
+   "goal": "(未填)",
+   "pending": "无",
+   "next": "任何做内容/发内容前先跑三方对账(发表记录begin翻页全量+草稿箱API+本地76稿源)，只发未发表且不在草稿箱的(当前0篇未进)"
+  },
+  {
+   "scope": "writing",
+   "mtime": "09-09 00:03",
+   "goal": "文案枢纽从知识取材产出标准文案",
+   "pending": "无",
+   "next": "下一篇按28-topic选题单走13-wenzhang写作"
+  }
+ ],
+ "vault_index": {
+  "total": 1307,
+  "by_status": {
+   "triaged": 1113,
+   "analyzed": 191,
+   "published": 3
+  }
+ },
+ "git_live": "",
+ "git_main": "d313e6e",
+ "github_head": "d313e6e",
+ "generated_at": "2026-09-09 21:45",
+ "snapshot_note": "probes.frontmatter 首采 15/20 为常驻 kernel 字节码污染假象，terminal 新进程复测 20/20，已更正"
+}
