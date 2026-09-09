@@ -1,4 +1,4 @@
-# 安装说明 · hermes-pkos-skill v4.9.21
+# 安装说明 · hermes-pkos-skill v5.4.1
 
 > 五岁小孩版：把玩具箱搬回家，插上电，问它一句话，它就开始干活。
 

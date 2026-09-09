@@ -137,6 +137,12 @@ def main() -> int:
     else:
         head(True, "Handoff 门禁（开工必读）", "kb/writing/route 均在 24h 内更新")
 
+    # 7) live→main 全量同步漂移（09-09 重写 sync_to_main v2 后升级为硬门禁）
+    _rs = subprocess.run([sys.executable, str(SKILL_ROOT / "scripts/sync_to_main.py"), "--check"],
+                         capture_output=True, text=True, timeout=120, cwd=str(SKILL_ROOT))
+    _o = (_rs.stdout or "").strip().splitlines()
+    head(_rs.returncode == 0, "双包全量同步（live→main 0 漂移）", _o[0] if _o else "FAIL")
+
     print(f"\n=== 结果: {'ALL PASS' if not fails else 'FAIL: ' + '; '.join(fails)} ===")
     return 1 if fails else 0
 
