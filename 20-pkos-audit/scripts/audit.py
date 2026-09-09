@@ -42,8 +42,9 @@ def _load_exempt_dirs(vault) -> set:
         if cand.is_file():
             for z in json.loads(cand.read_text(encoding="utf-8-sig")).get("zones", []):
                 extra.add(str(z.get("path", "")).strip())
-    except Exception:
-        pass
+    except Exception as e:
+        import sys
+        print(f"[warn] exempt-zones.json 解析失败: {e} —— 豁免区不生效，可能误伤", file=sys.stderr)
     return {e for e in extra if e}
 
 LINK_RE = re.compile(r"(!?)\[\[([^\[\]]+)\]\]")

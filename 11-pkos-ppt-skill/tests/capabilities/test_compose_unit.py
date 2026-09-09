@@ -241,6 +241,38 @@ def test_verify_gate_catches_corrupt():
     print("PASS: test_verify_gate_catches_corrupt")
 
 
+
+
+def test_theme_invalid_route_fail_loud():
+    """v2.0.1: 路由单声明白名单外主题 → ThemeInvalidError，不静默回退"""
+    route = {"style_theme": "not-a-theme"}
+    try:
+        sut.resolve_theme(route, {"themes": {"paper-ink": {}, "kan-shi": {}}})
+        raise SystemExit("FAIL: 非法主题应 raise 而非静默回退")
+    except sut.ThemeInvalidError:
+        print("PASS: test_theme_invalid_route_fail_loud")
+
+
+def test_theme_valid_route_pass():
+    """合法主题直通"""
+    tid, note = sut.resolve_theme({"style_theme": "kan-shi"}, {"themes": {"paper-ink": {}, "kan-shi": {}}})
+    assert tid == "kan-shi" and note is None
+    print("PASS: test_theme_valid_route_pass")
+
+
+def test_theme_cli_override_semantics():
+    """CLI --theme 合法值优先于 route 非法声明（compose 调用点语义）"""
+    aesthetics = {"themes": {"paper-ink": {}, "kan-shi": {}}}
+    theme = "kan-shi"  # CLI 显式
+    valid_themes = set(aesthetics.get("themes", {}).keys())
+    assert theme in valid_themes  # 直用，不进 resolve_theme
+    try:
+        sut.resolve_theme({"style_theme": "not-a-theme"}, aesthetics)
+        raise SystemExit("FAIL: 无 CLI 覆盖时 route 非法仍应 raise")
+    except sut.ThemeInvalidError:
+        print("PASS: test_theme_cli_override_semantics")
+
+
 if __name__ == "__main__":
     tests = [
         test_yaml_parser_basic,
@@ -259,6 +291,9 @@ if __name__ == "__main__":
         test_main_bullet_detection,
         test_build_pptx_smoke,
         test_verify_gate_catches_corrupt,
+        test_theme_invalid_route_fail_loud,
+        test_theme_valid_route_pass,
+        test_theme_cli_override_semantics,
     ]
     passed = failed = 0
     for t in tests:

@@ -206,7 +206,7 @@ verification:
     - "单章蒸馏稿 ≤ 原章文本量 30%（守门4）"
   evidence_chain:
     - "每章 front matter source=file:<hash12> 与源 PDF 内容哈希一致"
-  regression_tests: "tests/capabilities/pkos.distill.book.test.yaml"
+  regression_tests: "tests/test_distill_book.py"
 ```
 
 # 依赖 (v2 契约 C-6)

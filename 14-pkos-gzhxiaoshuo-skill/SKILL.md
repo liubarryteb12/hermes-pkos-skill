@@ -201,7 +201,7 @@ verification:
     - "manifest.degraded == true"
     - "schema 骨架完整可重放"
     - "占位说明文件就位"
-  regression_tests: "tests/capabilities/pkos.exit.gzhxiaoshuo.compose.test.yaml"
+  regression_tests: "tests/gzhxiaoshuo_tests.py"
   validation_script: "scripts/gzhxiaoshuo_tools.py validate"
 ```
 

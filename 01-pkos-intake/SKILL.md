@@ -1,6 +1,6 @@
 ---
 name: 01-pkos-intake
-description: 入口分拣：扫描 _PKOS/INBOX/ 收件箱与现有落点，识别每件投放物是什么（PDF/docx/Markdown 等格式、文本层、成品或资料），产出机读分拣单并调度对应规则卡。只做识别、分类、调度——不做内容抽取转换，不改写任何文件。触发语：「处理 INBOX」「分拣一下」「我丢了几个文件」「扫描收件箱」。**v2 双重身份**：保留 v0 `01-pkos-intake`（deprecated）兼容入口；新会话用 `pkos.intake.scan`。
+description: 入口分拣：扫描 _PKOS/INBOX/ 收件箱与现有落点，识别每件投放物是什么（PDF/docx/Markdown 等格式、文本层、成品或资料），产出机读分拣单并调度对应规则卡。只做识别、分类、调度——不做内容抽取转换，不改写任何文件。触发语：「处理 INBOX」「分拣一下」「我丢了几个文件」「扫描收件箱」「整理一下我的知识库」「维护我的知识库」「收拾一下知识库」「消化一下收件箱」「帮我整理收件箱」「把收件箱处理了」（口语触发默认走本单元，消歧见套件 SKILL.md）。**v2 双重身份**：保留 v0 `01-pkos-intake`（deprecated）兼容入口；新会话用 `pkos.intake.scan`。
 ---
 
 # Capability 身份 (v2 契约 C-1)
@@ -135,7 +135,7 @@ replaces: ["01-pkos-intake"]
 
 # 扫描守门（v0 四铁律，锁死继承）
 
-0. **收件通道**：`D:\obsidian知识库\obsidian知识库` 为正式文档输入口——intake 扫描范围 = `_PKOS/INBOX/` + 该通道；
+0. **收件通道**：`D:\obsidian知识库\obsidian知识库` 为正式文档输入口——intake 扫描范围 = `_PKOS/INBOX/` + **`obsidian知识库/`（剪藏输入点，2026-09-05 收编，与 INBOX 同级，见 contracts/vault-architecture.md §1 规则 3'）** + 该通道；
 1. 敏感目录（账户密码/passwords/credentials）**永不进入清单**；
 2. 单件 >100MB 标 `ask` 先问再动；
 3. 加密 PDF `/Encrypt` 直接 `reject`——不破解；

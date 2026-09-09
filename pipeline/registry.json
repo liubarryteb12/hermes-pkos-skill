@@ -373,7 +373,7 @@
       "version": 2.23,
       "date": "2026-08-27",
       "author": "host (v2.3.1 round-23b: hunyuan-direct endpoint 真接入)",
-      "summary": "把 47.108.25.114:1519 endpoint 接入 DSH llm-pi-ai hand-declared route 'hunyuan-direct'；model hy3 (含 reasoning_content)；provider-policy.md 1.1→1.2；2 cap provider_aliases 改 hunyuan-direct/hy3；web profile cordis.patch.yml 加 hunyuan-direct insert 段；端到端验证 chat 200 + reasoning_content + usage；apikey 写根 .env (gitignored)，永不入文档",
+      "summary": "把 <LLM_GATEWAY_HOST>:1519 endpoint 接入 DSH llm-pi-ai hand-declared route 'hunyuan-direct'；model hy3 (含 reasoning_content)；provider-policy.md 1.1→1.2；2 cap provider_aliases 改 hunyuan-direct/hy3；web profile cordis.patch.yml 加 hunyuan-direct insert 段；端到端验证 chat 200 + reasoning_content + usage；apikey 写根 .env (gitignored)，永不入文档",
       "breaking_changes": false,
       "affected_units": [
         "pkos.intake.query",
@@ -382,7 +382,7 @@
       "task_endpoint_probe": "GET /v1/models 列出 3 model (deepseek-v4-flash / deepseek-v4-flash-vision-exp / hy3)；hy3 唯一含 hy3 关键词",
       "task_chat_verify": "POST /v1/chat/completions (max_tokens=500) 200 OK, content='2', reasoning_content='1+1=2', usage.reasoning_tokens=31",
       "task_credentials": "D:\\00.AIagent\\deepseekharness\\.env (gitignored) 写 HUNYUAN_BASE_URL/HUNYUAN_API_KEY/HUNYUAN_DEFAULT_MODEL",
-      "task_dsh_patch": "C:\\Users\\18765\\.dsh\\profiles\\web\\cordis.patch.yml 加 hunyuan-direct insert (apiKeyEnv: HUNYUAN_API_KEY, baseURL: http://47.108.25.114:1519/v1, model hy3)",
+      "task_dsh_patch": "C:\\Users\\18765\\.dsh\\profiles\\web\\cordis.patch.yml 加 hunyuan-direct insert (apiKeyEnv: HUNYUAN_API_KEY, baseURL: http://<LLM_GATEWAY_HOST>:1519/v1, model hy3)",
       "task_provider_aliases": {
         "hy3": {
           "model": "hy3",

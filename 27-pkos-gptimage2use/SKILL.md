@@ -163,7 +163,7 @@ verification:
     - "manifest.degraded == true"
     - "prompt 原文完整可重放"
     - "占位说明文件就位"
-  regression_tests: "tests/capabilities/pkos.generate.image.test.yaml"
+  regression_tests: "tests/test_generate.py"
 ```
 
 # 依赖 (v2 契约 C-6)
@@ -227,6 +227,13 @@ python scripts/generate.py --prompt "..." --dry-run
 # 多张生成（count=2）
 python scripts/generate.py --prompt "..." --count 2
 ```
+
+# 与相邻单元配合
+
+| 相邻 | 分工 |
+|---|---|
+| 31-pkos-imageprompt | 题词资产层：31 产题词包 {code, positive, negative, anchor, params}，本单元消费 positive/size/quality 出图（prompt 原样透传不改写语义）；出图需求中的「提示词怎么写」转 31 |
+| 12-pkos-comic | 漫画批量出图走 comic 自己的渲染器（render_panels.py），本单元服务单图需求；边界以 contracts/image-route-policy.md 为准 |
 
 # 与 v0 兼容性
 

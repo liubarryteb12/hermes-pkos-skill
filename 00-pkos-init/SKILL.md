@@ -87,6 +87,8 @@ outputs:
 | `okf` | `entries/00_收件暂存 …90_归档` 数字编号类目（Johnny.Decimal 风），新增类目续编 | 编号即定位 | 重秩序、类目边界清晰 |
 | `index` | `entries/` 全扁平不分夹，根部一张 `INDEX.md` 分区总目录 | 只看索引页 | 轻量起步、怕层级束缚 |
 
+**⚠️ 2026-09-05 用户拍板：`okf` 模式即用户主库现行架构**（vault `D:\obsidian知识库\obsidian知识库`）。目录树、type/domain 词表、FM 字段、OKF 对齐、双 FM 修复算法全部权威定义在 `contracts/vault-architecture.md`（vault-architecture:1），三模式口径以该文件第 1/2/3 节为准；本表仅保留历史口径。新增类目续编、新内容路由、domain slug 映射均查该契约，不再在本 skill 内重复维护。
+
 **不变式（任何模式下都一样）**：六大地基目录名固定——INBOX/manifests/analysis/routes/outputs/reports，
 它们是各 skill 的接口约定；模式差异只作用在条目组织层。
 

@@ -22,7 +22,7 @@ from pathlib import Path
 DEFAULT_OPENCLI = Path.home() / "AppData/Local/OpenCLIApp/node_modules/@jackwener/opencli/dist/src/main.js"
 DEFAULT_PROFILE = "5d5kre8b"
 DEFAULT_SESSION = "gemini-img"
-IMAGES_URL = "https://gemini.google.com/images"
+IMAGES_URL = "https://gemini.google.com/app"  # 2026-09-09: /images 新 UI 无 Send message 按钮，改用 /app
 DOWNLOADS = Path.home() / "Downloads"
 
 ERR_OPENCLI_MISSING = "ERR_OPENCLI_RUNTIME_MISSING"
@@ -127,21 +127,88 @@ def main(argv: list[str]) -> int:
     before = {p.name for p in DOWNLOADS.glob("Gemini_Generated_Image_*")} if DOWNLOADS.exists() else set()
 
     try:
-        # 1) 打开 Images 页
+        # 1) 会话重置（2026-09-09 实测：opencli extension 的 click/type 事件通道会随
+        #    标签页老化失效——close 释放租约 + 重新 open 是唯一可靠复位手段）；
+        #    用 /app 主页（/images 新 UI 无 aria-label="Send message" 按钮）。
+        #    Chrome 最小化时 CDP 鼠标/键盘事件静默丢失，PowerShell 恢复+前置窗口。
+        _opencli(opencli_path, args.profile, "browser", args.session, "close")
+        time.sleep(2)
         _opencli(opencli_path, args.profile, "browser", args.session, "open", IMAGES_URL)
-        time.sleep(5)
-        # 2) 注入 prompt + 发送
-        inject_js = (
-            "(() => { const el=document.querySelector(\"div[contenteditable='true']\");"
-            " if(!el) return 'no-input'; el.focus();"
-            " document.execCommand('insertText', false, " + js_str(prompt) + ");"
-            " return 'injected'; })()"
+        restore_ps = (
+            "Add-Type -MemberDefinition '[DllImport(\"user32.dll\")] public static bool "
+            "ShowWindowAsync(IntPtr h, int n); public static bool SetForegroundWindow(IntPtr h);' "
+            "-Name WinR -Namespace NR; "
+            "$p = Get-Process chrome | Where-Object {$_.MainWindowHandle -ne 0} | Select-Object -First 1; "
+            "[NR.WinR]::ShowWindowAsync($p.MainWindowHandle, 9) | Out-Null; "
+            "Start-Sleep -Milliseconds 300; "
+            "[NR.WinR]::SetForegroundWindow($p.MainWindowHandle) | Out-Null"
         )
-        if _eval(opencli_path, args.profile, args.session, inject_js) != "injected":
-            raise RuntimeError(ERR_TYPE)
-        send_js = ('(() => { const b=document.querySelector(\'button[aria-label="Send message"]\');'
-                   ' if(!b) return "no-send"; b.click(); return "sent"; })()')
-        if _eval(opencli_path, args.profile, args.session, send_js) != "sent":
+        try:
+            subprocess.run(["powershell", "-Command", restore_ps],
+                           capture_output=True, timeout=30)
+        except Exception:
+            pass  # 窗口恢复失败不阻断——headless 场景可能不需要
+        time.sleep(8)
+        # 1.5) 激活标签页（tab active=false 时事件注入失效）
+        tabs = _opencli(opencli_path, args.profile, "browser", args.session, "tab", "list")
+        m_page = re.search(r'"page":\s*"([A-F0-9]+)"', tabs)
+        if m_page:
+            _opencli(opencli_path, args.profile, "browser", args.session,
+                     "tab", "select", m_page.group(1))
+            time.sleep(1)
+        # 2) 注入 prompt + 发送
+        # 2026-09-09 实测（Gemini 新 Quill 编辑器）：
+        #   - innerText 直写 / execCommand insertText / __quill.setText 均不被 Angular 认账
+        #     （send 按钮不出现或点击无效），唯一可靠通道 = CDP 真实键盘输入（opencli type）
+        #   - 发送按钮 send JS click 也无效，必须 opencli click（CDP 真实鼠标）
+        _opencli(opencli_path, args.profile, "browser", args.session, "eval",
+                 '(() => { const q=document.querySelector(".ql-container"); '
+                 'if(q&&q.__quill){q.__quill.setText(""); return "cleared";} '
+                 'const el=document.querySelector("div[contenteditable=\'true\']"); '
+                 'if(el){el.innerText=""; el.dispatchEvent(new InputEvent("input",{bubbles:true}));} '
+                 'return "cleared"; })()')
+        time.sleep(1)
+        typed = _opencli(opencli_path, args.profile, "browser", args.session,
+                         "type", "--nth", "0", "div.ql-editor", prompt)
+        if '"typed": true' not in typed and '"typed":true' not in typed:
+            # 回退旧版编辑器：execCommand 注入
+            inject_js = (
+                "(() => {"
+                " const el=document.querySelector(\"div[contenteditable='true']\");"
+                " if(!el) return 'no-input'; el.focus();"
+                " const sel=window.getSelection(); const range=document.createRange();"
+                " range.selectNodeContents(el); range.collapse(false);"
+                " sel.removeAllRanges(); sel.addRange(range);"
+                " const ok=document.execCommand('insertText', false, " + js_str(prompt) + ");"
+                " return (ok && el.innerText.length>0) ? 'injected' : 'empty'; })()"
+            )
+            if _eval(opencli_path, args.profile, args.session, inject_js) != "injected":
+                raise RuntimeError(ERR_TYPE)
+        time.sleep(2)
+        # 发送：CDP 真实鼠标点击（JS click 不触发 Angular handler）。
+        # 2026-09-09 实测：首次 click 常被 Angular 忽略（状态未同步），需要
+        # "再敲一个字符刷新 input 状态 → 等 10s → 重试 click"循环，最多 3 轮。
+        sent_ok = False
+        for attempt in range(3):
+            sent = _opencli(opencli_path, args.profile, "browser", args.session,
+                            "click", 'button[aria-label="Send message"]')
+            if '"clicked": true' not in sent and '"clicked":true' not in sent:
+                raise RuntimeError(ERR_SEND)
+            time.sleep(6)
+            check = _eval(opencli_path, args.profile, args.session,
+                          '(() => { const q=document.querySelector(".ql-container");'
+                          ' return JSON.stringify({len: (q&&q.__quill)?q.__quill.getText().length:-1}); })()')
+            try:
+                if json.loads(check).get("len", -1) <= 1:
+                    sent_ok = True  # 输入框已清空 = 发送成功
+                    break
+            except ValueError:
+                pass
+            # 未发出：敲一个空格刷新 Angular 状态，等 10s 再试
+            _opencli(opencli_path, args.profile, "browser", args.session,
+                     "type", "--nth", "0", "div.ql-editor", " ")
+            time.sleep(10)
+        if not sent_ok:
             raise RuntimeError(ERR_SEND)
         # 3) 轮询生成完成：naturalWidth>400 的 blob 大图（文案残留不可信，实测坑 #1）
         gen_js = ("(() => { const big=[...document.querySelectorAll('img')]"

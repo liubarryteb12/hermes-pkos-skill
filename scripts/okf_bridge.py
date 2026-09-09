@@ -62,7 +62,7 @@ def export_entry(entry: Path, out_dir: Path, src_id: str | None) -> dict:
         "pkos_status": pkos_status,                      # 扩展键：保留六态
         "pkos_weak_check": fm.get("weak_check", ""),     # 扩展键：标准解析器忽略
         "source": fm.get("source", ""),
-        "generated": {"by": "agent/dsh-pkos-skill", "at": _now()},
+        "generated": {"by": "agent/hermes-pkos-skill", "at": _now()},
     }
     if src_id:
         concept["sources"] = [{"id": src_id, "resource": fm.get("source", "") or entry.name}]

@@ -1,0 +1,25 @@
+{
+  "model": "qwen3.8-flash",
+  "base_url": "http://47.108.25.114:1519/v1",
+  "planner_model": "agnes-2.5-flash",
+  "executor_model": "sensenova-6.8-flash-lite",
+  "min_delta": 0.0,
+  "blacklist_gate": true,
+  "epochs": [
+    {
+      "epoch": 1,
+      "train": 4,
+      "failures": 0,
+      "plan": "AIM: Clarify the relationship between the output format and the rewritten content to ensure the conclusion is grounded in the text; do not alter the language or structural constraints.\nTASKLIST: 1. Modify the \"ANSWER:\" instruction to explicitly state that it must be a concise synthesis or conclusion drawn from the rewritten text, preventing the generation of an ungrounded standalone statement.\nHOOK: Preserve all existing linguistic constraints (active voice, removal of filler words) and structural rules; no vague language allowed.\nLOOP: Apply exactly 1 edit to the final bullet point under the skill description.\nCHECKPOINT: Verify that the model still outputs ANSWER: followed by a brief, accurate summary statement rather than a full rewrite or a vague generic phrase.",
+      "candidate_val": 1.0,
+      "best_val": 1.0,
+      "accepted": true
+    }
+  ],
+  "gate": {
+    "seed_val": 1.0,
+    "best_val": 1.0,
+    "improved": false,
+    "early_stopped": false
+  }
+}

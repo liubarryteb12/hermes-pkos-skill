@@ -22,11 +22,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 PKOS_BASE = Path(__file__).resolve().parents[2]  # hermes-pkos-skill: 套件根 = 技能根（21-pkos-meta/scripts 上两级）
-INBOX_DIR = PKOS_BASE / "_PKOS" / "INBOX"
+VAULT = Path(r"D:\obsidian知识库\obsidian知识库")
+# 2026-09-04 修复：INBOX 告警必须盯 vault 的真收件箱（此前盯套件内部 _PKOS/INBOX，
+# 恒为空 → 71 篇真实堆积永远 0 files OK，看护完全失明）
+# 09-05 修复：真收件箱 = 00-收件暂存（连字符，intake/inbox_digest 同口径）；_PKOS/INBOX 恒空是历史遗留路径
+# 09-05 复核：00_收件暂存（下划线）仅为历史 CASE 残留，74 件待分拣全在 00-收件暂存
+# 09-06 适配 v5.3.0：00-收件暂存 已不存在（vault 顶层无此目录，find 实测）；真收件箱 =
+#   _PKOS/INBOX/（含 fanqiang-staging 投放物）+ vault 下 obsidian知识库/ 剪藏输入点（2026-09-05 收编，与 INBOX 同级）
+INBOX_DIRS = [VAULT / "_PKOS" / "INBOX", VAULT / "obsidian知识库"]
 DRAFTS_DIR = PKOS_BASE / "_PKOS" / "_drafts"
 QUARANTINE_DIR = PKOS_BASE / "_PKOS" / "_quarantine"
 LINT_SCRIPT = PKOS_BASE / "17-pkos-audit-lint" / "scripts" / "lint.py"
-VAULT = Path(r"D:\obsidian知识库\obsidian知识库")
 
 sys.path.insert(0, str(PKOS_BASE / "10-pkos-html" / "scripts"))
 from pkos_v31_lib import emit, DRAFT_TTL_HOURS, QUARANTINE_TTL_DAYS  # noqa: E402
@@ -40,7 +46,13 @@ def _age_hours(p: Path) -> float:
 
 
 def check_inbox() -> dict:
-    files = [p for p in INBOX_DIR.rglob("*") if p.is_file()] if INBOX_DIR.exists() else []
+    # 09-05: 排除 _processed（已消化归档），否则消化完反而报警
+    # 09-06: 双收件箱聚合（_PKOS/INBOX + obsidian知识库 剪藏点），排除 _processed 与隐藏文件
+    files = []
+    for d in INBOX_DIRS:
+        if d.exists():
+            files += [p for p in d.rglob("*") if p.is_file() and "_processed" not in p.parts
+                      and not any(part.startswith(".") for part in p.parts)]
     return {
         "inbox_count": len(files),
         "warn": len(files) > INBOX_WARN_THRESHOLD,

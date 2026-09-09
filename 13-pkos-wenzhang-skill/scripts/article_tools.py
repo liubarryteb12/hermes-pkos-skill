@@ -21,7 +21,10 @@ lint 规则分级（对齐 references/style-rules.md 可确定性校验子集）
     W4 「不是…而是」 >1 次
     W5 连续 ≥2 段以「而/然而」开头
     W6 结尾无行动引导 / 引导动作 ≥2 组（只给一个）
-  INFO: 待补项计数（【待补：xxx】）
+  承接契约（09-06 用户裁定）:
+    C1 EP01 正文出现「上一篇」（首篇无前文，虚构连载）FAIL
+    C2 正文出现【待补：xxx】（素材边界：撑不住就不写，禁占位）FAIL
+    C3 承接语境句提到非本篇母题（跨母题承接）FAIL；词表 _PKOS/assets/series-registry.json
 
 失败语义（P-07）: 文件不存在/为空 → stdout {"rejected":true,...} exit 2，不抛裸 traceback。
 退出码: lint 0=无 FAIL（WARN 允许）; 1=有 FAIL; 2=拒收。selftest 0=全过 1=有失败。
@@ -44,6 +47,32 @@ FAKE_EXAMPLE_RE = re.compile(
     r"某(互联网)?(大厂|公司|企业|用户|位朋友|位读者|团队|机构|品牌|医院|学校)")
 DASH = "——"
 PENDING_RE = re.compile(r"【待补[:：][^】]*】")
+
+_SERIES_REG_CACHE: dict = {}
+
+def _load_series_registry() -> dict:
+    """读 _PKOS/assets/series-registry.json（承接契约词表）；找不到返回 {}（C3 静默跳过）。"""
+    if "loaded" in _SERIES_REG_CACHE:
+        return _SERIES_REG_CACHE["loaded"]
+    import json as _json
+    p = Path(__file__).resolve()
+    reg = {}
+    for _ in range(8):  # 从 scripts/ 往上找套件根
+        p = p.parent
+        cand = p / "_PKOS" / "assets" / "series-registry.json"
+        if cand.is_file():
+            try:
+                reg = _json.loads(cand.read_text(encoding="utf-8"))
+            except ValueError:
+                reg = {}
+            break
+    _SERIES_REG_CACHE["loaded"] = reg
+    return reg
+
+def _own_series(fm_head: str) -> str | None:
+    """从 front matter 的 title（NN-合集名 EPxx）判定本篇母题编号。"""
+    m = re.search(r"(\d{2})-[^\"\n]*?EP\d{2}", fm_head)
+    return m.group(1) if m else None
 VOICE_BLOCK_RE = re.compile(r"```json voice-overrides\s*\n(.*?)\n```", re.S)
 CTA_GROUPS = {
     "comment": ["评论", "留言", "聊聊", "说说你的"],
@@ -204,6 +233,32 @@ def lint(text: str, length: str = "long", overrides: dict | None = None) -> dict
     # 直角引号
     if "「" in body or "」" in body:
         add("FAIL", "L6", "出现「」直角引号（统一用“”）")
+
+    # ---- C 系列：承接契约与素材边界（09-06 用户裁定）----
+    fm = text[:text.find("## ")] if "## " in text else text[:400]
+    ep = re.search(r"EP(\d{2})", fm)
+    ep_num = int(ep.group(1)) if ep else None
+    own = _own_series(fm)
+    # C2 素材边界：成稿零【待补】
+    if pending:
+        add("FAIL", "C2", f"正文出现 {pending} 处【待补】——素材撑不住的内容写作时即不写，禁止占位（09-06 裁定）")
+    # C1 EP01 不得虚构上一篇
+    if ep_num == 1 and "上一篇" in body:
+        add("FAIL", "C1", "EP01 出现「上一篇」——该母题首篇无前文，不得虚构连载感")
+    # C3 跨母题承接：承接语境句里出现非本篇合集的 alias
+    reg = _load_series_registry()
+    if reg and own:
+        hooks = reg.get("hook_markers", [])
+        for sent in re.split(r"[。！？\n]", body):
+            if not any(h in sent for h in hooks):
+                continue
+            for num, meta in reg["series"].items():
+                if num == own:
+                    continue
+                for al in meta.get("aliases", []):
+                    if al and al in sent:
+                        add("FAIL", "C3", f"跨母题承接：本篇属 {own}，承接句「{sent[:28]}…」提到 {num}-{meta['name']}（alias「{al}」）")
+                        break
 
     # ---- WARN ----
     half = HALF_PUNCT_RE.findall(body)
@@ -387,6 +442,30 @@ def cmd_selftest(_args: list[str]) -> int:
     if real_voice.is_file():
         rov = load_voice_overrides(real_voice)
         check("真实 my-voice.md voice-overrides 可解析", rov.get("para_cap") == 130 and rov.get("dash_max") == 10, str(rov))
+
+    # ---- C 系列：承接契约（09-06 用户裁定）----
+    reg = _load_series_registry()
+    check("series-registry 可加载且含 07/08/09", bool(reg) and {"07","08","09"} <= set(reg.get("series", {})),
+          f"keys={list(reg.get('series', {}).keys())[:5]}")
+
+    fm07 = '---\ntitle: "07-我的AI工作流 EP01：测试"\n---\n\n'
+    filler700 = "正常句子内容无违规。\n\n" * 40
+    # C1: EP01 + 上一篇
+    c1 = lint(fm07 + filler700 + "上一篇我们聊了别的。\n", "matrix", {"length_ranges": {"matrix": [600,1100]}})
+    check("C1 EP01含上一篇 FAIL", any(i["rule"] == "C1" for i in c1["items"]))
+    c1b = lint(fm07 + filler700 + "上一篇我们聊了别的。\n", "matrix", {"length_ranges": {"matrix": [600,1100]}}) if False else lint(
+        '---\ntitle: "07-我的AI工作流 EP02：测试"\n---\n\n' + filler700 + "上一篇我们聊了别的。\n", "matrix", {"length_ranges": {"matrix": [600,1100]}})
+    check("C1 EP02 不误报", not any(i["rule"] == "C1" for i in c1b["items"]))
+    # C2: 正文待补
+    c2 = lint(fm07 + filler700 + "【待补：某数字】\n", "matrix", {"length_ranges": {"matrix": [600,1100]}})
+    check("C2 正文待补 FAIL", any(i["rule"] == "C2" for i in c2["items"]))
+    # C3: 承接句提到别的母题 alias（本篇 07，用 08 的 alias「两万 Star」）
+    c3 = lint(fm07 + filler700 + "下一篇我们接着说：一个月新建的 AI 仓库谁拿走了两万 Star。\n", "matrix", {"length_ranges": {"matrix": [600,1100]}})
+    check("C3 承接句跨母题 FAIL", any(i["rule"] == "C3" for i in c3["items"]), str(c3["items"])[:150])
+    c3b = lint(fm07 + filler700 + "第二大脑这个词来自国外。\n", "matrix", {"length_ranges": {"matrix": [600,1100]}})
+    check("C3 非承接句提及 alias 不误报", not any(i["rule"] == "C3" for i in c3b["items"]))
+    c3c = lint('---\ntitle: "07-我的AI工作流 EP02：测试"\n---\n\n' + filler700 + "上一篇我们讲了四层架构的三层。\n", "matrix", {"length_ranges": {"matrix": [600,1100]}})
+    check("C3 同母题承接不误报", not any(i["rule"] == "C3" for i in c3c["items"]))
 
     print(f"\narticle_tools selftest: {len(fails)} failures")
     return 0 if not fails else 1

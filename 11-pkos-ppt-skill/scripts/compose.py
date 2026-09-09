@@ -209,14 +209,28 @@ def load_aesthetics() -> dict:
     return {"themes": {}, "fallback_theme": {}, "typography_scale": {}}
 
 
-def resolve_theme(route: dict, aesthetics: dict) -> str:
+def resolve_theme(route: dict, aesthetics: dict) -> tuple[str, str | None]:
+    """主题解析 v2.0.1: 无效主题名 fail-loud（ambiguous 决策单），不再静默回退 paper-ink。
+    返回 (theme_id, fallback_note)；fallback_note 仅在 route 未声明主题时为 None。"""
+    valid = set(aesthetics.get("themes", {}).keys())
     style = route.get("style_adapter") or route.get("style_theme")
-    if style and str(style).strip() and str(style) != "null" and str(style) in aesthetics.get("themes", {}):
-        return str(style)
-    return "paper-ink"
+    if style and str(style).strip() and str(style) != "null":
+        style = str(style).strip()
+        if style in valid:
+            return style, None
+        raise ThemeInvalidError(
+            f"路由单声明的主题 '{style}' 不在白名单中（合法值：{sorted(valid)}）。"
+            f"两条出路：①改路由单 style_theme 为合法值；②CLI --theme 显式指定。"
+            f"（v2.0.1 起：无效主题不再静默回退 paper-ink——静默降级掩盖错误，违反 fail-loud）"
+        )
+    return "paper-ink", None
 
 
 # ── 比例确认（v0 锁死：必问，不得默认）──────────────────────────────────────
+
+class ThemeInvalidError(Exception):
+    """主题无效（v2.0.1 fail-loud）：路由单/CLI 指定了白名单外主题，拒绝静默回退"""
+
 
 class RatioRequiredError(Exception):
     pass
@@ -348,7 +362,20 @@ def compose(
 
     pol_data = parse_pol_content(pol_path)
     aesthetics = load_aesthetics()
-    theme_id = theme if theme in aesthetics.get("themes", {}) else resolve_theme(route, aesthetics)
+    try:
+        valid_themes = set(aesthetics.get("themes", {}).keys())
+        if theme is not None:
+            # CLI --theme 显式覆盖：合法直用（当下意图优先于历史决策单），非法 fail-loud
+            if theme not in valid_themes:
+                raise ThemeInvalidError(
+                    f"--theme '{theme}' 不在白名单中（合法值：{sorted(valid_themes)}）"
+                )
+            theme_id = theme
+        else:
+            theme_id, _fallback = resolve_theme(route, aesthetics)
+    except ThemeInvalidError as e:
+        return {"failure_mode": "ambiguous", "route_id": route_id,
+                "decision_card": str(e), "status": "blocked"}
 
     try:
         spec = deck_spec.build_deck_spec(route, pol_data, final_ratio, slides_count,

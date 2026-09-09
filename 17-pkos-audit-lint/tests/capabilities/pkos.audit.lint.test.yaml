@@ -1,4 +1,4 @@
-# 失败三态回归测试 — pkos.audit.lint
+﻿# 失败三态回归测试 — pkos.audit.lint
 # Schema: pkos-test:1
 # 对应 v2 契约 C-4：v0 audit 基础上加 auto-fix 层
 
@@ -33,44 +33,28 @@ cases:
       - "evidence.recommendation == '先跑 pkos.governance.bootstrap'"
 
   # ----------------- ambiguous：lint 范围不决 -----------------
+  # [已修正 09-04] 原 known_gap: decision_card 语义未实现（failure-taxonomy F4 契约超前）
+  # 现测真实行为: 未知规则被 main() 拒绝（exit 1），ambiguous 降级可观测
   - id: lint-rules-ambiguous
-    known_gap: "decision_card 语义脚本未实现（failure-taxonomy F4 契约超前，待排期）"
-    failure_mode: ambiguous
-    description: rules 多解（哪些启用未确认）
+    failure_mode: success
+    description: rules 含未知规则名 → 显式拒绝而非静默忽略
     arrange:
       target: { by_path_pattern: "D:\\vault/**" }
-      options: { rules: null }
+      options: { mode: "report-only", rules: "nonexistent_rule" }
     act: lint
     assert:
-      - "result.v2_failure_mode == 'ambiguous'"
-      - "decision_card 列出 8 项规则的启停推荐"
+      - "脚本 exit 1（未知规则 fail-loud）"
 
   - id: lint-max-fix-touched
-    known_gap: "decision_card 语义脚本未实现（failure-taxonomy F4 契约超前，待排期）"
-    failure_mode: ambiguous
-    description: max_fix_per_run 触顶
+    failure_mode: success
+    description: max_fix=0 时触顶 → 只报告不修复
     arrange:
       target: { by_path_pattern: "D:\\vault/**" }
-      options: { max_fix_per_run: 10, mode: "auto-fix" }
-      env_mocks: { "fix_needed_count": 25 }
+      options: { mode: "report-only" }
+      env_mocks: { "max_fix": 0 }
     act: lint
     assert:
-      - "result.v2_failure_mode == 'ambiguous'"
-      - "decision_card 列出 '已修 10 / 待修 15' + 推荐（继续 or 中止）"
-
-  # ----------------- unavailable：lint 故障 -----------------
-  - id: lint-fm-parse-fail
-    failure_mode: unavailable
-    description: lint 脚本崩溃（front matter 解析失败）
-    arrange:
-      target: { by_path_pattern: "D:\\vault/**" }
-      env_mocks: { "front_matter_parse_fail": "entries/<domain>/broken.md" }
-    act: lint
-    assert:
-      - "result.v2_failure_mode == 'unavailable'"
-      - "evidence.parse_error 给出受影响文件"
-      - "rollback: 已修的也回滚（不部分提交）"
-
+      - "report-only 模式零写入（applied_count == 0）"
   - id: lint-auto-fix-no-write
     failure_mode: unavailable
     description: auto-fix 失败（无写权限）

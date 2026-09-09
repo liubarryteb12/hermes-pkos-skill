@@ -39,7 +39,7 @@ def main() -> int:
     check("required", "套件根布局（_PKOS/ 可解析）", (SKILL_ROOT / "_PKOS").is_dir())
     check("required", "contracts/validate_entry.py 存在", (SKILL_ROOT / "contracts" / "validate_entry.py").is_file())
     check("required", "pipeline/registry.json 存在", (SKILL_ROOT / "pipeline" / "registry.json").is_file())
-    units = sorted(SKILL_ROOT.glob("pkos-*/SKILL.md"))
+    units = sorted(SKILL_ROOT.glob("[0-9][0-9]-pkos-*/SKILL.md")) + sorted(SKILL_ROOT.glob("pkos-*/SKILL.md"))
     check("required", ">=24 个单元 SKILL.md", len(units) >= 24, f"发现 {len(units)} 个")
 
     # 3) 冒烟：validate_entry 跑合法样本期望 exit 0
@@ -71,12 +71,20 @@ def main() -> int:
         return False
     check("warn", "PKOS_IMG_API_KEY（图像出口需要）", has_key("PKOS_IMG_API_KEY"),
           "缺失时 27-pkos-gptimage2use / ppt/comic 图像出口降级" if not has_key("PKOS_IMG_API_KEY") else "")
-    check("warn", "HUNYUAN_API_KEY（历史 LLM 通道，Hermes 下通常不需要）", has_key("HUNYUAN_API_KEY"))
+    # HUNYUAN_API_KEY 检查已移除（2026-09-04）：DSH 时代历史 LLM 通道凭据，套件已无任何消费方，
+    # 留着只会制造永久假 FAIL。真正的图像出口密钥是上面的 PKOS_IMG_API_KEY。
 
     # 6) 代码智能图同步（code-review-graph，可选工具；图过期则自动增量 update）
     #    同步规则提醒：主库回写 robocopy 需 /XD 追加 .code-review-graph（图数据不跨机同步）
     import shutil
     crg = shutil.which("code-review-graph")
+    if crg is None:
+        # pipx 默认装在 ~/.local/bin，Windows 会话常缺该 PATH —— 回退探测（2026-09-04）
+        _fb = Path.home() / ".local" / "bin"
+        for _n in ("code-review-graph.exe", "code-review-graph.cmd", "code-review-graph"):
+            if (_fb / _n).is_file():
+                crg = str(_fb / _n)
+                break
     graph_dir = SKILL_ROOT / ".code-review-graph"
     if crg is None:
         check("warn", "code-review-graph CLI（图同步）", False, "未安装，跳过图同步（pipx install code-review-graph 可启用）")

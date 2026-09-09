@@ -25,8 +25,12 @@
 | 12-pkos-comic | `pkos.exit.comic.compose` | exit | `scripts/compose.py`（+ render_panels 式出图编排） | 漫画全链：分镜→出图编排（双通道）→发表管线（v1.1.0 收编实战管线） |
 | 14-pkos-gzhxiaoshuo-skill | `pkos.exit.gzhxiaoshuo.compose` | exit | `scripts/gzhxiaoshuo_tools.py` | 公众号小说/长文出口 |
 | 13-pkos-wenzhang-skill | `pkos.exit.wenzhang.compose` | exit | `scripts/article_tools.py`（lint/stats/selftest）、`scripts/check_cover.py` | 公众号文章出口 v1.1：六写法诊断 + 成稿+标题矩阵+机器质检 + my-voice 档案即配置 + 头图安全区校验（吸收 creator-buddy） |
+| 28-pkos-topic | `pkos.topic.generate` | pre-exit | `scripts/qa_check.py` | 内容运营选题中枢 v2.0（产品经理/产品运营式，吸收 bigpeng-hot-gzh）：母题/栏目规划 + 选题池五维评分 + 标题生成（A 6条跨公式 / B 内容运营选题方案）；热点输入消费 29-pkos-trend |
+| 29-pkos-trend | `pkos.trend.collect` | pre-exit | （SKILL.md 流程，无脚本） | 热点信号采集与情报单（28 的上游外置）：免费渠道采集热点信号+热度证据，产出 trend-digest，只采集不决策 |
+| 30-pkos-scorecard | `pkos.scorecard.judge` | verify | `scripts/scorecard_calc.py` | 文章质量加权评分门（13 下游/15 上游，对标 07-weak-check 同层正交）：六维 A–F 双通道判定（机械+LLM 锚点），总分四级+verdict，PASS 才可发表；标准 SSOT=scorecard-policy.md |
 | 15-pkos-publish | `pkos.publish.draft` | publish | `scripts/upload_weixin_draft.py` | 发表枢纽：草稿箱同步唯一出口（upload→回填→add_draft→回读验证）；跨线共享，各 exit 只调用 |
 | 27-pkos-gptimage2use | `pkos.gptimage2use` | utility | `scripts/generate.py` | gptimage2 图像生成通用通道（需 PKOS_IMG_API_KEY） |
+| 31-pkos-imageprompt | `pkos.imageprompt.compose` | utility | `references/prompt-library/`（SKILL.md 流程） | 五段命名提示词工程：题词定位/组装/新写 + S00 安全消毒 + C00 参数（只题材词不出图，出图走 27） |
 | 19-pkos-timeline | `pkos.maintenance.timeline` | maintenance | `scripts/build_timeline.py` | vault 时间线构建 |
 | 16-pkos-maintenance-index | `pkos.maintenance.index` | maintenance | `scripts/index.py` | 索引维护 |
 | 20-pkos-audit | `pkos.governance.audit` | governance | `scripts/audit.py` | 治理审计 |

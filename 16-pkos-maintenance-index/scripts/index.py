@@ -312,6 +312,10 @@ def build_index(vault: Path, out_dir: Path, incremental: bool, since: str | None
     def atomic_write(path: Path, content: str, retries: int = 3) -> None:
         """写临时文件后原子改名；Windows 下目标被 Obsidian/AV 持锁时重试，
         仍失败则退化为时间戳旁路文件（内容永不丢失，主名由下次成功写入接管）。"""
+        if path.is_dir():
+            # 2026-09-05 事故防线：MASTER_INDEX.json 曾被目录占用致 os.replace 永久失败，
+            # 每日构建全走 sidecar 无限堆积。目标名是目录时 fail-loud，绝不静默旁路。
+            raise IsADirectoryError(f"索引目标路径被目录占用，拒绝写入: {path}（需人工清障）")
         tmp = path.with_suffix(path.suffix + f".tmp-{os.getpid()}")
         tmp.write_text(content, encoding="utf-8")
         for i in range(retries):

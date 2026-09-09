@@ -1,0 +1,25 @@
+{
+  "model": "agnes-2.5-flash",
+  "base_url": "http://47.108.25.114:1519/v1",
+  "planner_model": "agnes-2.5-flash",
+  "executor_model": "sensenova-6.8-flash-lite",
+  "min_delta": 0.0,
+  "blacklist_gate": true,
+  "epochs": [
+    {
+      "epoch": 1,
+      "train": 4,
+      "failures": 0,
+      "plan": "AIM: Clarify and strengthen the core transformation rules to reduce ambiguity, specifically by replacing vague directives with actionable, explicit instructions that define the exact expected output format.\n\nTASKLIST:\n1. Replace the general \"refine and structure\" instruction with specific, atomic operational rules: (a) Define a mandatory output schema (e.g., Header, Key Points, Conclusion) to replace the loose \"structured\" directive; (b) Explicitly forbid passive voice and filler words rather than just \"use active voice\"; (c) Clarify that \"ANSWER:\" must precede the final structured output, not just be \"a line at the beginning.\"\n\nHOOK: Preserve the existing skill name and header; do not add new sections or examples that extend beyond the current scope of refining text structure; ensure the edit stays within the provided bullet points.\n\nLOOP: Apply the single combined edit to refine the bullet points into clearer, prescriptive rules.\n\nCHECKPOINT: Verify that the revised skill explicitly mandates a fixed output schema (Header/Key Points/Conclusion) and clearly prohibits passive voice and filler words, ensuring the \"ANSWER:\" prefix rule is unambiguous for any future input.",
+      "candidate_val": 1.0,
+      "best_val": 1.0,
+      "accepted": true
+    }
+  ],
+  "gate": {
+    "seed_val": 1.0,
+    "best_val": 1.0,
+    "improved": false,
+    "early_stopped": false
+  }
+}

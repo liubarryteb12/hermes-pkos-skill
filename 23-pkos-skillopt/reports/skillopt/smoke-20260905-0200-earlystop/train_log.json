@@ -1,0 +1,26 @@
+{
+  "model": "qwen3.8-flash",
+  "base_url": "http://47.108.25.114:1519/v1",
+  "planner_model": "agnes-2.5-flash",
+  "executor_model": "sensenova-6.8-flash-lite",
+  "min_delta": 0.5,
+  "blacklist_gate": true,
+  "epochs": [
+    {
+      "epoch": 1,
+      "train": 4,
+      "failures": 0,
+      "plan": "AIM: Tighten the output format constraint and active-voice rule to ensure consistent structured outputs; do not change the core intent of preserving information.\n\nTASKLIST: 1. Revise the \"output\" bullet to mandate: \"ANSWER: must be the final line, preceded by the rewritten text structured with Markdown headings if applicable.\" Rationale: Prevents ambiguity on where ANSWER appears relative to structured content.\n\nHOOK: Preserve all original information-preservation and style rules; keep the four-bullet structure intact; use imperative phrasing only; no vague terms like \"建议\" or \"可以考虑\"; no destructive commands.\n\nLOOP: Apply exactly one edit to the fourth bullet in the skill document to enforce explicit placement of ANSWER after structured content.\n\nCHECKPOINT: Verify that a test case using a rough paragraph yields a rewritten version with clear Markdown section headers followed immediately by \"ANSWER: [concise conclusion]\" as the final line.",
+      "candidate_val": 1.0,
+      "best_val": 1.0,
+      "accepted": false,
+      "early_stop": true
+    }
+  ],
+  "gate": {
+    "seed_val": 1.0,
+    "best_val": 1.0,
+    "improved": false,
+    "early_stopped": true
+  }
+}

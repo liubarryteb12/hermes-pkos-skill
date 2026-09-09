@@ -1,6 +1,6 @@
 ---
 name: 21-pkos-meta
-description: 治理面元单元：心跳巡检（tick）、遥测面板（telemetry_dashboard）、meta 门禁（meta_gate）。无独立 capability_id——pkos.governance.tick 是其对外契约名。
+description: 治理面元单元：心跳巡检（tick）、遥测面板（telemetry_dashboard）、meta 门禁（meta_gate）。触发语：「知识库现在什么状态」「INBOX 堆了多少」「跑一下心跳」。注意「整理/维护知识库」类口语归 01-pkos-intake 消化线，不走本单元。无独立 capability_id——pkos.governance.tick 是其对外契约名。
 version: 1.0.0
 ---
 
