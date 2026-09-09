@@ -70,6 +70,11 @@ outputs:
   integrity_policy: "contracts/artifact-integrity-policy.md"   # 门 1 强约束：写回源条目严禁覆盖
 ```
 
+
+### 机械自检（09-09 智力脱钩补强，强制）
+
+`python 05-pkos-analysis/scripts/qa_check.py --analysis <out.md>` —— 校验 一句话概述+≥3要点+发现节+可复用性判定；FAIL 即拒绝落盘重写。输出形态对照本单元既有真实产物（POL/RT 体系内 exemplar 原则）。
+
 # 失败三态契约 (v2 契约 C-4) —— 沉默规则 + 关联推荐的 v2 拆解
 
 v0 行为（沉默规则 / 关联推荐先解析后写入 / 自检不违反所检特征 / 引用按文本顺序）**完全锁死继承**；v2 在其上叠加**失败三态解释层**：
@@ -649,4 +654,3 @@ analysis 事件总线：
 - ✅ analysis 必选 Persona 矩阵 5 选 1
 - ✅ analysis 必走 EventBus 写 telemetry
 - ✅ analysis 必产出 双向连接密度 ≥ 50%
-

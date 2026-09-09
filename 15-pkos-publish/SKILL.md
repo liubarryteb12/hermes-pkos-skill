@@ -133,7 +133,8 @@ python -c "from wx_api import get_token, list_drafts; t=get_token(force=True)['t
   - 硬门 1/2 = 编号通道 + 归一化标题通道比对草稿箱（09-04 旧制）。
   - **所有导入脚本必须走它，禁止直调裸 `add_draft`**。
 - **账本刷新**：`gzh_import_v2.py` 选批前先过 `published_hit`；快照由 opencli 抓取发表记录（`appmsgpublish?sub=list`，begin 翻页到空）经 `seed_published_ledger.py` 播种/刷新。**published=True 是终点态，只增不删**。
-- **⚠ 抓发表记录的正确通道（09-09 实战）**：**禁止把发表记录页开进浏览器**（用户点名：`appmsgpublish?sub=list` 页面导航会卡死 OpenCLI 流程）。正解：打开 `https://mp.weixin.qq.com/`（会话有效自动跳转带 token），在首页用同源 `fetch(qs).then(r=>r.text())` 拉页面字符串存 `window.__p`，JS 正则 `/&quot;title&quot;:&quot;([^&]{2,80})&quot;/g` 抽双重转义 JSON 里的标题（合集标签行按 `\d{2}+短名` 过滤）。坑：命令行含裸 `&` 会被 cmd.exe 切碎，URL 参数必须 `['a','b'].join(String.fromCharCode(38))` 拼接；opencli 经 .cmd 转发含 `>` 的 JS 会被 cmd 当重定向，参数需再包双引号。
+- **⚠ 抓发表记录的正确通道（09-09 二次修正）**：**禁止把发表记录页开进浏览器**（用户点名：`appmsgpublish?sub=list` 页面导航会卡死 OpenCLI 流程）。正解：打开 `https://mp.weixin.qq.com/`（会话有效自动跳转带 token），首页同源 `fetch(qs).then(r=>r.json())` 拿纯 JSON，Python 侧**结构化解析双层 JSON**：`JSON.parse(outer.publish_page)` → `publish_list[]` → `JSON.parse(item.publish_info)` → `appmsg_info[].title/appmsgid/content_url`。**禁用页面 title 正则**（`&quot;title&quot;` 实体正则会混入合集行/截断标题/脚本文本；且旧版合集过滤 `^0\d[汉字]` 曾把「01面试-」这类真实无编码旧文误滤掉——结构化解析后此坑根除）。坑：命令行含裸 `&` 会被 cmd.exe 切碎，URL 参数必须 `['a','b'].join(String.fromCharCode(38))` 拼接；opencli 经 .cmd 转发含 `>` 的 JS 会被 cmd 当重定向，参数需再包双引号。
+- **账本刷新失败必须闭锁导入（09-09 晚升格）**：`gzh_import_v2.refresh_published_or_stop()`——正式导入前刷新发表快照，非零退出即当天闭锁（日报说明+exit 0），**不软降级**；旧版「刷新失败沿用现有账本继续导」会在盲区窗口重发已发表文。探针：`tests/probe_refresh_published_snapshot.py`（4/4，结构化解析+空页拒绝）与 `tests/probe_import_refresh_guard.py`（2/2，失败闭锁/成功放行），改刷新器或导入器后必跑。
 - **bug 根因存档（两代）**：①旧 `import_batch2~7.py` 只按「带编号标题精确匹配」去重，无编号旧草稿不可见 → 同文重发；②`add_draft_safe` 双通道只查草稿箱，群发清空后防线归零 → 已发表文章再次导入（09-09 确诊，51 篇中 21 篇已成重复草稿被清）。
 - **编号修复工具 = `_tools/fix_titles.py`**（dry-run/backup/apply 三模式）：把无编号旧草稿按本地 H1 映射补编号（update_draft），apply 前自动全量备份。孤品（本地无对应）自动排除。
 - **导入前扫描**：先 list_drafts 获取现有草稿编码，只导入缺失的；同编码只导入一次

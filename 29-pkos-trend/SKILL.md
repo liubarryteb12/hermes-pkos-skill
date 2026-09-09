@@ -45,6 +45,11 @@ origin: "2026-09-05 用户裁定：追热点是专栏（母题）方向但属信
 # 情报单格式（trend-digest:1）
 
 ```markdown
+
+### 机械自检（09-09 智力脱钩补强，强制）
+
+`python 29-pkos-trend/scripts/qa_check.py --digest <out.md>` —— 校验 ≥3 信号条目+每条来源+日期锚；FAIL 即拒绝落盘重写。输出形态对照本单元既有真实产物（POL/RT 体系内 exemplar 原则）。
+
 # Trend Digest YYYY-MM-DD（窗口：近7天）
 
 | # | 信号 | 来源/URL | 热度证据 | 时效窗口 | 领域标签 | 采集时间 |

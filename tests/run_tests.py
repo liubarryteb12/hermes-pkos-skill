@@ -166,11 +166,17 @@ check("单元注册完整性（32 单元四方对齐）", _r.returncode == 0,
 # handoff_gate 四命令回归（09-08）
 _rh = _sp.run([sys.executable, str(ROOT / "tests" / "test_handoff_gate.py")],
               capture_output=True, text=True, timeout=60, encoding="utf-8", errors="replace")
+# qa_check 钩子回归（6 纯提示词单元，09-09 智力脱钩补强）
+_rq = _sp.run([sys.executable, str(ROOT / "tests" / "test_qa_hooks.py")],
+              capture_output=True, text=True, timeout=60, encoding="utf-8", errors="replace")
+check("qa_check 钩子回归（6 单元 12 用例）", _rq.returncode == 0,
+      (_rq.stdout + _rq.stderr).strip().splitlines()[-1] if (_rq.stdout + _rq.stderr).strip() else "FAIL")
+
 check("handoff_gate 四命令回归", _rh.returncode == 0,
       (_rh.stdout + _rh.stderr).strip().splitlines()[-1] if (_rh.stdout + _rh.stderr).strip() else "FAIL")
 
 print()
-print(f"共 {len(URL_CASES) + 15} 项检查，失败 {len(failures)} 项")
+print(f"共 {len(URL_CASES) + 16} 项检查，失败 {len(failures)} 项")
 if failures:
     print("失败清单: " + ", ".join(failures))
 sys.exit(1 if failures else 0)

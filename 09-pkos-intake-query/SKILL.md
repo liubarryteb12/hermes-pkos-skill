@@ -71,6 +71,11 @@ outputs:
     gate_2_integrity: true
 ```
 
+
+### 机械自检（09-09 智力脱钩补强，强制）
+
+`python 09-pkos-intake-query/scripts/qa_check.py --plan <out.md>` —— 校验 Q1..Qn 编号步骤+每步依据行；FAIL 即拒绝落盘重写。输出形态对照本单元既有真实产物（POL/RT 体系内 exemplar 原则）。
+
 # 失败三态契约 (v2 契约 C-4)
 
 ```yaml
