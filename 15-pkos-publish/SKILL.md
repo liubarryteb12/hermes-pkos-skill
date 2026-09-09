@@ -117,12 +117,28 @@ python -c "from wx_api import get_token, list_drafts; t=get_token(force=True)['t
 - covers 子目录：`cover_编码.jpg`（如 cover_060101.jpg → 06-01-01）
 - **推荐**: 手动维护编码到封面的映射表，因为文件名格式不统一
 
+### 选题/写稿前置查重（防撞题，2026-09-09 新增）
+- **写任何新文案/新选题前先跑**：`python gzh/_tools/gzh_topic_check.py "<标题或编号>"`（零网络，三态输出）：
+  - `published` = 已发表账本命中 → **禁止再写同题**（换角度或换子题）
+  - `draft` = 草稿队列已有 → 已写过，别重写
+  - `free` = 可写
+- **新选题领编号流程**：`--list-pending` 看总表现状 → 总表查该母题最大文章号 +1 → `gzh_topic_check.py "<新编号>·<新标题>"` 确认编号与标题双 `free` → 才写入发表顺序总表。规划新母题（如 07/08/09 线）同样先跑本工具再落选题文档。
+- 延续母题-子题写续篇时，标题命中 `published` 说明该题已消费 → 回 `pkos.topic.generate` 换角度，不许换编号重写同题（换皮重复同样会被导入链拦截）。
+
 ### 重复导入防护
-- **唯一正门 = `wx_api.add_draft_safe()`（2026-09-04 根治「老发重复文章」bug）**：编号通道（`^\d{2}-\d{2}-\d{2}` 前缀比对）+ 归一化标题通道（去编号/全半角/空白后比对）双通道比对草稿箱，重复直接拒绝创建，返回 `{status: ok|duplicate|fail}`。**所有导入脚本必须走它，禁止直调裸 `add_draft`**。
-- **bug 根因存档**：旧 `import_batch2~7.py` 只按「带编号标题精确匹配」去重，而早期 36 篇草稿标题无编号 → 去重不可见 → 同文重发。本地 `文案.md` H1 也不含编号，两套标题永不匹配。
+- **导入前快照刷新（2026-09-09 二期，用户采纳）**：`gzh_import_v2.py` 正式运行的第 0.5 步自动跑 `refresh_published_snapshot.py`（opencli 会话 gzhaudit 首页同源 fetch 逐页抓发表记录 → 合并 published_snapshot.json → seed 入账本），把"新发表盲区窗口"从天级缩到分钟级。刷新失败**软降级**（告警不阻断，硬门兜底）。dry-run 默认不刷新，需 `--with-refresh`。
+- **refresh 脚本坑（实测）**：①fetch 加 `f=json` 后响应是纯 JSON，标题在 `publish_page(字符串)→publish_list[].publish_info(字符串)→appmsg_info[].title` 双重嵌套，JS 端解析完存标题数组；不能用 HTML 壳时代的 `&quot;` 实体正则（0 命中）。②opencli 参数必须 subprocess 列表传递——cmd.exe 会把 `&` 切碎、bash heredoc 会吃反斜杠。③禁导航 appmsgpublish 页，只开首页。
+- **唯一正门 = `wx_api.add_draft_safe()`（2026-09-09 升级为三硬门；09-04 首版双通道）**：
+  - **硬门 0 = 已发表终态账本**（`_tools/published_state.json`，`published_hit()` 三通道：编码/归一化全文/截断前缀）——**09-09 根治「重复发表」的真正根因**：草稿箱是待发队列，用户群发后草稿消失，只查草稿箱的旧双通道看不见已发表文章 → 同文再次导入。命中返回 `status: already_published`，零 API 调用。
+  - 硬门 1/2 = 编号通道 + 归一化标题通道比对草稿箱（09-04 旧制）。
+  - **所有导入脚本必须走它，禁止直调裸 `add_draft`**。
+- **账本刷新**：`gzh_import_v2.py` 选批前先过 `published_hit`；快照由 opencli 抓取发表记录（`appmsgpublish?sub=list`，begin 翻页到空）经 `seed_published_ledger.py` 播种/刷新。**published=True 是终点态，只增不删**。
+- **⚠ 抓发表记录的正确通道（09-09 实战）**：**禁止把发表记录页开进浏览器**（用户点名：`appmsgpublish?sub=list` 页面导航会卡死 OpenCLI 流程）。正解：打开 `https://mp.weixin.qq.com/`（会话有效自动跳转带 token），在首页用同源 `fetch(qs).then(r=>r.text())` 拉页面字符串存 `window.__p`，JS 正则 `/&quot;title&quot;:&quot;([^&]{2,80})&quot;/g` 抽双重转义 JSON 里的标题（合集标签行按 `\d{2}+短名` 过滤）。坑：命令行含裸 `&` 会被 cmd.exe 切碎，URL 参数必须 `['a','b'].join(String.fromCharCode(38))` 拼接；opencli 经 .cmd 转发含 `>` 的 JS 会被 cmd 当重定向，参数需再包双引号。
+- **bug 根因存档（两代）**：①旧 `import_batch2~7.py` 只按「带编号标题精确匹配」去重，无编号旧草稿不可见 → 同文重发；②`add_draft_safe` 双通道只查草稿箱，群发清空后防线归零 → 已发表文章再次导入（09-09 确诊，51 篇中 21 篇已成重复草稿被清）。
 - **编号修复工具 = `_tools/fix_titles.py`**（dry-run/backup/apply 三模式）：把无编号旧草稿按本地 H1 映射补编号（update_draft），apply 前自动全量备份。孤品（本地无对应）自动排除。
 - **导入前扫描**：先 list_drafts 获取现有草稿编码，只导入缺失的；同编码只导入一次
 - **隔离区**: 无封面的文章先跳过，后续补封面后再导入
+- **回归探针 = `_tools/probe_published_ledger.py`**：P1 编码通道 / P2 无编码全文 / P3 截断前缀 / P4-P5 新文放行反向 / P6 零 API 拦截，改账本或 norm 规则后必跑 ALL PASS 才上线。已知坑：账本 norm 一律加载时用当前 `norm_title` 重算，不信任存量 `norm_title` 字段（历史版本规则不同曾致 1 例 MISS）；norm 必须剥反斜杠（发表记录含 `调研\/宣传\/活动` 转义）。
 
 - 上传成功但回读不符 → `degraded_success`（报差异，不算失败）
 - 上传通道不可用但成品已交付 → exit 单元早已 `degraded_success`，本单元 `unavailable`

@@ -1,9 +1,16 @@
 {
   "schema": "pkos-pipeline:2",
   "version": 2,
-  "pkos_semver": "5.4.1",
+  "pkos_semver": "5.4.2",
   "updated_at": "2026-09-08",
   "changelog": [
+    {
+      "version": "5.4.2",
+      "date": "2026-09-09",
+      "changes": [
+        "13-wenzhang 1.2.0：新增 inherit_images 配图继承策略（auto=AI 自判佐证图继承，09-09 用户裁定），manifest 增 inherited_images 字段"
+      ]
+    },
     {
       "version": "5.4.1",
       "date": "2026-09-08",
@@ -1713,13 +1720,13 @@
     {
       "id": "pkos.exit.wenzhang.compose",
       "capability_id": "pkos.exit.wenzhang.compose",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "compatible_pkos_schema": ">=4.5.0",
       "role": "exit",
       "stage": 5,
       "stage_label": "exit.article",
-      "consumes": "TargetConstraint(by_route_artifact: exit=article) + options(writing_mode, length_target, draft_path, voice_profile, title_count, auto_mode, provider)",
-      "produces": "_PKOS/_Export/article/<route-id>-article/（<route-id>-article.md + <route-id>-titles.md + <route-id>-qc-report.json + manifest.json；头图另出 cover-*.png 经 check_cover.py 校验）",
+      "consumes": "TargetConstraint(by_route_artifact: exit=article) + options(writing_mode, length_target, draft_path, voice_profile, title_count, auto_mode, provider)；options.inherit_images（auto/never/force，默认 auto）",
+      "produces": "_PKOS/_Export/article/<route-id>-article/（<route-id>-article.md + <route-id>-titles.md + <route-id>-qc-report.json + manifest.json；头图另出 cover-*.png 经 check_cover.py 校验）；inherit_images=auto 时成稿可继承原文佐证图（判定留痕 decision_note，manifest.inherited_images 计数）",
       "semantic_goal": "消费 RT-* (exit=article + conversion_type=公众号文章) + 源 POL-* 条目，诊断路由六种写法（访谈/大纲/续写/素材整合/破题/重写），产出公众号文章成稿 + 爆款标题矩阵 + 机器质检报告；可选个人文风档案硬约束（吸收 SpaceZephyr/creator-buddy 写作三件套方法论）",
       "not_actions": [
         "click",

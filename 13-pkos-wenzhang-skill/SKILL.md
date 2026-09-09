@@ -1,4 +1,4 @@
-﻿---
+---
 name: 13-pkos-wenzhang-skill
 description: 公众号文章出口（exit=article）：消费 RT-* 路由单 + POL-* 素材，先诊断作者手上有什么（念头/素材/半稿/大纲/不满意成稿），路由到六种写法之一，产出长文成稿+标题矩阵+机器质检报告。触发语：「写篇公众号文章」「按这条素材写长文」「出个文章版」「深度文」「这个主题怎么写」。设计来源：吸收 SpaceZephyr/creator-buddy（gzh-longform-writer/gzh-short-post/baokuan-title-generator/my-voice）方法论，按 PKOS 契约移植。不做起号定位、不做排版（交 gzh-design）、不碰 html/ppt/comic/novel 出口产物。
 ---
@@ -8,7 +8,7 @@ description: 公众号文章出口（exit=article）：消费 RT-* 路由单 + P
 ```yaml
 capability_id: "pkos.exit.wenzhang.compose"
 required_capability: "llm_chat{reasoning:high,context:large}"
-version: "1.1.0"
+version: "1.2.0"
 compatible_pkos_schema: ">=4.5.0"
 stage: exit
 stage_subindex: 5e
@@ -67,6 +67,10 @@ inputs:
       title_count: "<int>"                      # 标题候选数，默认 10（≥6 种方法）
       auto_mode: bool                           # 自主轮次：诊断结果写 decision_note 留痕，不阻塞
       provider: "hy3 | m21 | self-degrade"
+      inherit_images: "auto | never | force"    # 09-09 裁定：原文配图继承策略，默认 auto
+        # auto=AI 自判：素材含图时按「图能提升出稿质量（数据图/流程图/实拍凭证等佐证性内容）则继承，
+        #   装饰性/低清/与论点无关则弃」，判定写 decision_note 留痕
+        # never=沿用旧行为（成稿零图）；force=原文图全保留
 ```
 
 # 输出契约 (v2 契约 C-3)
@@ -82,7 +86,7 @@ outputs:
         - "<route-id>-article.md"    # 成稿（front matter 含 route_id/derived_from/writing_mode/voice_profile）
         - "<route-id>-titles.md"     # 标题矩阵：简报+候选表(方法/钩子/评分/风险)+Top5 角色+A/B 建议
         - "<route-id>-qc-report.json" # article_tools lint 机器质检报告
-        - "manifest.json"
+        - manifest.json
       manifest_shape:
         route_id: "RT-YYYYMMDD-NNN"
         schema_version: "pkos-wenzhang-article:1"
@@ -94,6 +98,7 @@ outputs:
         qc: { fails: 0, warnings: 2 }
         titles_count: 10
         pending_fill_count: 0        # 【待补】必须为 0——素材撑不住的内容写作时即不写（09-06 裁定）
+        inherited_images: 0          # 09-09：inherit_images=auto 判定继承的原文图数（0=判定全弃或素材无图；判定理由落 decision_note）
         generated_at: "<ISO8601>"
         degraded: false
   side_effects:
@@ -233,6 +238,7 @@ replaces: []
 LLM 渠道不可用时：交付**大纲骨架**（分节+字数配额）+ manifest.degraded=true + 缺项说明（缺项写在 manifest 里，**不写进正文**）。**宁要无文的完整骨架，不要临场编造的半成品。**
 
 # 变更记录
+- **1.2.0（09-09 用户裁定）**：输入契约新增 `inherit_images`（auto|never|force，默认 auto）——AI 自判原文配图是否提升出稿质量（佐证性内容继承/装饰性弃），判定留痕 decision_note；manifest 新增 `inherited_images` 字段。
 
 - **1.1.0（2026-08-31）**：效益最大化轮。①**个人文风档案落地**：`_PKOS/assets/my-voice.md`（5鹿7 矩阵文风，程序化提炼自 60 篇验收文案：判断句起手零预热/段中位 49 字单句成段 44%/`## 01` 编号+「写在最后」固定节/「你」主轴/破折号主力工具/具体数字锚定/加粗克制/下一篇钩子收尾）；②**档案即配置**：voice-overrides JSON 块（para_cap=130/dash_max=10/matrix 区间 600-1100/cta_required=false）接入 `lint --voice`，length_target 增 `matrix` 模式；60 篇回测校准阈值（L1 误报 77→34 处，剩余为语料真实长段；W6 误报 58→0）；③**头图通道**：吸收 space-gzh-cover 平台事实（2.35:1 分享裁切/中央 42.6% 安全区/三策略 A-B-C）为 references/cover-spec.md + scripts/check_cover.py（PKOS 适配：无 Pillow 降级 + --json 机读报告），出图走 gptimage2use，fixture 回归并入 article_tests。
 - **1.0.0（2026-08-31）**：首版。吸收 creator-buddy 写作三件套方法论（六写法/五约束/16 标题法/my-voice 档案），新增 PKOS exit=article 第五出口槽位；机器质检 lint 覆盖 style-rules 可确定性校验子集（段落长度/小节/AI 腔黑名单/引号/破折号/CTA 唯一性/半角标点/「母题」禁词）。
