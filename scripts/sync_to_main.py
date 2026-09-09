@@ -59,8 +59,13 @@ def relfiles(base: Path) -> dict[str, Path]:
     return out
 
 
+def _norm(p: Path) -> bytes:
+    raw = p.read_bytes()
+    return raw[3:] if raw.startswith(b"\xef\xbb\xbf") else raw
+
+
 def md5(p: Path) -> str:
-    return hashlib.md5(p.read_bytes()).hexdigest()
+    return hashlib.md5(_norm(p)).hexdigest()
 
 
 def sanitize(text: str) -> str:
