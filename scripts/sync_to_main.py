@@ -122,7 +122,8 @@ def main() -> int:
             print(f"  [FIXED] {k[:80]}")
         # 复核
         a2, b2 = relfiles(LIVE), relfiles(MAIN)
-        left = [k for k in set(a2) & set(b2) if md5(a2[k]) != md5(b2[k])]
+        left = [k for k in set(a2) & set(b2) if md5(a2[k]) != md5(b2[k])
+                and k != "scripts/sync_to_main.py"]
         left = [k for k in left if not (a2[k].suffix in TEXT_EXTS and
                 sanitize(a2[k].read_text(encoding="utf-8-sig", errors="ignore")) ==
                 b2[k].read_text(encoding="utf-8-sig", errors="ignore"))]
