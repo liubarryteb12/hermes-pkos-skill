@@ -6,8 +6,8 @@
 > 人类读者只需要记住一句话：**它帮你的 AI 把乱七八糟的资料，变成整整齐齐的知识，还能写出文章、画出漫画、做出幻灯片。**
 
 [![Release](https://img.shields.io/github/v/release/liubarryteb12/hermes-pkos-skill)](https://github.com/liubarryteb12/hermes-pkos-skill/releases)
-[![Units](https://img.shields.io/badge/capability_units-29-green)]()
-[![Tests](https://img.shields.io/badge/pkos__kb_tests-158_passed-brightgreen)]()
+[![Units](https://img.shields.io/badge/capability_units-32-green)]()
+[![Tests](https://img.shields.io/badge/pkos__kb_tests-159_passed-brightgreen)]()
 [![Probes](https://img.shields.io/badge/behavior_probes-6%20%C3%97%20all--green-brightgreen)]()
 [![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)]()
 
@@ -120,7 +120,7 @@ python 04-pkos-knowledge-service-commit/scripts/trash_gc.py --report
 
 ---
 
-## 🧩 29 个小工人花名册
+## 🧩 32 个小工人花名册
 
 ### 入线（收快递的）
 | 单元 | 干什么 |
@@ -162,7 +162,15 @@ python 04-pkos-knowledge-service-commit/scripts/trash_gc.py --report
 | `operator.audit`（`22-pkos-operator`） | 调用方人格守卫（Meta-Auditor） |
 | `skillopt.train`（`23-pkos-skillopt`） | 用真实任务集训练/优化技能本身 |
 | `gemini.chat / image / video` | 外脑：对话、生图、生视频 |
-| `gptimage2use` | 备用生图通道 |
+| `gptimage2use`（`27-pkos-gptimage2use`） | 原子出图通道（只吃现成题词，不产题词） |
+
+### 运营与题词（v5.4 新车间）
+| 单元 | 干什么 |
+|---|---|
+| `trend.collect`（`29-pkos-trend`） | 免费渠道抓热点信号，产情报单 |
+| `topic.generate`（`28-pkos-topic`） | 产品经理式选题：母题规划+候选标题组 |
+| `scorecard.judge`（`30-pkos-scorecard`） | 成稿六维评分门：机械项脚本算，REJECT 真拦人 |
+| `imageprompt.compose`（`31-pkos-imageprompt`） | ⭐ 全体系出图文案唯一输出中心（320 条题词库+安全层） |
 
 ---
 
@@ -205,6 +213,10 @@ upgrade_check     ALL PASS                ← 五维升级守卫 + schema 校验
 - 单元职责边界偶尔被挑战，每次都靠结构审计（structure-audit）裁决
 
 ---
+
+**输出自检钩子（v5.4.3）**：6 个纯提示词单元（分析/润色/问答/扇出/热点/题词）落盘前必须过 `qa_check.py`
+机械自检——结构完整性、编号连续性、占位符、S00 安全词全由脚本判，FAIL 拒绝落盘。模型智力波动只影响
+写得好不好，影响不了合不合格。
 
 ## 📐 设计原则（三层体系观）
 
@@ -260,6 +272,7 @@ hermes-pkos-skill/
 python scripts/version_sync.py --apply && python scripts/version_sync.py --check
 # 3. 规范 commit（Conventional Commits: feat|fix|refactor|docs|chore|test(scope): 摘要）
 # 4. tag + GitHub Release（notes = changelog 最新条目）
+5. **更新 README**：徽章数字（units/tests）、花名册新单元、新特性段落——README 跟着每次发版走，不许留旧数
 ```
 
 **从 v4.x 升级到 v5.0.0**：单元目录已全部改为 `<序号>-pkos-<功能>` 命名，
