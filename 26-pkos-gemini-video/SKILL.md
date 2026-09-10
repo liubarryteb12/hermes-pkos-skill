@@ -53,6 +53,10 @@ python 26-pkos-gemini-video/scripts/gemini_video.py --prompt "..." --out-dir "D:
 
 # 已知坑（实测沉淀，改脚本先读）
 
+0. **发送阶梯（2026-09-10 定稿，与 image 单元同步）**：type 注入 → click×3（空格刷新+验清空）→ focus+keys Enter 兜底；判据 = 输入框清空。close+open 复位、窗口恢复、tab select 三步前置已内置脚本。
+0.1 **模式校验顺序（2026-09-10 新 UI 实测）**：`Deselect Videos` 按钮**只在输入框有内容后才出现**——旧脚本「先验模式再输入」在新 UI 必误报 ERR_NOT_VIDEO_MODE。已改为 type 后再验模式。
+0.2 **Chrome 彻底重启是 click 全通道被吞时的终极药方**（同 image 单元坑 0.2；taskkill 用单斜杠 `/IM`，MSYS 双斜杠会原样传给 Windows）。
+0.3 **视频生成实测时长**：气球测试 40-80s 出 `<video>`；2026-09-10 曾遇首跑 7 分钟未出且页面无进度指示——刷新后 recents 里会话仍在，重发即可。生成会话不上屏时去 Recents 找。
 1. **视频模式判定**：必须先确认 `Deselect Videos` 按钮存在——投错页（chat 页）会生成文本对话而不报错（同 image 单元文案残留坑的视频版）。
 2. **生成分钟级**：实测约 3 分钟，`--timeout` 默认 600 别设小。
 3. **<video> 出现即 done**：readyState 可能为 0，直接走下载流程。

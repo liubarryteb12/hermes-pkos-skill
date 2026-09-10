@@ -32,6 +32,25 @@ ERR_TIMEOUT = "ERR_REPLY_TIMEOUT"
 ERR_EMPTY = "ERR_EMPTY_REPLY"
 ERR_OUTDIR = "ERR_OUTPUT_DIR"
 
+# Chrome 最小化时 CDP 事件静默丢失（09-09/09-10 实证），恢复+前置窗口
+RESTORE_PS = (
+    "Add-Type -MemberDefinition '[DllImport(\"user32.dll\")] public static bool "
+    "ShowWindowAsync(IntPtr h, int n); public static bool SetForegroundWindow(IntPtr h);' "
+    "-Name WinR -Namespace NR; "
+    "$p = Get-Process chrome -ErrorAction SilentlyContinue | Where-Object {$_.MainWindowHandle -ne 0} | "
+    "Select-Object -First 1; "
+    "if($p){[NR.WinR]::ShowWindowAsync($p.MainWindowHandle, 9) | Out-Null; "
+    "Start-Sleep -Milliseconds 400; "
+    "[NR.WinR]::SetForegroundWindow($p.MainWindowHandle) | Out-Null}"
+)
+
+
+def restore_window() -> None:
+    try:
+        subprocess.run(["powershell", "-Command", RESTORE_PS], capture_output=True, timeout=30)
+    except Exception:
+        pass  # 窗口恢复失败不阻断
+
 
 def _fail(code: str, reason: str) -> int:
     print(json.dumps({"rejected": True, "error_code": code, "reason": reason},
@@ -65,27 +84,46 @@ def js_str(s: str) -> str:
 
 
 def send_prompt(opencli_path: Path, profile: str, session: str, prompt: str) -> None:
-    """定位输入框 → type → 点发送。"""
-    find_js = ("(() => { const el=document.querySelector(\"div[contenteditable='true']\");"
-               " return JSON.stringify({found: !!el}); })()")
-    rc, out = _opencli(opencli_path, profile, "browser", session, "eval", find_js)
-    if "true" not in out:
+    """注入 + 发送（2026-09-10 发送阶梯：type → click×3 → focus+Enter 兜底）。
+
+    2026-09-09/09-10 实测：Gemini 新 Quill 编辑器下 execCommand/JS click 不被
+    Angular 认账；opencli type（CDP 真实键盘）注入可靠；click 会被吞（返回
+    true 但 handler 未触发），以输入框清空为送达真判据；Enter 兜底全平台可靠。
+    """
+    rc_t, typed = _opencli(opencli_path, profile, "browser", session,
+                           "type", "--nth", "0", "div.ql-editor", prompt)
+    if '"typed": true' not in typed and '"typed":true' not in typed:
         raise RuntimeError(ERR_TYPE_FAILED)
-    # 用 opencli type 语义（fill contenteditable）经 eval 直接注入 + input 事件
-    inject_js = (
-        "(() => { const el=document.querySelector(\"div[contenteditable='true']\");"
-        " if(!el) return 'no-input';"
-        " el.focus();"
-        " document.execCommand('insertText', false, " + js_str(prompt) + ");"
-        " return 'injected'; })()"
-    )
-    out = _eval(opencli_path, profile, session, inject_js)
-    if out != "injected":
-        raise RuntimeError(ERR_TYPE_FAILED)
-    send_js = ('(() => { const b=document.querySelector(\'button[aria-label="Send message"]\');'
-               ' if(!b) return "no-send"; b.click(); return "sent"; })()')
-    out = _eval(opencli_path, profile, session, send_js)
-    if out != "sent":
+    time.sleep(2)
+    qlen_js = ('(() => { const q=document.querySelector(".ql-container");'
+               ' return JSON.stringify({len: (q&&q.__quill)?q.__quill.getText().length:-1}); })()')
+    sent_ok = False
+    for _attempt in range(3):
+        rc_c, sent = _opencli(opencli_path, profile, "browser", session,
+                              "click", 'button[aria-label="Send message"]')
+        if '"clicked": true' not in sent and '"clicked":true' not in sent:
+            break
+        time.sleep(6)
+        try:
+            if json.loads(_eval(opencli_path, profile, session, qlen_js)).get("len", -1) <= 1:
+                sent_ok = True
+                break
+        except ValueError:
+            pass
+        # 未发出：敲一个空格刷新 Angular 状态，等 10s 再试
+        _opencli(opencli_path, profile, "browser", session,
+                 "type", "--nth", "0", "div.ql-editor", " ")
+        time.sleep(10)
+    if not sent_ok:
+        _opencli(opencli_path, profile, "browser", session, "focus", "div.ql-editor")
+        time.sleep(1)
+        _opencli(opencli_path, profile, "browser", session, "keys", "Enter")
+        time.sleep(6)
+        try:
+            sent_ok = json.loads(_eval(opencli_path, profile, session, qlen_js)).get("len", -1) <= 1
+        except ValueError:
+            sent_ok = False
+    if not sent_ok:
         raise RuntimeError(ERR_SEND_FAILED)
 
 
@@ -198,9 +236,19 @@ def main(argv: list[str]) -> int:
         return _fail(ERR_OUTDIR, f"out-dir must exist (workspace rule): {out_dir}")
 
     try:
-        # 1) 打开/复用会话页
+        # 1) 会话复位 + 打开（2026-09-10：close+open 复位 extension 事件通道老化；
+        #    恢复窗口防 CDP 事件静默丢失；tab select 激活标签页）
+        _opencli(opencli_path, args.profile, "browser", args.session, "close")
+        time.sleep(2)
         _opencli(opencli_path, args.profile, "browser", args.session, "open", DEFAULT_URL, timeout=120)
-        time.sleep(4)
+        restore_window()
+        time.sleep(6)
+        rc_tabs, tabs = _opencli(opencli_path, args.profile, "browser", args.session, "tab", "list")
+        m_page = re.search(r'"page":\s*"([A-F0-9]+)"', tabs)
+        if m_page:
+            _opencli(opencli_path, args.profile, "browser", args.session,
+                     "tab", "select", m_page.group(1))
+            time.sleep(1)
         # 2) 发送
         send_prompt(opencli_path, args.profile, args.session, prompt)
         # 3) 轮询回复

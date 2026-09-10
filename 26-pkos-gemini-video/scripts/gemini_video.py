@@ -52,6 +52,25 @@ ERR_OUTDIR = "ERR_OUTPUT_DIR"
 
 VIDEO_MAGIC = b"ftyp"
 
+# Chrome 最小化时 CDP 鼠标/键盘事件静默丢失（09-09/09-10 实证），恢复+前置窗口
+RESTORE_PS = (
+    "Add-Type -MemberDefinition '[DllImport(\"user32.dll\")] public static bool "
+    "ShowWindowAsync(IntPtr h, int n); public static bool SetForegroundWindow(IntPtr h);' "
+    "-Name WinR -Namespace NR; "
+    "$p = Get-Process chrome -ErrorAction SilentlyContinue | Where-Object {$_.MainWindowHandle -ne 0} | "
+    "Select-Object -First 1; "
+    "if($p){[NR.WinR]::ShowWindowAsync($p.MainWindowHandle, 9) | Out-Null; "
+    "Start-Sleep -Milliseconds 400; "
+    "[NR.WinR]::SetForegroundWindow($p.MainWindowHandle) | Out-Null}"
+)
+
+
+def restore_window() -> None:
+    try:
+        subprocess.run(["powershell", "-Command", RESTORE_PS], capture_output=True, timeout=30)
+    except Exception:
+        pass  # 窗口恢复失败不阻断
+
 
 def _fail(code: str, reason: str) -> int:
     print(json.dumps({"rejected": True, "error_code": code, "reason": reason},
@@ -125,40 +144,65 @@ def main(argv: list[str]) -> int:
     before = {p.name for p in DOWNLOADS.iterdir()} if DOWNLOADS.exists() else set()
 
     try:
-        # 1) 打开 Videos 页
+        # 1) 会话复位 + 打开（2026-09-10：close+open 是 extension 事件通道老化的
+        #    唯一可靠复位；Chrome 最小化时 CDP 事件静默丢失，先恢复窗口）
+        _opencli(opencli_path, args.profile, "browser", args.session, "close")
+        time.sleep(2)
         _opencli(opencli_path, args.profile, "browser", args.session, "open", VIDEOS_URL)
-        time.sleep(6)
-        # 2) 模式校验：必须在视频模式（Deselect Videos 按钮存在）
+        restore_window()
+        time.sleep(8)
+        # 1.5) 激活标签页（tab 非 active 时事件注入失效）
+        tabs = _opencli(opencli_path, args.profile, "browser", args.session, "tab", "list")
+        m_page = re.search(r'"page":\s*"([A-F0-9]+)"', tabs)
+        if m_page:
+            _opencli(opencli_path, args.profile, "browser", args.session,
+                     "tab", "select", m_page.group(1))
+            time.sleep(1)
+        # 2) 注入 prompt：CDP 真实键盘（opencli type）。Quill 编辑器下 execCommand
+        #    不被 Angular 认账（2026-09-09/09-10 实测）
+        typed = _opencli(opencli_path, args.profile, "browser", args.session,
+                         "type", "--nth", "0", "div.ql-editor", prompt)
+        if '"typed": true' not in typed and '"typed":true' not in typed:
+            raise RuntimeError(ERR_TYPE)
+        time.sleep(2)
+        # 2.5) 模式校验（2026-09-10 新 UI：Deselect Videos 仅在输入框有内容后才出现，
+        #      故先 type 再验；旧顺序「先验模式」必误报 ERR_NOT_VIDEO_MODE）
         mode = _eval(opencli_path, args.profile, args.session,
                      "(() => [...document.querySelectorAll('button')].some("
                      "b=>(b.getAttribute('aria-label')||'').includes('Deselect Videos')) ? 'video' : 'other')()")
         if mode != "video":
             raise RuntimeError(ERR_WRONG_MODE)
-        # 3) 注入 prompt + 发送（同 image 单元三件套）
-        inject_js = (
-            "(() => { const el=document.querySelector(\"div[contenteditable='true'][role='textbox']\")"
-            "||document.querySelector(\"div[contenteditable='true']\");"
-            " if(!el) return 'no-input'; el.focus();"
-            " document.execCommand('insertText', false, " + js_str(prompt) + ");"
-            " return 'injected'; })()"
-        )
-        if _eval(opencli_path, args.profile, args.session, inject_js) != "injected":
-            raise RuntimeError(ERR_TYPE)
-        send_js = ('(() => { const b=[...document.querySelectorAll("button")]'
-                   '.find(x=>/send/i.test(x.getAttribute("aria-label")||""));'
-                   ' if(!b) return "no-send"; b.click(); return "sent"; })()')
-        if _eval(opencli_path, args.profile, args.session, send_js) != "sent":
+        # 3) 发送阶梯（2026-09-10 全平台实测）：click 重试（敲空格刷新 Angular 状态）
+        #    → focus+keys Enter 兜底；JS click / execCommand 全线失效
+        qlen_js = ('(() => { const q=document.querySelector(".ql-container");'
+                   ' return JSON.stringify({len: (q&&q.__quill)?q.__quill.getText().length:-1}); })()')
+        sent_ok = False
+        for _attempt in range(3):
+            sent = _opencli(opencli_path, args.profile, "browser", args.session,
+                            "click", 'button[aria-label="Send message"]')
+            if '"clicked": true' not in sent and '"clicked":true' not in sent:
+                break
+            time.sleep(6)
+            try:
+                if json.loads(_eval(opencli_path, args.profile, args.session, qlen_js)).get("len", -1) <= 1:
+                    sent_ok = True
+                    break
+            except ValueError:
+                pass
+            _opencli(opencli_path, args.profile, "browser", args.session,
+                     "type", "--nth", "0", "div.ql-editor", " ")
+            time.sleep(10)
+        if not sent_ok:
+            _opencli(opencli_path, args.profile, "browser", args.session, "focus", "div.ql-editor")
+            time.sleep(1)
+            _opencli(opencli_path, args.profile, "browser", args.session, "keys", "Enter")
+            time.sleep(6)
+            try:
+                sent_ok = json.loads(_eval(opencli_path, args.profile, args.session, qlen_js)).get("len", -1) <= 1
+            except ValueError:
+                sent_ok = False
+        if not sent_ok:
             raise RuntimeError(ERR_SEND)
-        # 3.5) 发送确认（2026-09-05 实战坑：模板画廊态下点击可能丢失，prompt 滞留输入框）
-        #      确认输入框已清空，否则重发一次
-        confirm_js = ("(() => { const el=document.querySelector(\"div[contenteditable='true'][role='textbox']\")"
-                      "||document.querySelector(\"div[contenteditable='true']\");"
-                      " return (!el || el.innerText.trim()==='') ? 'clear' : 'stuck'; })()")
-        time.sleep(3)
-        if _eval(opencli_path, args.profile, args.session, confirm_js) == "stuck":
-            if _eval(opencli_path, args.profile, args.session, send_js) != "sent":
-                raise RuntimeError(ERR_SEND)
-            time.sleep(3)
         # 4) 轮询生成完成：<video> 出现即 done（分钟级，readyState 不可靠）
         gen_js = "(() => JSON.stringify({n: document.querySelectorAll('video').length}))()"
         deadline = time.time() + args.timeout

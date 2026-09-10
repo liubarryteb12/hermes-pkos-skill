@@ -38,6 +38,10 @@ python 25-pkos-gemini-image/scripts/gemini_image.py --prompt-file p.txt --timeou
 
 # 已知坑（实测沉淀，改脚本先读）
 
+0. **发送阶梯（2026-09-10 定稿，脚本已内置）**：`opencli type`（CDP 真实键盘）注入 → `opencli click` 重试 3 轮（每轮后验 Quill 输入框清空，未清空则敲空格刷新 Angular 状态等 10s）→ `focus div.ql-editor` + `keys Enter` 兜底（跨站最可靠）。送达唯一真判据 = 输入框清空；click 返回 true ≠ 发送成功。
+0.1 **close+open 复位 + 窗口恢复 + tab select**（脚本已内置三步前置）：close 释放租约 → re-open → PowerShell ShowWindowAsync+SetForegroundWindow（Chrome 最小化时 CDP 事件静默丢失）→ tab list 找 page id + tab select 激活。
+0.2 **click 被吞且 close+open 复位无效时，彻底重启 Chrome 是终极药方**（2026-09-10 实证：杀 chrome.exe 进程重启后 type/click 立即恢复正常；表现为 JS click、ref click、语义 click、hover+click、keys Enter 全通道失效而 type 正常）。注意 `taskkill /IM chrome.exe /F` 在 MSYS 里写单斜杠（`//IM` 会被原样传给 Windows 报参数无效）。重启后 extension 秒连，无需等 60s。
+0.3 **双窗口成因（非 bug）**：Chrome 进程数为 0 时手动 Start-Process 启动一个窗口 + opencli open --window background 另起一个。收敛法：启动 Chrome 用幂等检查（先查进程数），或干脆只靠 opencli open 拉起。
 1. "Creating your image" 文案会残留——**不能靠文案判断完成**，必须查 `naturalWidth>400` 的 blob 图。
 2. 下载按钮 ref 会漂——用 `aria-label="Download full size image"` 现场定位。
 3. Chrome 落盘有延迟——点击后轮询 `Downloads/Gemini_Generated_Image_*`（排除 .crdownload）。

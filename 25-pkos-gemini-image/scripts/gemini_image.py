@@ -209,6 +209,19 @@ def main(argv: list[str]) -> int:
                      "type", "--nth", "0", "div.ql-editor", " ")
             time.sleep(10)
         if not sent_ok:
+            # Enter 兜底（2026-09-10 全平台实测：focus+keys Enter 跨站可靠）
+            _opencli(opencli_path, args.profile, "browser", args.session, "focus", "div.ql-editor")
+            time.sleep(1)
+            _opencli(opencli_path, args.profile, "browser", args.session, "keys", "Enter")
+            time.sleep(6)
+            check = _eval(opencli_path, args.profile, args.session,
+                          '(() => { const q=document.querySelector(".ql-container");'
+                          ' return JSON.stringify({len: (q&&q.__quill)?q.__quill.getText().length:-1}); })()')
+            try:
+                sent_ok = json.loads(check).get("len", -1) <= 1
+            except ValueError:
+                sent_ok = False
+        if not sent_ok:
             raise RuntimeError(ERR_SEND)
         # 3) 轮询生成完成：naturalWidth>400 的 blob 大图（文案残留不可信，实测坑 #1）
         gen_js = ("(() => { const big=[...document.querySelectorAll('img')]"
