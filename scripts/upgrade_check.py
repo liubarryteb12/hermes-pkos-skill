@@ -39,7 +39,8 @@ GUARD_DIRS = ["01-pkos-intake", "09-pkos-intake-query", "03-pkos-ingest", "04-pk
               "24-pkos-gemini-chat", "25-pkos-gemini-image", "26-pkos-gemini-video",
               "contracts", "tests"]
 CODE_EXTS = {".py", ".json", ".yaml", ".yml"}
-HANDOFF_DIR = Path(r"D:/obsidian知识库/obsidian知识库/_PKOS/handoffs")
+import pkos_paths as _ppm
+HANDOFF_DIR = _ppm.get_vault() / "_PKOS" / "handoffs"
 
 fails: list[str] = []
 

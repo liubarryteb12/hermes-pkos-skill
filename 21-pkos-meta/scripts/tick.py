@@ -22,7 +22,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 PKOS_BASE = Path(__file__).resolve().parents[2]  # hermes-pkos-skill: 套件根 = 技能根（21-pkos-meta/scripts 上两级）
-VAULT = Path(r"D:\obsidian知识库\obsidian知识库")
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+import pkos_paths as _ppm
+VAULT = _ppm.get_vault()
 # 2026-09-04 修复：INBOX 告警必须盯 vault 的真收件箱（此前盯套件内部 _PKOS/INBOX，
 # 恒为空 → 71 篇真实堆积永远 0 files OK，看护完全失明）
 # 09-05 修复：真收件箱 = 00-收件暂存（连字符，intake/inbox_digest 同口径）；_PKOS/INBOX 恒空是历史遗留路径

@@ -21,7 +21,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-VAULT = Path(r"D:/obsidian知识库/obsidian知识库")
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+import pkos_paths as _ppm
+VAULT = _ppm.get_vault()
 HANDOFF_DIR = VAULT / "_PKOS" / "handoffs"
 SECTIONS = ("GOAL", "DONE", "PENDING", "PITFALLS", "NEXT")
 TEMPLATE = """# HANDOFF-{scope} {date}

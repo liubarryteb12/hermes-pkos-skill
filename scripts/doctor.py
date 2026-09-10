@@ -16,7 +16,9 @@ import sys
 from pathlib import Path
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]  # scripts/ 上一级 = 套件根 = 技能根
-VAULT = Path(r"D:\obsidian知识库\obsidian知识库")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+import pkos_paths as _ppm
+VAULT = _ppm.get_vault()
 PY_MIN = (3, 11)
 
 results: list[tuple[str, str, bool]] = []  # (级别 required|warn, 名称, 是否通过)

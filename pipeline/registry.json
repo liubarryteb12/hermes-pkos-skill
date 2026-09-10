@@ -1,9 +1,19 @@
 {
   "schema": "pkos-pipeline:2",
   "version": 2,
-  "pkos_semver": "5.4.3",
+  "pkos_semver": "5.5.0",
   "updated_at": "2026-09-08",
   "changelog": [
+    {
+      "version": "5.5.0",
+      "date": "2026-09-10",
+      "changes": [
+        "对话式初始化（用户 09-10 裁定）：00-pkos-init 新增 bootstrap.py——agent 引导用户提供 vault/workspace/收件箱三要素，生成 config.json（schema pkos-config:1）+ 目录骨架",
+        "新增 scripts/pkos_paths.py 统一路径解析：config.json 优先 → 内置默认回退；坏配置 fail-loud",
+        "6 个硬编码脚本接入 pkos_paths（inbox_digest/tick/handoff_gate/doctor/upgrade_check/diagnose_fm_stale）；guard.py 保留 PKOS_VAULT_ROOTS env 机制",
+        "LLM 网关设计边界：走 Hermes 自身配置，bootstrap 不做网关设置"
+      ]
+    },
     {
       "version": "5.4.3",
       "date": "2026-09-10",

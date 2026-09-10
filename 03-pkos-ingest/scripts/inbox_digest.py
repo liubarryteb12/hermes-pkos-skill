@@ -19,7 +19,9 @@ import sys
 import time
 from pathlib import Path
 
-V = Path(r"D:/obsidian知识库/obsidian知识库")
+_pp = __import__("sys"); _pp.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[2] / "scripts"))
+import pkos_paths as _ppm
+V = _ppm.get_vault()
 # 09-06 修正：真收件箱 = vault/obsidian知识库/（剪藏插件投放点，34 件实测）；
 # _PKOS/INBOX 已空、00-收件暂存/00_收件暂存 均不存在（用户重组库后废弃）。
 # 装配产物直接落原目录同级的 _PKOS/INBOX 装配区，原件移 _processed（不删可追溯）。

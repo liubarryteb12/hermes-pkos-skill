@@ -23,7 +23,7 @@ FM_BLOCK_TAGS = re.compile(rb"tags:\s*\n(\s+-[^\n]*\n)+")
 
 
 def main() -> int:
-    vault = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("D:/obsidian知识库/obsidian知识库")
+    vault = Path(sys.argv[1]) if len(sys.argv) > 1 else (__import__("pkos_paths") if (__import__("sys").path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts")) or True) else __import__("pkos_paths")).get_vault()
     db = sys.argv[2] if len(sys.argv) > 2 else str(Path.home() / ".pkos" / "catalog.db")
 
     conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)

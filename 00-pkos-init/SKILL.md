@@ -16,6 +16,15 @@ NOT_actions: ["click", "type", "scroll", "run_cmd"]
 replaces: ["00-pkos-init"]                     # 旧 v0 Capability ID（兼容迁移）
 ```
 
+## 对话式初始化（v5.5.0，09-10 用户裁定）
+
+新用户首次使用时，agent 依次问三件事：**① 知识库（vault）放哪**（已有库直接指；新建加 `--create-vault` 自动建骨架）**② workspace 出口产物落点** **③ 收件箱**（默认 `<vault>/_PKOS/INBOX`）——然后执行：
+```bash
+python 00-pkos-init/scripts/bootstrap.py --vault "<路径>" --workspace "<路径>" [--inbox "<路径>"] [--create-vault]
+```
+生成 `<套件根>/config.json`（schema pkos-config:1），全部单元经 `scripts/pkos_paths.py` 读路径；未初始化环境自动回退内置默认。自检：`python 00-pkos-init/scripts/bootstrap.py --check`。
+**LLM 网关走 Hermes 自身配置，初始化不涉及网关设置。**
+
 # 理论层定位
 
 > **init 是系统脚手架层，不触碰 Knowledge Object。** 它建立 `_PKOS/` 地基目录和配置文件，为后续流水线提供运行时环境。
