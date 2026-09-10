@@ -1,9 +1,18 @@
 {
   "schema": "pkos-pipeline:2",
   "version": 2,
-  "pkos_semver": "5.4.2",
+  "pkos_semver": "5.4.3",
   "updated_at": "2026-09-08",
   "changelog": [
+    {
+      "version": "5.4.3",
+      "date": "2026-09-10",
+      "changes": [
+        "智力脱钩补强：6 纯提示词单元（05/06/09/18/29/31）新增 scripts/qa_check.py 机械自检（结构/编号/占位符/S00 安全词/参数），FAIL 拒绝落盘",
+        "tests/test_qa_hooks.py 12 用例挂 run_tests（22 项）；06/31 exemplar.md 用真实产物做锚",
+        "发布隐私强化：train_log×3/IP 常量/本机路径全部净化；sync_to_main 的网关 IP 常量环境变量化"
+      ]
+    },
     {
       "version": "5.4.2",
       "date": "2026-09-09",
@@ -389,7 +398,7 @@
       "task_endpoint_probe": "GET /v1/models 列出 3 model (deepseek-v4-flash / deepseek-v4-flash-vision-exp / hy3)；hy3 唯一含 hy3 关键词",
       "task_chat_verify": "POST /v1/chat/completions (max_tokens=500) 200 OK, content='2', reasoning_content='1+1=2', usage.reasoning_tokens=31",
       "task_credentials": "D:\\00.AIagent\\deepseekharness\\.env (gitignored) 写 HUNYUAN_BASE_URL/HUNYUAN_API_KEY/HUNYUAN_DEFAULT_MODEL",
-      "task_dsh_patch": "C:\\Users\\18765\\.dsh\\profiles\\web\\cordis.patch.yml 加 hunyuan-direct insert (apiKeyEnv: HUNYUAN_API_KEY, baseURL: http://<LLM_GATEWAY_HOST>:1519/v1, model hy3)",
+      "task_dsh_patch": "<LOCAL_HOME>\\.dsh\\profiles\\web\\cordis.patch.yml 加 hunyuan-direct insert (apiKeyEnv: HUNYUAN_API_KEY, baseURL: http://<LLM_GATEWAY_HOST>:1519/v1, model hy3)",
       "task_provider_aliases": {
         "hy3": {
           "model": "hy3",

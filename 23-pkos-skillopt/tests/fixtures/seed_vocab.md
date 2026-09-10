@@ -3,7 +3,7 @@
 所有命令经 `terminal` 工具执行，先 `cd` 到 ROOT（脚本全部相对自定位，cwd 无关紧要但统一更稳）：
 
 ```bash
-cd "C:/Users/18765/AppData/Local/hermes/skills/note-taking/hermes-pkos-skill"
+cd "<PKOS_SKILL_ROOT>"
 ```
 
 ## Procedure

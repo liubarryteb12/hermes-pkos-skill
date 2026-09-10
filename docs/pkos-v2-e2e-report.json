@@ -5,7 +5,7 @@
   "steps": [
     {
       "step": "maintenance.index",
-      "cmd": "C:\\Users\\18765\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe C:\\Users\\18765\\AppData\\Local\\hermes\\skills\\note-taking\\hermes-pkos-skill\\16-pkos-maintenance-index\\scripts\\index.py --vault D:\\obsidian --out _PKOS --json",
+      "cmd": "<HERMES_APPDATA>\\hermes-agent\\venv\\Scripts\\python.exe <PKOS_SKILL_ROOT>\\16-pkos-maintenance-index\\scripts\\index.py --vault D:\\obsidian --out _PKOS --json",
       "exit_code": 0,
       "stdout": "{\n  \"total\": 0,\n  \"by_status\": {},\n  \"by_domain_summary\": {},\n  \"cross_domain_edges\": 0\n}\n",
       "stderr": "",
@@ -13,7 +13,7 @@
     },
     {
       "step": "audit.lint.report-only",
-      "cmd": "C:\\Users\\18765\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe C:\\Users\\18765\\AppData\\Local\\hermes\\skills\\note-taking\\hermes-pkos-skill\\17-pkos-audit-lint\\scripts\\lint.py --vault D:\\obsidian --mode report-only --json",
+      "cmd": "<HERMES_APPDATA>\\hermes-agent\\venv\\Scripts\\python.exe <PKOS_SKILL_ROOT>\\17-pkos-audit-lint\\scripts\\lint.py --vault D:\\obsidian --mode report-only --json",
       "exit_code": 0,
       "stdout": "{\n  \"applied_count\": 0,\n  \"reported_count\": 0,\n  \"applied\": [],\n  \"reported\": []\n}\n",
       "stderr": "",
@@ -21,7 +21,7 @@
     },
     {
       "step": "capability_runner",
-      "cmd": "C:\\Users\\18765\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe C:\\Users\\18765\\AppData\\Local\\hermes\\skills\\note-taking\\hermes-pkos-skill\\tests\\capability_runner.py",
+      "cmd": "<HERMES_APPDATA>\\hermes-agent\\venv\\Scripts\\python.exe <PKOS_SKILL_ROOT>\\tests\\capability_runner.py",
       "exit_code": 1,
       "stdout": "\n=== pkos.maintenance.index (12 cases) ===\n  FAIL index-include-status-ambiguous: ambiguous 期望非零退出或 v2_failure_mode; out[:200]={\n  \"total\": 0,\n  \"by_status\": {},\n  \"by_domain_summary\": {},\n  \"cross_domain_edges\": 0\n}\n\n  FAIL index-incremental-since-ambiguous: ambiguous 期望非零退出或 v2_failure_mode; out[:200]={\n  \"total\": 0,\n  \"by_status\": {},\n  \"by_domain_summary\": {},\n  \"cross_domain_edges\": 0\n}\n\n  -> 10/12 passed (0 skip, 2 fail)\n\n=== pkos.knowledge_service.commit (14 cases) ===\n  FAIL ks-frontmatter-incomplete: not_found 期望非零退出或 v2_failure_mode; out[:200]={\n  \"exit_code\": 0,\n  \"v2_failure_mode\": \"success\",\n  \"status\": \"success\",\n  \"detail\": \"\",\n  \"rollback_to\n  FAIL ks-evidence-missing: not_found 期望非零退出或 v2_failure_mode; out[:200]={\n  \"exit_code\": 0,\n  \"v2_failure_mode\": \"success\",\n  \"status\": \"success\",\n  \"detail\": \"\",\n  \"rollback_to\n  -> 12/14 passed (0 skip, 2 fail)\n\n=== pkos.audit.lint (13 cases) ===\n  FAIL lint-rules-ambiguous: ambiguous 期望非零退出或 v2_failure_mode; out[:200]={\n  \"applied_count\": 0,\n  \"reported_count\": 0,\n  \"applied\": [],\n  \"reported\": []\n}\n\n  FAIL lint-max-fix-touched: ambiguous 期望非零退出或 v2_failure_mode; out[:200]={\n  \"applied_count\": 0,\n  \"reported_count\": 0,\n  \"applied\": [],\n  \"reported\": []\n}\n\n  -> 11/13 passed (0 skip, 2 fail)\n\n=== TOTAL: 33/39 passed, 0 skip, 6 fail ===\nFailures:\n  - pkos.maintenance.index.index-include-status-ambiguous: ambiguous 期望非零退出或 v2_failure_mode; out[:200]={\n  \"total\": 0,\n  \"by_status\": {},\n  \"by_domain_summary\": {},\n  \"cross_domain_edges\": 0\n}\n\n  - pkos.maintenance.index.index-incremental-since-ambiguous: ambiguous 期望非零退出或 v2_failure_mode; out[:200]={\n  \"total\": 0,\n  \"by_status\": {},\n  \"by_domain_summary\": {},\n  \"cross_domain_edges\": 0\n}\n\n  - pkos.knowledge_service.commit.ks-frontmatter-incomplete: not_found 期望非零退出或 v2_failure_mode; out[:200]={\n  \"exit_code\": 0,\n  \"v2_failure_mode\": \"success\",\n  \"status\": \"success\",\n  \"detail\": \"\",\n  \"rollback_token\": \"395a89e0-392b-4ff4-9aa0-eb4984427afa\",\n  \"audit_path\": \"_PKOS\\\\reports\\\\commits\\\\2026-08\n  - pkos.knowledge_service.commit.ks-evidence-missing: not_found 期望非零退出或 v2_failure_mode; out[:200]={\n  \"exit_code\": 0,\n  \"v2_failure_mode\": \"success\",\n  \"status\": \"success\",\n  \"detail\": \"\",\n  \"rollback_token\": \"8be608c2-dafd-43b8-93e2-b441b1ef4c8b\",\n  \"audit_path\": \"_PKOS\\\\reports\\\\commits\\\\2026-08\n  - pkos.audit.lint.lint-rules-ambiguous: ambiguous 期望非零退出或 v2_failure_mode; out[:200]={\n  \"applied_count\": 0,\n  \"reported_count\": 0,\n  \"applied\": [],\n  \"reported\": []\n}\n\n  - pkos.audit.lint.lint-max-fix-touched: ambiguous 期望非零退出或 v2_failure_mode; out[:200]={\n  \"applied_count\": 0,\n  \"reported_count\": 0,\n  \"applied\": [],\n  \"reported\": []\n}\n\n",
       "stderr": "",
@@ -29,7 +29,7 @@
     },
     {
       "step": "contract_refs",
-      "cmd": "C:\\Users\\18765\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe C:\\Users\\18765\\AppData\\Local\\hermes\\skills\\note-taking\\hermes-pkos-skill\\tests\\contract_refs.py",
+      "cmd": "<HERMES_APPDATA>\\hermes-agent\\venv\\Scripts\\python.exe <PKOS_SKILL_ROOT>\\tests\\contract_refs.py",
       "exit_code": 0,
       "stdout": "\n=== 26 SKILL.md 扫描完成，0 错误 ===\n",
       "stderr": "",
@@ -37,7 +37,7 @@
     },
     {
       "step": "validate_entry",
-      "cmd": "C:\\Users\\18765\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe C:\\Users\\18765\\AppData\\Local\\hermes\\skills\\note-taking\\hermes-pkos-skill\\tests\\run_tests.py",
+      "cmd": "<HERMES_APPDATA>\\hermes-agent\\venv\\Scripts\\python.exe <PKOS_SKILL_ROOT>\\tests\\run_tests.py",
       "exit_code": 0,
       "stdout": "PASS normalize_url 'HTTPS://X.com/path/?utm_source=x&id=2'\nPASS normalize_url 'https://twitter.com/a/b'\nPASS normalize_url 'https://www.example.com/a/b/'\nPASS normalize_url 'https://example.com?spm=1&b=2&a=1'\nPASS normalize_url 'https://example.com/#frag'\nPASS normalize_url 'https://example.com'\nPASS file key 改名稳定\nPASS valid-clipping exit0\nPASS valid-clipping pass\nPASS valid-clipping 无 ERROR\nPASS legacy-note exit0\nPASS legacy-note 判 legacy\nPASS bad-vocab exit1\nPASS bad-vocab 双词表错误\nPASS missing-title exit1\nPASS missing-title 报 title-missing\nPASS missing-title 有 type/domain 缺失警告\nPASS 未知字段向前兼容\nPASS published 必须有 outputs\nPASS FM 未闭合 fail loud\nPASS pkos-feedback 合法通过\nPASS rating 越界报错\nPASS 人读模式可用\n\n共 19 项检查，失败 0 项\n",
       "stderr": "",

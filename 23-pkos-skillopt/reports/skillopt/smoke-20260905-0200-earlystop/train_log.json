@@ -1,6 +1,6 @@
 {
   "model": "qwen3.8-flash",
-  "base_url": "http://47.108.25.114:1519/v1",
+  "base_url": "http://<LLM_GATEWAY_HOST>:1519/v1",
   "planner_model": "agnes-2.5-flash",
   "executor_model": "sensenova-6.8-flash-lite",
   "min_delta": 0.5,

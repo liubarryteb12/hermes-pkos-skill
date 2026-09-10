@@ -56,7 +56,7 @@
 | 4.1 | **novel 出口真实 LLM 端到端验证**：Hermes 运行时直接用当前会话模型驱动 `14-pkos-gzhxiaoshuo-skill` 全链（读样例条目 → 三层结构产出 → 切片回滚校验），产物落 `_PKOS/outputs/` | 一条真实 chapter.json+md 产出 + manifest 溯源完整 |
 | 4.2 | **Persona 模板外置**：从 `05-pkos-analysis/SKILL.md`（27 处 Persona 引用）抽出为 `templates/persona/*.md`——注意主库 SYNC-NOTES 的教训：**`templates/` 不进技能发现面**，放 `references/persona/` 更安全 | analysis SKILL.md 引用外置文件；contract_refs 通过 |
 | 4.3 | **telemetry 可视化**：`telemetry_dashboard.py` 已有文本面板，补 `--html` 输出单文件面板（复用 10-pkos-html 主题 token，落 `_PKOS/execution/`） | 双击可开的单文件 HTML，与文本面板数字一致 |
-| 4.4 | **Hermes 运行时差异化收尾**：PKOS_IMG_API_KEY 接入 Hermes `.env`（`hermes config env-path`）；gptimage2 endpoint 连通性探测 | doctor.py 密钥项转 OK | ✅ **已完成 2026-08-29**：密钥已入 `C:/Users/18765/AppData/Local/hermes/.env`，endpoint `<LLM_GATEWAY_HOST>:1519` 探测 HTTP 200，doctor 密钥项 [OK] |
+| 4.4 | **Hermes 运行时差异化收尾**：PKOS_IMG_API_KEY 接入 Hermes `.env`（`hermes config env-path`）；gptimage2 endpoint 连通性探测 | doctor.py 密钥项转 OK | ✅ **已完成 2026-08-29**：密钥已入 `<HERMES_APPDATA>/.env`，endpoint `<LLM_GATEWAY_HOST>:1519` 探测 HTTP 200，doctor 密钥项 [OK] |
 
 ## 执行顺序与依赖
 

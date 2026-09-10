@@ -11,7 +11,7 @@
   main-only 发布件保留不删：README.md LICENSE INSTALL 之外的 docs 发布件（FAQ/sponsor/
                      MIGRATION/EVOLUTION-DECISIONS/OPERATOR-DECISIONS/PITFALLS 等）、
                      12-pkos-comic/references/ 若 main 独有亦保留（发布面资产）。
-  IP 净化：写入 main 时 47.108.25.114 → <LLM_GATEWAY_HOST>（发布红线）。
+  IP 净化：写入 main 时 网关 IP → <LLM_GATEWAY_HOST>（发布红线）。
 用法：python scripts/sync_to_main.py --check   # 只报告漂移（exit 1=有漂移）
      python scripts/sync_to_main.py --apply   # 同步 + 净化 + 复核
 """
@@ -22,7 +22,7 @@ import shutil
 import sys
 from pathlib import Path
 
-LIVE = Path(os.environ.get("PKOS_SYNC_LIVE", r"C:\Users\18765\AppData\Local\hermes\skills\note-taking\hermes-pkos-skill"))
+LIVE = Path(os.environ.get("PKOS_SYNC_LIVE") or "")  # 发布版：LIVE 由环境变量提供，未设则 SKIP
 MAIN = Path(r"D:\00.AIagent\pkos\skills\personal-knowledge-os")
 
 EXCLUDE_PARTS = {"_PKOS", "_trash", ".git", "__pycache__", ".pytest_cache",
@@ -35,7 +35,7 @@ MAIN_KEEP = ("README.md", "LICENSE", "docs/FAQ.md", "docs/sponsor-wechat.jpg",
              "docs/MIGRATION-5.0.md", "docs/EVOLUTION-DECISIONS.md", "docs/OPERATOR-DECISIONS.md",
              "docs/PITFALLS.md", "docs/lh-task-01-bootstrap.md",
              "23-pkos-skillopt/reports/skillopt/")
-GATEWAY_IP = "47.108.25.114"
+GATEWAY_IP = os.environ.get("PKOS_GATEWAY_IP", "")
 GATEWAY_PLACEHOLDER = "<LLM_GATEWAY_HOST>"
 TEXT_EXTS = {".md", ".py", ".json", ".yaml", ".yml", ".txt", ".ini", ".sql"}
 
@@ -69,6 +69,8 @@ def md5(p: Path) -> str:
 
 
 def sanitize(text: str) -> str:
+    if not GATEWAY_IP:  # 空 IP 时严禁 replace（replace("", X) 会把每个字符间都插入占位符）
+        return text
     return (text.replace(f"http://{GATEWAY_IP}:1519", f"http://{GATEWAY_PLACEHOLDER}:1519")
                 .replace(GATEWAY_IP, GATEWAY_PLACEHOLDER))
 

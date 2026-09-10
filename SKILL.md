@@ -1,7 +1,7 @@
 ---
 name: hermes-pkos-skill
 description: "PKOS 知识流水线操作与 v4 升级：分拣/入库/lint/PPT/漫画/小说出口."
-version: "5.4.2"
+version: "5.4.3"
 author: Hermes Agent
 license: MIT
 platforms: [windows]
@@ -86,14 +86,14 @@ Personal Knowledge OS（PKOS）套件的 Hermes 原生封装。套件根 = 本�
 - Python ≥ 3.11 + PyYAML（`python -c "import yaml"` 验证）。
 - vault：`D:\obsidian知识库\obsidian知识库`（ingest/lint/timeline/index 依赖；缺失仅这些单元降级）。
 - 可选：环境变量 `PKOS_IMG_API_KEY`（图像出口需要：gptimage2use/comic/ppt `--images` 插图通道；ppt v2.0 默认原生渲染不需要）。endpoint 在 `11-pkos-ppt-skill/shared/image-api/config.json`。Hermes 下无需 HUNYUAN_*（那是旧 DSH LLM 通道的凭据）。
-- 套件根（下文 ROOT）：`C:/Users/18765/AppData/Local/hermes/skills/note-taking/hermes-pkos-skill`。
+- 套件根（下文 ROOT）：`<PKOS_SKILL_ROOT>`。
 
 ## How to Run
 
 所有命令经 `terminal` 工具执行，先 `cd` 到 ROOT（脚本全部相对自定位，cwd 无关紧要但统一更稳）：
 
 ```bash
-cd "C:/Users/18765/AppData/Local/hermes/skills/note-taking/hermes-pkos-skill"
+cd "<PKOS_SKILL_ROOT>"
 ```
 
 

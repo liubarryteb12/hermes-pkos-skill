@@ -6,7 +6,7 @@
 ## 快速开始
 
 ```bash
-cd <套件根>   # C:/Users/18765/AppData/Local/hermes/skills/note-taking/hermes-pkos-skill
+cd <套件根>   # <PKOS_SKILL_ROOT>
 
 # 1. 准备一条 exit=ppt 的路由单（conversion_type ∈ 4 值承接子集）
 # 2. 跑 compose.py（比例必问——交互场景先问用户再传 --ratio）
