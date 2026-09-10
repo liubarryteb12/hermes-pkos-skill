@@ -175,6 +175,7 @@ python tests/run_tests.py && python tests/contract_refs.py && python tests/route
 
 ## Pitfalls
 - **改 live 包后必须 `python scripts/sync_to_main.py --apply` 同步主库**（09-09 起 --check 是 upgrade_check 硬门禁；v1 固定清单漏同步导致 09-06~09 三天空转漂移）。
+- **push 到 GitHub 必须同步更新 README**（用户 09-10 裁定）：徽章数字（units/tests）、花名册、新特性段——README 是门面，落后即过时。
 
 - **vault 只读纪律（D-6）**：除 `04-pkos-knowledge-service-commit` 的 `commit.py` 外，任何单元/脚本不得写 `D:\obsidian知识库`。lint 默认 report-only，`--apply` 前必须向用户确认。
 - **功能重叠防范（structure-audit:1）**：新单元准入与自进化审查按 `contracts/structure-audit.md` 五步流程跑重叠扫描；「同输入同输出同时机」重叠对为 0 才准入，否则上位收编（comic v1.1.0 先例）。
