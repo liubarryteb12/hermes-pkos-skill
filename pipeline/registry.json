@@ -1,9 +1,15 @@
 {
   "schema": "pkos-pipeline:2",
   "version": 2,
-  "pkos_semver": "5.5.1",
+  "pkos_semver": "5.5.2",
   "updated_at": "2026-09-12",
   "changelog": [
+    {
+      "version": "5.5.2",
+      "date": "2026-09-13",
+      "summary": "31-pkos-imageprompt v1.3.0: M-S-X-F-U-A 六段命名框架；random_draw.py 骨架；examples/out 隔离目录",
+      "type": "feature"
+    },
     {
       "version": "5.5.1",
       "date": "2026-09-13",

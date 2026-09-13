@@ -54,6 +54,47 @@ N 张成套题词包 + 系列锚卡 + 逐张差异表。可直接逐张投给 27
 ## 与单图题词的边界
 本单元**不承接**零散的单图封面/配图题词需求——那类需求由出口单元（10-html / 11-ppt / 12-comic / 13-wenzhang）的模型理解内容后自行提炼。本单元只在「成套 / 系列 / 多张协同」时被调用。
 
+
+## 随机抽卡（A 分层随机）
+
+> 按 M/S/X/F/U/A 六段码随机抽题词，用于灵感激发、设计冲刺、批量选题。
+
+### 用法
+```bash
+# 随机抽 1 条（默认）
+python scripts/random_draw.py
+
+# 随机抽 5 条
+python scripts/random_draw.py --count 5
+
+# 限定母题 M01（人物写真）
+python scripts/random_draw.py --filter M01
+
+# 可复现的抽卡（同一 seed 出同一结果）
+python scripts/random_draw.py --seed 42
+```
+
+### 输出格式
+JSON 数组，每项：
+```json
+{
+  "code": "M01-S01-1-F01-U03-A01",
+  "description": "...",  "positive": "正向提示词（已过 S00 消毒）",
+  "negative": "负向提示词",
+  "anchor": "风格锚点原文",
+  "source_file": "references/prompt-library/M01-S01-1-生活感.md"
+}
+```
+
+### 设计要点（09-13 用户裁定）
+- **A 分层随机**：从全部已注册条目中均匀随机，不按分布（库内条数不均时仍均匀抽）
+- **抽卡 ≠ 出图**：抽卡只产题词，出图走 27-pkos-gptimage2use 或外部通道
+- **不覆盖创作**：抽卡是灵感辅助，不能替代人工选题
+
+### 预留扩展（未实现）
+- `--filter Sxx` / `--filter X02` / `--filter F03`
+- `--weight`（按审美预设加权）
+- `--exclude`（排除某条码）
 # 题词库结构（v1.0.0 基线：16 子题 × 5 风格 × 4 题词 = 320 条）
 
 ```
