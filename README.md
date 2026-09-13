@@ -13,6 +13,16 @@
 
 ---
 
+## 📍 产出物在哪？（先看这个）
+
+完整位置表见 [`OUTPUTS-MAP.md`](OUTPUTS-MAP.md)。三个根：
+
+| 根 | 路径 | 装什么 |
+|---|---|---|
+| 知识库 vault | `D:\obsidian知识库\obsidian知识库` | 知识条目/索引/分析/审计/路由单 |
+| 主 workspace | `D:\00.AIagent\hermesagent\pkos-outputs` | 公众号/漫画/Gemini 出图/圆桌 |
+| 副 workspace | `D:\00.AIagent\hermesagent\workspace` | 文章出稿/题词库/PPT/HTML/小说/研究 |
+
 ## 🍼 这个东西是干什么的？（五岁小孩版）
 
 想象你有一个神奇的玩具箱 📦。
