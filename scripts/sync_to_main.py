@@ -6,8 +6,9 @@
 
 规则：
   方向：live → main 单向（SSOT = Hermes live 包）。
-  排除（两边都不碰）：_PKOS/ _trash/ .git/ .code-review-graph/ __pycache__/ .pytest_cache/
-                     *.md.build  reports/（skillopt 训练证据单独白名单）。
+  排除（两边都不碰）：_PKOS/ _trash/ _ops/ cn_debug/ .git/ .code-review-graph/
+                     __pycache__/ .pytest_cache/ *.md.build  reports/（skillopt 训练证据单独白名单）。
+                     _ops/ 与 cn_debug/ 为本机操作文件与调试现场，不进发布主库。
   main-only 发布件保留不删：README.md LICENSE INSTALL 之外的 docs 发布件（FAQ/sponsor/
                      MIGRATION/EVOLUTION-DECISIONS/OPERATOR-DECISIONS/PITFALLS 等）、
                      12-pkos-comic/references/ 若 main 独有亦保留（发布面资产）。
@@ -27,7 +28,10 @@ LIVE = Path(os.environ.get("PKOS_SYNC_LIVE", Path(__file__).resolve().parents[1]
 MAIN = Path(r"D:\00.AIagent\pkos\skills\personal-knowledge-os")
 
 EXCLUDE_PARTS = {"_PKOS", "_trash", ".git", "__pycache__", ".pytest_cache",
-                 ".code-review-graph", ".tmp", ".tmp-test"}
+                 ".code-review-graph", ".tmp", ".tmp-test",
+                 # 09-14 迁移：操作文件区（脚本/状态快照/日志）与调试现场均为本机资产，
+                 # 随套件本体留在 live，不进发布主库（对应 .gitignore 的 _ops/）
+                 "_ops", "cn_debug"}
 EXCLUDE_SUFFIX = {".build", ".pptx", ".pyc"}
 # live 下 reports/ 仅 skillopt 训练证据参与同步
 SYNC_REPORTS = {"23-pkos-skillopt"}
@@ -63,7 +67,15 @@ def relfiles(base: Path) -> dict[str, Path]:
 
 def _norm(p: Path) -> bytes:
     raw = p.read_bytes()
-    return raw[3:] if raw.startswith(b"\xef\xbb\xbf") else raw
+    if raw.startswith(b"\xef\xbb\xbf"):
+        raw = raw[3:]
+    # 行尾归一：CRLF/CR -> LF。Windows(Python write_text) 与 Linux/echo 写盘行尾不同，
+    # 不归一则同一文件会被判成「内容漂移」（09-14 VERSION/registry 假阳性根因）。
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return raw
+    return text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
 
 
 def md5(p: Path) -> str:
@@ -71,13 +83,18 @@ def md5(p: Path) -> str:
 
 
 def sanitize(text: str) -> str:
-    # 本机路径脱敏（用户名绝不入发布库）
+    """本机路径脱敏（用户名绝不入发布库）。
+
+    用户名从 Path.home() 动态取——禁止硬编码进源码，否则脱敏正则本身
+    就把本机用户名带进公开仓库（09-14 发版隐私终扫抓到）。
+    """
     import re as _re
+    user = _re.escape(Path.home().name)
     # 通用正则：单/双反斜杠、正斜杠全覆盖（JSON 转义串也在内）
-    text = _re.sub(r"C:[/\\]+Users[/\\]+18765[/\\]+AppData[/\\]+Local[/\\]+hermes[/\\]+skills[/\\]+note-taking[/\\]+hermes-pkos-skill",
+    text = _re.sub(rf"C:[/\\]+Users[/\\]+{user}[/\\]+AppData[/\\]+Local[/\\]+hermes[/\\]+skills[/\\]+note-taking[/\\]+hermes-pkos-skill",
                    "<PKOS_SKILL_ROOT>", text)
-    text = _re.sub(r"C:[/\\]+Users[/\\]+18765[/\\]+AppData[/\\]+Local[/\\]+hermes", "<HERMES_APPDATA>", text)
-    text = _re.sub(r"C:[/\\]+Users[/\\]+18765", "<LOCAL_HOME>", text)
+    text = _re.sub(rf"C:[/\\]+Users[/\\]+{user}[/\\]+AppData[/\\]+Local[/\\]+hermes", "<HERMES_APPDATA>", text)
+    text = _re.sub(rf"C:[/\\]+Users[/\\]+{user}", "<LOCAL_HOME>", text)
     if not GATEWAY_IP:  # 空 IP 时严禁 replace（replace("", X) 会把每个字符间都插入占位符）
         return text
     return (text.replace(f"http://{GATEWAY_IP}:1519", f"http://{GATEWAY_PLACEHOLDER}:1519")
