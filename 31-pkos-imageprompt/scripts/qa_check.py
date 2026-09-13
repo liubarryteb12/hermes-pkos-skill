@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """31-imageprompt 题词机械校验（智力脱钩补强 ②）。
-校验题词包五键齐备 + 五段命名合法性 + S00 安全层词表扫描（负向也中性）+ 出图参数在位。
-用法: python qa_check.py --pack <题词包.md>   （pack 内可含多个 ```prompt 代码块或五段明文）"""
+校验题词包五键齐备 + 六段命名合法性 + S00 安全层词表扫描（负向也中性）+ 出图参数在位。
+用法: python qa_check.py --pack <题词包.md>   （pack 内可含多个 ```prompt 代码块或六段明文）"""
 from __future__ import annotations
 import argparse, json, re, sys
 from pathlib import Path
 
-FIVE_SEG = re.compile(r"\bM\d{2}-S\d{2}\b")          # 母题-子题必须成对出现
+SIX_SEG = re.compile(r"\bM\d{2}-S\d{2}(?:-\d{1,2})?\b")  # 母题-子题(-系列Xxx)成对出现；六段 M-S-X-F-U-A
 PARAM_KEYS = ("分辨率", "比例", "画幅", "resolution", "aspect", "size")
 # S00 安全层：直白敏感词（出现即拒——表达必须升维，不靠藏词）
 NSFW_RAW = re.compile(
@@ -17,9 +17,9 @@ NSFW_RAW = re.compile(
 
 def check(text: str) -> list[str]:
     errors = []
-    # 1. 命名：至少一处 Mxx-Sxx 五段锚
-    if not FIVE_SEG.search(text):
-        errors.append("缺五段命名锚（Mxx-Sxx 至少成对；完整五段 M-S-F-U-A 见 00-总览）")
+    # 1. 命名：至少一处 Mxx-Sxx 锚（六段码 M-S-X-F-U-A）
+    if not SIX_SEG.search(text):
+        errors.append("缺命名锚（Mxx-Sxx 至少成对；完整六段 M-S-X-F-U-A 见 00-总览）")
     # 2. 五键结构（code/positive/negative/anchor/params 任一种书写形态）
     keys_present = sum(bool(re.search(rf"{k}\s*[:：]", text, re.I))
                        for k in ("code", "positive", "negative", "anchor", "params"))
@@ -43,7 +43,7 @@ def check(text: str) -> list[str]:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="31-imageprompt 题词包校验（五段命名+S00+参数）")
+    ap = argparse.ArgumentParser(description="31-imageprompt 题词包校验（六段命名+S00+参数）")
     ap.add_argument("--pack", required=True)
     a = ap.parse_args()
     text = Path(a.pack).read_text(encoding="utf-8-sig", errors="ignore")

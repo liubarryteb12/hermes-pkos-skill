@@ -1,7 +1,7 @@
 ---
 name: "pkos.imageprompt.compose"
 version: "1.3.0"
-description: 图集（套图）提示词生产中心（pkos.imageprompt.compose）：针对一个图集/套图主题，成体系地产出整套图的提示词——锁定统一视觉母题、风格锚、配色光线与系列一致性，明确逐张差异点与叙事顺序，输出可直接逐张出图的套图题词包（含安全层消毒与参数规范）。只做题词与参数组装，不调 API 不出图（出图走 27-pkos-gptimage2use 或外部通道）。触发语：「出套图提示词」「做一套图集题词」「图集提示词」「系列图提示词」「M01-S03 出一套」「出一组同风格图」。
+description: 图集（套图）提示词生产中心（pkos.imageprompt.compose）：针对一个图集/套图主题，成体系地产出整套图的提示词——锁定统一视觉母题、风格锚、配色光线与系列一致性，明确逐张差异点与叙事顺序，输出可直接逐张出图的套图题词包（含安全层消毒与参数规范）。只做题词与参数组装，不调 API 不出图（出图走 27-pkos-gptimage2use 或外部通道）。触发语：「出套图提示词」「做一套图集题词」「图集提示词」「系列图提示词」「M01-S03-1 出一套」「出一组同风格图」。
 ---
 
 # Capability 身份 (v2 契约 C-1)
@@ -12,7 +12,7 @@ required_capability: "llm_chat{reasoning:medium}"
 version: "1.3.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: utility
-semantic_goal: "图集（套图）提示词生产中心（09-13 用户裁定）：消费一个图集主题或编号体系（M母题-S子题-F风格-U用途-A审美），成体系地产出 N 张图的成套提示词——锁定统一视觉母题/风格锚/配色光线，明确逐张差异点与叙事顺序，强制过 S00 安全层与 C00 参数规范，返回可逐张粘贴的套图题词包；本单元面向「套图/系列图」生产，不是全体系题词唯一产出中心，出口单元的单图封面/配图题词由模型理解内容后自行提炼"
+semantic_goal: "图集（套图）提示词生产中心（09-13 用户裁定）：消费一个图集主题或编号体系（M母题-S子题-X系列-F风格-U用途-A审美），成体系地产出 N 张图的成套提示词——锁定统一视觉母题/风格锚/配色光线，明确逐张差异点与叙事顺序，强制过 S00 安全层与 C00 参数规范，返回可逐张粘贴的套图题词包；本单元面向「套图/系列图」生产，不是全体系题词唯一产出中心，出口单元的单图封面/配图题词由模型理解内容后自行提炼"
 NOT_actions:
   - "call_image_api"
   - "generate_image"
@@ -39,7 +39,7 @@ replaces: []
 > 单图题词 ≠ 套图题词。套图的难点在「一套图看起来像同一个世界」，所以本单元按下面的序列生产。
 
 ## 输入
-一个图集主题（自然语言）或编号体系（M母题-S子题-F风格-U用途-A审美），加：张数 N、叙事意图（并列 / 递进 / 时间线 / 场景巡游）、可选模特 Pxx。
+一个图集主题（自然语言）或编号体系（M母题-S子题-X系列-F风格-U用途-A审美），加：张数 N、叙事意图（并列 / 递进 / 时间线 / 场景巡游）、可选模特 Pxx。
 
 ## 生产四步
 
@@ -141,7 +141,7 @@ JSON 数组，每项：
 # 题词库结构（v1.0.0 基线：16 子题 × 5 风格 × 4 题词 = 320 条）
 
 ```
-命名机制：母题(Mxx) - 子题(Sxx) - 风格(Fxx) - 用途(Uxx) - 审美预设(Axx)，模特 Pxx 可选叠加
+命名机制：母题(Mxx) - 子题(Sxx) - 系列(Xxx) - 风格(Fxx) - 用途(Uxx) - 审美预设(Axx)，模特 Pxx 可选叠加
 references/prompt-library/
 ├── 00-总览.md            # 体系全景 + 出图前五步流程
 ├── M00-母题索引.md        # 16 子题注册表（SSOT：编号→文件映射）
@@ -151,8 +151,8 @@ references/prompt-library/
 ├── P00-模特资产库.md      # 模特锚点合同（P01-P04，六层结构）
 ├── S00-安全约束层.md      # 强制安全字典+结构规则+检查单（全库最后一道工序）
 ├── C00-出图参数规范.md    # 分辨率/采样/CFG/Seed 通用参数组
-├── 示例-五段组合示范.md   # 3 套完整组装示范
-└── M0x-S0x-*.md ×16      # 各子题题词正文（每支风格首段=风格锚点）
+├── 示例-六段组合示范.md   # 3 套完整组装示范
+└── M0x-S0x-X0x-*.md       # 各子题·系列题词正文（现存全为 X01；每支风格首段=风格锚点）
 ```
 
 # 输入契约 (v2 契约 C-2)
@@ -163,9 +163,9 @@ inputs:
     type: TargetConstraint
     required: true
     examples:
-      - { by_code: "M01-S03-F02-U01-A02" }                # 精确编号定位
+      - { by_code: "M01-S03-1-F02-U01-A02" }                # 精确编号定位
       - { by_need: "要一张古风妆容头像" }                   # 自然语言 → 检索定位
-      - { by_code: "P02 × M01-S03-F02-U01-A02" }          # 指定模特叠加
+      - { by_code: "P02 × M01-S03-1-F02-U01-A02" }          # 指定模特叠加
       - { by_need: "新写：蒸汽波风格咖啡馆", mode: create } # 库内没有 → 走新写流程
   - name: options
     type: object
@@ -185,7 +185,7 @@ outputs:
     type: Artifact
     schema: "pkos-imageprompt-result:1"
     shape:
-      code: "Mxx-Sxx-Fxx-Uxx-Axx（+Pxx）"
+      code: "Mxx-Sxx-Xxx-Fxx-Uxx-Axx（+Pxx）"
       positive: "正向提示词（已过 S00 消毒，可整段粘贴）"
       negative: "负向提示词（已过 S00 消毒）"
       anchor: "所用风格锚点原文（溯源+复现）"
@@ -224,7 +224,7 @@ verification:
   success_predicate:
     - "返回包含 code/positive/negative/anchor/params 五键"
     - "positive/negative 文本不命中 S00 红线字典（机器扫可复现）"
-    - "编号五段均在 M00/A00/U00 已注册"
+    - "编号六段（M-S-X-F-U-A）均在 M00/A00/U00 已注册"
     - "positive 中画幅数字与 params.分辨率行一致"
   regression_tests: "tests/capabilities/pkos.imageprompt.compose.test.yaml"
 ```
