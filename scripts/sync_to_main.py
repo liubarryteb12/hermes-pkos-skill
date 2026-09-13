@@ -11,18 +11,19 @@
   main-only 发布件保留不删：README.md LICENSE INSTALL 之外的 docs 发布件（FAQ/sponsor/
                      MIGRATION/EVOLUTION-DECISIONS/OPERATOR-DECISIONS/PITFALLS 等）、
                      12-pkos-comic/references/ 若 main 独有亦保留（发布面资产）。
-  IP 净化：写入 main 时 网关 IP → <LLM_GATEWAY_HOST>（发布红线）。
+  IP 净化：写入 main 时网关 IP → <LLM_GATEWAY_HOST>（发布红线）。
 用法：python scripts/sync_to_main.py --check   # 只报告漂移（exit 1=有漂移）
      python scripts/sync_to_main.py --apply   # 同步 + 净化 + 复核
 """
 from __future__ import annotations
 import hashlib
 import os
+import os
 import shutil
 import sys
 from pathlib import Path
 
-LIVE = Path(os.environ.get("PKOS_SYNC_LIVE") or "")  # 发布版：LIVE 由环境变量提供，未设则 SKIP
+LIVE = Path(os.environ.get("PKOS_SYNC_LIVE", Path(__file__).resolve().parents[1]))
 MAIN = Path(r"D:\00.AIagent\pkos\skills\personal-knowledge-os")
 
 EXCLUDE_PARTS = {"_PKOS", "_trash", ".git", "__pycache__", ".pytest_cache",
@@ -35,7 +36,8 @@ MAIN_KEEP = ("README.md", "LICENSE", "docs/FAQ.md", "docs/sponsor-wechat.jpg",
              "docs/MIGRATION-5.0.md", "docs/EVOLUTION-DECISIONS.md", "docs/OPERATOR-DECISIONS.md",
              "docs/PITFALLS.md", "docs/lh-task-01-bootstrap.md",
              "23-pkos-skillopt/reports/skillopt/")
-GATEWAY_IP = os.environ.get("PKOS_GATEWAY_IP", "")
+# live 版硬编码（live 不发布）；main 发布版用 PKOS_GATEWAY_IP 环境变量（未设则 SKIP 净化）
+GATEWAY_IP = os.environ.get("PKOS_GATEWAY_IP", "<LLM_GATEWAY_HOST>")
 GATEWAY_PLACEHOLDER = "<LLM_GATEWAY_HOST>"
 TEXT_EXTS = {".md", ".py", ".json", ".yaml", ".yml", ".txt", ".ini", ".sql"}
 
@@ -69,6 +71,13 @@ def md5(p: Path) -> str:
 
 
 def sanitize(text: str) -> str:
+    # 本机路径脱敏（用户名绝不入发布库）
+    import re as _re
+    # 通用正则：单/双反斜杠、正斜杠全覆盖（JSON 转义串也在内）
+    text = _re.sub(r"C:[/\\]+Users[/\\]+18765[/\\]+AppData[/\\]+Local[/\\]+hermes[/\\]+skills[/\\]+note-taking[/\\]+hermes-pkos-skill",
+                   "<PKOS_SKILL_ROOT>", text)
+    text = _re.sub(r"C:[/\\]+Users[/\\]+18765[/\\]+AppData[/\\]+Local[/\\]+hermes", "<HERMES_APPDATA>", text)
+    text = _re.sub(r"C:[/\\]+Users[/\\]+18765", "<LOCAL_HOME>", text)
     if not GATEWAY_IP:  # 空 IP 时严禁 replace（replace("", X) 会把每个字符间都插入占位符）
         return text
     return (text.replace(f"http://{GATEWAY_IP}:1519", f"http://{GATEWAY_PLACEHOLDER}:1519")
@@ -107,10 +116,12 @@ def main() -> int:
     legit_ip_diff = []
     drift_mod = [k for k in drift_mod if k != "scripts/sync_to_main.py"]
     for k in list(drift_mod):
-        lt = a[k].read_text(encoding="utf-8-sig", errors="ignore") if a[k].suffix in TEXT_EXTS else ""
-        mt = b[k].read_text(encoding="utf-8-sig", errors="ignore") if b[k].suffix in TEXT_EXTS else ""
-        if GATEWAY_IP in lt and GATEWAY_IP not in mt and GATEWAY_PLACEHOLDER in mt \
-           and sanitize(lt) == mt:
+        if a[k].suffix not in TEXT_EXTS:
+            continue  # 非文本/无扩展名（VERSION 等）：不得豁免，md5 不同即真漂移
+        lt = a[k].read_text(encoding="utf-8-sig", errors="ignore")
+        mt = b[k].read_text(encoding="utf-8-sig", errors="ignore")
+        if sanitize(lt) == mt:
+            # 净化豁免（IP 与本机路径统一）：live 原样属内部态，main 净化形=发布态，二者规范等价
             drift_mod.remove(k)
             legit_ip_diff.append(k)
 
