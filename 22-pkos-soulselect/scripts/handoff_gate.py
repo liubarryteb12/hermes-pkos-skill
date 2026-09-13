@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""22-pkos-operator/handoff_gate.py — 会话交接守卫 (v1.0.0, 09-08 用户需求)
+"""22-pkos-soulselect/handoff_gate.py — 会话交接守卫 (v1.0.0, 09-08 用户需求)
 
 职责（单一）：PKOS 系会话的 handoff 读写门禁。
 - read    开工前读：输出 latest handoff 的 required_reading 摘要 + 自上次以来的变更提示
@@ -147,7 +147,7 @@ def cmd_diff(args) -> int:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="handoff 交接守卫 (22-pkos-operator)")
+    ap = argparse.ArgumentParser(description="handoff 交接守卫 (22-pkos-soulselect)")
     sub = ap.add_subparsers(dest="cmd", required=True)
     for name in ("read", "write", "check", "diff"):
         sp = sub.add_parser(name)

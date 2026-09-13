@@ -176,7 +176,7 @@ Provider: hy3 (chat, hunyuan-direct) · gpt-image-2 (image, PKOS_IMG_API_KEY)
 | 项 | 内容 |
 |---|---|
 | 功能 | 出口成稿六维加权评分（A 选题标题 20/B 开头钩子★25/C 结构节奏 15/D 语言表达 15/E 价值密度★10/F 行动收尾 15；及格线 6/6/5/5/8/4）：双通道=机械项脚本跑（占位符>0→E≤4 等）+ LLM 逐项锚点评分（逐分必附 verbatim 引用，无引用作废）；权威聚合出总分+四级判定（优秀≥85/良好≥75/中等≥65/及格≥55）+verdict |
-| 硬规则 | 命门 B/E 未过线→REJECT（一票否决）；单维未过线→封顶「及格」+REVISION；PASS 才可进 15-pkos-publish |
+| 硬规则 | 命门 B/E 未过线→REJECT（一票否决）；单维未过线→封顶「及格」+REVISION；PASS 才可进 15-pkos-gzhpublish |
 | 标准来源 | **SSOT=`contracts/scorecard-policy.md`（scorecard-policy:1）**，本节只放指针；权威计算=`30-pkos-scorecard/scripts/scorecard_calc.py`（exit 0/4/5=PASS/REVISION/REJECT） |
 | 与 07-weak-check 分工 | 同 verify 层正交：weak_check 管「说得真不真」（DerivedDraft vs FactCore），scorecard 管「写得好不好」（六维锚点） |
 | 与 13-wenzhang 分工 | 改评分离（2026-09-06 用户裁定）：13 生产不持标准，30 判分不改正文；13 产出即交 30 判定 |

@@ -1,4 +1,4 @@
-﻿---
+---
 name: pkos-ppt
 description: PPT 出口层（v2.0.1 原生 PPTX 制，2026-08-31 用户裁定改版）：消费路由单，把 POL 素材经 design_spec 中间层渲染为真·可编辑 PowerPoint（原生文本框/形状），gptimage2 降级为可选插图通道。触发语：「做成幻灯片」「出个 deck」「演示版」「PPT」。v0 出图制与 v0.2 出图裁定已作废（见 变更记录）。
 ---
@@ -176,7 +176,7 @@ replaces: ["pkos-ppt"]
 6. 校验门：重开 pptx 数页 + sha256；
 7. manifest.json 落盘（schema pkos-ppt-deck:2，全链可复现）。
 
-> **题词纪律（09-08 裁定）**：封面/配图/插图的生图题词一律经 `31-pkos-imageprompt`（pkos.imageprompt.compose）产出，本单元不自写题词、不做题词补强；出图执行走 `27-pkos-gptimage2use`。
+> **题词纪律（09-13 用户裁定，替代 09-08 旧规）**：本单元的**单图题词（封面图/配图/插图）由模型先理解成稿内容再自行提炼**，不强制经 `31-pkos-imageprompt`；若需要**成套图集/系列图**（如同一主题 N 张、连续叙事多图），则走 `31-pkos-imageprompt`（图集套图题词生产中心）。出图执行走 `27-pkos-gptimage2use` 或外部通道。
 
 ## CLI 用法
 

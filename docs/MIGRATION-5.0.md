@@ -22,14 +22,14 @@
 | `pkos-comic/` | `12-pkos-comic/` |
 | `pkos-wenzhang-skill/` | `13-pkos-wenzhang-skill/` |
 | `pkos-gzhxiaoshuo-skill/` | `14-pkos-gzhxiaoshuo-skill/` |
-| `pkos-publish/` | `15-pkos-publish/` |
+| `pkos-publish/` | `15-pkos-gzhpublish/` |
 | `pkos-maintenance-index/` | `16-pkos-maintenance-index/` |
 | `pkos-audit-lint/` | `17-pkos-audit-lint/` |
 | `pkos-fanout-concept/` | `18-pkos-fanout-concept/` |
 | `pkos-timeline/` | `19-pkos-timeline/` |
 | `pkos-audit/` | `20-pkos-audit/` |
 | `pkos-meta/` | `21-pkos-meta/` |
-| `pkos-operator/` | `22-pkos-operator/` |
+| `pkos-operator/` | `22-pkos-soulselect/` |
 | `pkos-skillopt/` | `23-pkos-skillopt/` |
 | `pkos-gemini-chat/` | `24-pkos-gemini-chat/` |
 | `pkos-gemini-image/` | `25-pkos-gemini-image/` |

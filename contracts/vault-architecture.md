@@ -51,7 +51,7 @@
 ## 3. domain 规则
 
 - 值必须 slug：`^[a-z0-9][a-z0-9-]*$`，**严禁空格/中文**（`domain: Vibe Hub` 会被解析器截断成 `Vibe` 造成数据损坏）。
-- 中文域 slug 映射表（权威）：知识库导航→`kb-nav`、AI使用相关→`ai-usage`、书籍笔记→`book-notes`、R临床预测模型→`rcpm`、单细胞基因调控网络→`scrn`、Vibe(Hub)→`vibe-hub`、_作者→`authors`、_悬空wiki索引→`dangling-wiki`、书籍PDF→`book-pdfs`、图片存放→`images`、理财投资→`invest`、考公笔记→`gongkao-notes`、考公刷题→`gongkao`、03-个人办事→`personal`、05-素材与图表→`assets`、Excalidraw→`excalidraw`、obsidian知识库(嵌套残留)→`legacy-vault`。
+- 中文域 slug 映射表（权威）：知识库导航→`kb-nav`、AI使用相关→`ai-usage`、书籍笔记→`book-notes`、R临床预测模型→`rcpm`、单细胞基因调控网络→`scrn`、Vibe(Hub)→`vibe-hub`、_作者→`authors`、_悬空wiki索引→`dangling-wiki`、书籍PDF→`book-pdfs`、图片存放→`images`、理财投资→`invest`、考公笔记→`gongkao-notes`、考公刷题→`gongkao`、03-个人办事→`personal`、05-素材与图表→`assets`、Excalidraw→`excalidraw`、obsidian知识库(嵌套残留)→`legacy-vault`、10-人文社科→`humanities`、11-职业认知→`career-growth`。
 - 新增域 slug：优先用英文短词，登记回本表。
 
 ## 4. FM 必填/推荐字段

@@ -17,8 +17,10 @@ import sys
 from datetime import date
 from urllib.parse import parse_qsl, urlparse, urlunparse
 
-TYPE_VOCAB = {"moc", "concept", "method", "case", "clipping", "term", "tool", "person", "index"}
-STATUS_VOCAB = {"raw", "triaged", "analyzed", "polished", "published", "archived"}
+TYPE_VOCAB = {"moc", "concept", "method", "case", "clipping", "term", "tool", "person", "index",
+             "整套真题", "面试题目"}  # 01-考公备考 域专用（09-11 用户裁定方案A）
+STATUS_VOCAB = {"raw", "triaged", "analyzed", "polished", "published", "archived",
+               "待作答"}  # 01-考公备考 域专用（09-11 用户裁定方案A）
 CAPTURE_VOCAB = {"clipper", "reader", "browser", "manual", "file"}
 TRACKING_PREFIX = "utm_"
 TRACKING_EXACT = {"fbclid", "gclid", "spm"}

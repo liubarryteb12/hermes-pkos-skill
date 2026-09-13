@@ -81,11 +81,29 @@ def parse_fm_block(text: str) -> tuple[dict, str, str] | None:
         return None
     header, fm_block, _, body = m.groups()
     fm = {}
-    for line in fm_block.splitlines():
+    lines = fm_block.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
         if ":" not in line:
+            i += 1
             continue
         k, v = line.split(":", 1)
-        fm[k.strip()] = v.strip()
+        key = k.strip()
+        val = v.strip()
+        # 块式 YAML 列表（v2）：`tags:\n  - a\n  - b`。行式解析会把首行读成空串，
+        # 导致 rule_tag_coverage 误判"无 tags"并用文件名切词覆盖整个块（09-13 实损 1483 处）。
+        if val == "" and i + 1 < len(lines) and lines[i + 1].lstrip().startswith("- "):
+            items = []
+            j = i + 1
+            while j < len(lines) and lines[j].lstrip().startswith("- "):
+                items.append(lines[j].lstrip()[2:].strip().strip('"\''))
+                j += 1
+            fm[key] = items
+            i = j
+            continue
+        fm[key] = val
+        i += 1
     return fm, header, body
 
 

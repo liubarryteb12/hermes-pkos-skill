@@ -16,7 +16,7 @@
 | 08-pkos-router | `pkos.router.decide` | decision | `scripts/strategy_gate.py` | 产出 RT-*.yaml 路由单（v4 无策略载荷直调 fail-loud） |
 | 07-pkos-weak-check | `pkos.weak_check.verify` | verify | `scripts/verify.py` | 弱审闸门：结构/语义/证据五维核验 |
 | 23-pkos-skillopt | `pkos.skillopt.train` | utility | `scripts/skillopt_mini.py` | SkillOpt 微型训练循环：任务集上 rollout→评分→改写→验证门，产出 best_skill.md |
-| 22-pkos-operator | `pkos.operator.audit` | governance | `scripts/auditor_gate.py` | 调用方人格守卫（Meta-Auditor 机器执行面，契约 operator-policy.md） |
+| 22-pkos-soulselect | `pkos.operator.audit` | governance | `scripts/auditor_gate.py` | 调用方人格守卫（Meta-Auditor 机器执行面，契约 operator-policy.md） |
 | 24-pkos-gemini-chat | `pkos.gemini.chat` | utility | `scripts/gemini_chat.py` | Gemini 网页对话通道（OpenCLI 驱动登录态 Chrome，零 API 成本） |
 | 25-pkos-gemini-image | `pkos.gemini.image` | utility | `scripts/gemini_image.py` | Gemini 网页出图通道（同上） |
 | 26-pkos-gemini-video | `pkos.gemini.video` | utility | `scripts/gemini_video.py` | Gemini 网页视频通道（骨架，未验证） |
@@ -28,7 +28,7 @@
 | 28-pkos-topic | `pkos.topic.generate` | pre-exit | `scripts/qa_check.py` | 内容运营选题中枢 v2.0（产品经理/产品运营式，吸收 bigpeng-hot-gzh）：母题/栏目规划 + 选题池五维评分 + 标题生成（A 6条跨公式 / B 内容运营选题方案）；热点输入消费 29-pkos-trend |
 | 29-pkos-trend | `pkos.trend.collect` | pre-exit | （SKILL.md 流程，无脚本） | 热点信号采集与情报单（28 的上游外置）：免费渠道采集热点信号+热度证据，产出 trend-digest，只采集不决策 |
 | 30-pkos-scorecard | `pkos.scorecard.judge` | verify | `scripts/scorecard_calc.py` | 文章质量加权评分门（13 下游/15 上游，对标 07-weak-check 同层正交）：六维 A–F 双通道判定（机械+LLM 锚点），总分四级+verdict，PASS 才可发表；标准 SSOT=scorecard-policy.md |
-| 15-pkos-publish | `pkos.publish.draft` | publish | `scripts/upload_weixin_draft.py` | 发表枢纽：草稿箱同步唯一出口（upload→回填→add_draft→回读验证）；跨线共享，各 exit 只调用 |
+| 15-pkos-gzhpublish | `pkos.publish.draft` | publish | `scripts/upload_weixin_draft.py` | 发表枢纽：草稿箱同步唯一出口（upload→回填→add_draft→回读验证）；跨线共享，各 exit 只调用 |
 | 27-pkos-gptimage2use | `pkos.gptimage2use` | utility | `scripts/generate.py` | gptimage2 图像生成通用通道（需 PKOS_IMG_API_KEY） |
 | 31-pkos-imageprompt | `pkos.imageprompt.compose` | utility | `references/prompt-library/`（SKILL.md 流程） | 五段命名提示词工程：题词定位/组装/新写 + S00 安全消毒 + C00 参数（只题材词不出图，出图走 27） |
 | 19-pkos-timeline | `pkos.maintenance.timeline` | maintenance | `scripts/build_timeline.py` | vault 时间线构建 |
@@ -42,7 +42,7 @@
 | 02-pkos-distill-book | `pkos.distill.book` | process | （见 SKILL.md） | 书籍蒸馏出口（落点契约：书籍PDF/书本蒸馏内容留存/<书名>/） |
 | 13-pkos-wenzhang-skill | `pkos.exit.wenzhang.compose` | exit | `scripts/`（voice 档案 _PKOS/assets/my-voice.md） | 公众号文章成稿出口（文案+HTML 四件产物） |
 | 23-pkos-skillopt | `pkos.skillopt.train` | utility | `scripts/skillopt_mini.py` | 技能文本定向训练（rollout→验证门→best_skill） |
-| 22-pkos-operator | `pkos.operator.audit` | governance | `scripts/auditor_gate.py` | 调用方人格守卫（Meta-Auditor 机器执行面） |
+| 22-pkos-soulselect | `pkos.operator.audit` | governance | `scripts/auditor_gate.py` | 调用方人格守卫（Meta-Auditor 机器执行面） |
 
 ## 典型任务 → 单元链
 

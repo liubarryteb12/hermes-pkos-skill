@@ -35,7 +35,7 @@ GUARD_DIRS = ["01-pkos-intake", "09-pkos-intake-query", "03-pkos-ingest", "04-pk
               "13-pkos-wenzhang-skill",
               "27-pkos-gptimage2use", "19-pkos-timeline", "16-pkos-maintenance-index",
               "20-pkos-audit", "17-pkos-audit-lint", "00-pkos-init", "18-pkos-fanout-concept",
-              "21-pkos-meta", "23-pkos-skillopt", "22-pkos-operator",
+              "21-pkos-meta", "23-pkos-skillopt", "22-pkos-soulselect",
               "24-pkos-gemini-chat", "25-pkos-gemini-image", "26-pkos-gemini-video",
               "contracts", "tests"]
 CODE_EXTS = {".py", ".json", ".yaml", ".yml"}
@@ -134,7 +134,7 @@ def main() -> int:
             if age_h > 24:
                 stale_h.append(f"{scope}:{age_h:.0f}h 未更新")
     if stale_h:
-        head(False, "Handoff 门禁（开工必读）", "; ".join(stale_h) + " → 先 python 22-pkos-operator/scripts/handoff_gate.py read --scope <s>")
+        head(False, "Handoff 门禁（开工必读）", "; ".join(stale_h) + " → 先 python 22-pkos-soulselect/scripts/handoff_gate.py read --scope <s>")
     else:
         head(True, "Handoff 门禁（开工必读）", "kb/writing/route 均在 24h 内更新")
 

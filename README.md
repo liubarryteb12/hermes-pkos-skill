@@ -167,8 +167,8 @@ python 04-pkos-knowledge-service-commit/scripts/trash_gc.py --report
 | `governance.bootstrap`（`00-pkos-init`） | 初始化新库的地基 |
 | `governance.audit`（`20-pkos-audit`） | 深度审计 + 盲点检测 |
 | `governance.tick`（`21-pkos-meta`） | 每日心跳 |
-| `publish.draft`（`15-pkos-publish`） | 发表枢纽：上传→回读→验证 闭环 |
-| `operator.audit`（`22-pkos-operator`） | 调用方人格守卫（Meta-Auditor） |
+| `publish.draft`（`15-pkos-gzhpublish`） | 公众号发表枢纽：上传→回读→验证 闭环 |
+| `operator.audit`（`22-pkos-soulselect`） | 调用方人格守卫（Meta-Auditor） |
 | `skillopt.train`（`23-pkos-skillopt`） | 用真实任务集训练/优化技能本身 |
 | `gemini.chat / image / video` | 外脑：对话、生图、生视频 |
 | `gptimage2use`（`27-pkos-gptimage2use`） | 原子出图通道（只吃现成题词，不产题词） |
@@ -179,7 +179,7 @@ python 04-pkos-knowledge-service-commit/scripts/trash_gc.py --report
 | `trend.collect`（`29-pkos-trend`） | 免费渠道抓热点信号，产情报单 |
 | `topic.generate`（`28-pkos-topic`） | 产品经理式选题：母题规划+候选标题组 |
 | `scorecard.judge`（`30-pkos-scorecard`） | 成稿六维评分门：机械项脚本算，REJECT 真拦人 |
-| `imageprompt.compose`（`31-pkos-imageprompt`） | ⭐ 全体系出图文案唯一输出中心（320 条题词库+安全层） |
+| `imageprompt.compose`（`31-pkos-imageprompt`） | ⭐ 图集（套图）提示词生产中心（320 条题词库+套图四步+安全层） |
 
 ---
 

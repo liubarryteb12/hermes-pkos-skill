@@ -1,7 +1,7 @@
 ---
 name: hermes-pkos-skill
 description: "PKOS 知识流水线操作与 v4 升级：分拣/入库/lint/PPT/漫画/小说出口."
-version: "5.5.0"
+version: "5.5.1"
 author: Hermes Agent
 license: MIT
 platforms: [windows]
@@ -29,7 +29,7 @@ Personal Knowledge OS（PKOS）套件的 Hermes 原生封装。套件根 = 本�
 - **出图统一口径**：所有生图（comic/gptimage2use/ppt 插图槽位）走 `contracts/image-size-spec.json` 的白名单与 remap 表；漫画出图用 `12-pkos-comic/scripts/render_panels.py --manifest <RT-...>/manifest.json`（compose 只产脚本，出图必须显式跑渲染器）。**ppt 出口 v2.0 起为原生 PPTX 渲染（python-pptx），gptimage2 仅作 `--images` 可选插图通道**（2026-08-31 用户裁定，v0.2 出图制作废）。
 - **出图通道优先级**：全部路由规则以 `contracts/image-route-policy.md` 单一真相为准（gptimage2=漫画批量正式 / Gemini chat=常规零成本 / ModelScope=SD 可控；2026-08-30/31 用户裁定）。各单元 SKILL.md 只放指针。**题词语义生产走 31-pkos-imageprompt（提示词工程单元），出图执行才进本政策路由。**- **人物一致性出图（断点B 定案）**：跨分镜同角色 = 首格出**定妆特写图**（Seed）→ 后续格把定妆照当**参考图（垫图）**喂 Gemini → visual_prompt 只写极简英文 Tag（禁长句外貌描述，长描述必然漂移）。角色档案统一放 CSM 顶层 `entities.characters`（`contracts/csm-schema.json`），beats 只放 ID 引用。
 - **公众号选题与爆款标题（28-pkos-topic v2.0，2026-09-05 用户裁定升格）**：「帮我起标题」「公众号选题」「做个选题规划」「栏目怎么排」「母题提案」→ 加载 `28-pkos-topic/SKILL.md`（产品经理/产品运营式选题中枢：母题/栏目运营、选题池五维评分、标题生成 A/B 路径，产出跑 `qa_check.py` 自检）。**热点采集已外置 29-pkos-trend**：「追一下热点」「收集热点」「热点雷达跑一轮」→ 加载 `29-pkos-trend/SKILL.md`（产出 trend-digest 情报单，落 `_PKOS/analysis/`，只采集不决策）；28 消费其 latest 指针，兜底搜索须注明。**文案出口统一 wenzhang**：风格模板注册库在 `13-pkos-wenzhang-skill/references/voice-styles.md`（my-voice 档案优先），选题单以 style_hint 传递建议；用户说「写篇公众号文章」仍走 13-pkos-wenzhang-skill。
-- **成稿质量打分（30-pkos-scorecard，2026-09-06 用户裁定独立质量门）**：「给这篇打分」「质量门跑一下」「这稿过不过关」「scorecard」→ 加载 `30-pkos-scorecard/SKILL.md`（六维 A–F 加权评分：机械项脚本跑 + LLM 锚点评分，总分四级判定，verdict=PASS 才可进 15-pkos-publish；标准 SSOT=`contracts/scorecard-policy.md`）。改评分离：13 不持有评分标准，本单元不改正文。
+- **成稿质量打分（30-pkos-scorecard，2026-09-06 用户裁定独立质量门）**：「给这篇打分」「质量门跑一下」「这稿过不过关」「scorecard」→ 加载 `30-pkos-scorecard/SKILL.md`（六维 A–F 加权评分：机械项脚本跑 + LLM 锚点评分，总分四级判定，verdict=PASS 才可进 15-pkos-gzhpublish；标准 SSOT=`contracts/scorecard-policy.md`）。改评分离：13 不持有评分标准，本单元不改正文。
 - **五段命名提示词工程（31-pkos-imageprompt，2026-09-07 用户裁定准入）**：「出提示词」「写个生图提示词」「题词怎么写」「按编号出题词」「M01-S03 那套」「换个审美风格」→ 加载 `31-pkos-imageprompt/SKILL.md`（母题M-子题S-风格F-用途U-审美A 五段编号 + P模特/S安全/C参数三层，题词资产库 16 子题 320 条 SSOT 在其 `references/prompt-library/`，强制过 S00 安全消毒）。**分工铁律：31 只题材词不出图，出图走 27-pkos-gptimage2use 或外部通道**。
 - **正文去 AI 味**：出口链的文案（小说/gzh/工作汇报正文）交稿前按 `humanizer-zh` 技能的 24 模式清单改写并自评 ≥45/50；「太简单/AI 味重」是用户明确退货理由，润色不是可选项。
 - **html-anything 模型选择（2026-08-29 实测）**：网关 `<LLM_GATEWAY_HOST>:1519` 上 `glm-5.3-flash` 是推理模型，长输出会被 thinking 吃光 token 返回空 content——**禁用**；`deepseek-v4-flash` 快（小任务 ~30s）但对大生成（完整 HTML 页 ~10k token）会挂起数分钟甚至 524 超时。因此 **CLI 的 LLM 全自动路线只适合短文**；工作汇报/长页面走 **agent 主路线**：由 agent 按 html-anything 的设计系统直接手写单文件 HTML（首例：桌面《PKOS-工作汇报-20260829.html》）。环境变量：`OPENAI_API_KEY` ← `.env` 的 `HERMES_CUSTOM_1_API_KEY`，`OPENAI_BASE_URL=http://<LLM_GATEWAY_HOST>:1519/v1`（git-bash 内联 `$(grep …)` 取 .env 值会静默失败，用 python 读）。
@@ -99,8 +99,8 @@ cd "<PKOS_SKILL_ROOT>"
 
 ### 0. Handoff 门禁（09-08 起，任何 PKOS 会话）
 
-- **开工**：`python 22-pkos-operator/scripts/handoff_gate.py read --scope <kb|writing|route>` —— 读上次交接的 PITFALLS/NEXT，输出 JSON。无历史 → 提示确认是否新建工作流。
-- **收尾**：`python 22-pkos-operator/scripts/handoff_gate.py write --scope <s> --summary "<完成+证据>" --pitfalls "<坑>" --next "<下一会话第一动作>"` —— summary 必填，空 handoff 会被拒（exit 2）。**收尾标准序列（强制）**：`write` → `diff --scope <s>` 自检 NEXT 是否推进 → `check --since <会话开始>` 验证已更新。diff 是收尾验收：NEXT 未推进 = handoff 不合格。
+- **开工**：`python 22-pkos-soulselect/scripts/handoff_gate.py read --scope <kb|writing|route>` —— 读上次交接的 PITFALLS/NEXT，输出 JSON。无历史 → 提示确认是否新建工作流。
+- **收尾**：`python 22-pkos-soulselect/scripts/handoff_gate.py write --scope <s> --summary "<完成+证据>" --pitfalls "<坑>" --next "<下一会话第一动作>"` —— summary 必填，空 handoff 会被拒（exit 2）。**收尾标准序列（强制）**：`write` → `diff --scope <s>` 自检 NEXT 是否推进 → `check --since <会话开始>` 验证已更新。diff 是收尾验收：NEXT 未推进 = handoff 不合格。
 - **强制点**：收尾钩子用 `check --scope <s> --since <会话开始时间>`（--scope 必填），latest 未更新 → exit 2（handoff-stale）。
 - **回顾**：`diff --scope <s>` 输出 latest vs prev 的五段结构化 diff。
 
@@ -176,6 +176,9 @@ python tests/run_tests.py && python tests/contract_refs.py && python tests/route
 ## Pitfalls
 - **改 live 包后必须 `python scripts/sync_to_main.py --apply` 同步主库**（09-09 起 --check 是 upgrade_check 硬门禁；v1 固定清单漏同步导致 09-06~09 三天空转漂移）。
 - **push 到 GitHub 必须同步更新 README**（用户 09-10 裁定）：徽章数字（units/tests）、花名册、新特性段——README 是门面，落后即过时。
+- **入库后必须更新对应域的 INDEX.md**（v2 新增，09-11 固化）：每批 intake→ingest 完成后，向该域根目录的 INDEX.md 追加条目链接，并更新作者聚合、跨域关联块。这是硬约束不是可选步骤，遗漏 = 入库不完整。
+- **_PKOS/INBOX/_processed/ 堆积件诊断**（09-11 修复）：如发现 _processed 有 >10 件且无对应域目录条目，说明历史 atomicity bug 残留。用补 FM 脚本批量修复入库（type=clipping, status=triaged, capture-method=clipper, pkos-schema:1），8 件以上无 FM 的需人工裁决。参考 03-pkos-ingest/references/fix-stuck-items.md。
+- **原子写入铁律**（09-11 固化）：任何 ingest 脚本必须遵循「先写目标域目录 → 校验通过 → 成功才移源文件」顺序。**禁止先移源文件再写 staging**。违反此规则的 commit 视为破坏性变更，需用户确认。
 
 - **vault 只读纪律（D-6）**：除 `04-pkos-knowledge-service-commit` 的 `commit.py` 外，任何单元/脚本不得写 `D:\obsidian知识库`。lint 默认 report-only，`--apply` 前必须向用户确认。
 - **功能重叠防范（structure-audit:1）**：新单元准入与自进化审查按 `contracts/structure-audit.md` 五步流程跑重叠扫描；「同输入同输出同时机」重叠对为 0 才准入，否则上位收编（comic v1.1.0 先例）。

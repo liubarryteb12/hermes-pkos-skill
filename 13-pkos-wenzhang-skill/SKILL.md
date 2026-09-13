@@ -8,7 +8,7 @@ description: 公众号文章出口（exit=article）：消费 RT-* 路由单 + P
 ```yaml
 capability_id: "pkos.exit.wenzhang.compose"
 required_capability: "llm_chat{reasoning:high,context:large}"
-version: "1.2.0"
+version: "1.3.0"
 compatible_pkos_schema: ">=4.5.0"
 stage: exit
 stage_subindex: 5e
@@ -159,6 +159,7 @@ verification:
     - "正文零【待补】（素材不足的内容不写，禁止成稿后找补）"
     - "上一篇/下一篇钩子只指向同母题子题；EP01 无上一篇；跨母题引用零出现"
     - "不混入 html/ppt/comic/novel 产物"
+    - "转载内容：出处标注完整（作者+平台+链接+日期）+ 口吻为策展者视角（无'我做了/我有'等原创暗示）+ 独立价值增补 ≥2 项"
   degraded_success_predicate:
     - "骨架完整可重放 + manifest.degraded==true + 缺项说明就位"
   regression_tests: "tests/article_tests.py"
@@ -177,6 +178,7 @@ depends_on_providers:
   - "markdown_writer"
 depends_on_art_resources:
   - "references/method-templates.md"
+  - "references/source-classification.md"
   - "references/style-rules.md"
   - "references/title-methods.md"
   - "references/my-voice-template.md"
@@ -187,7 +189,7 @@ replaces: []
 # 核心工序（v1.0）
 
 1. **读路由单** → 校验 exit=article + conversion_type=公众号文章 + 源 status=polished；
-2. **读源 POL-*** → 提取 fact_core_hash（断言源未变）+ 正文 + front matter 信号（tags/conversion_type/受众）；
+2. **读源 POL-*** → 提取 fact_core_hash（断言源未变）+ 正文 + front matter 信号（tags/conversion_type/受众）+ **素材来源分类**（按 [references/source-classification.md](references/source-classification.md) 判定：用户原创 / 转载 / 数据挖掘 / 官方整理；转载强制切 ⑦ resource-curate 模式）；
 3. **诊断定路**（writing_mode=auto 时）→ 按下表路由；interactive 强度先给一句话诊断结论请用户确认：
 
    | 作者手上有什么 | 走哪条 |
@@ -198,6 +200,7 @@ replaces: []
    | 一堆零散材料（多 POL/多来源） | ④ material-merge 素材整合式 |
    | 主题定了不知从哪切 | ⑤ angle 破题式 |
    | 完整成稿不满意（draft_path + 不满信号） | ⑥ rewrite 重写式 |
+   | 素材为他人原创/剪藏（type=clipping 或 source 非自有） | ⑦ resource-curate 资源策展式（见 [references/source-classification.md](references/source-classification.md)） |
 
 4. **按写法执行** → 流程细节全部从 [references/method-templates.md](references/method-templates.md) 取，不凭记忆；
 5. **确认文风** → `options.voice_profile` 指向的档案存在则读取为**硬约束**（冲突时档案优先）；未指定时自动探测 `_PKOS/assets/my-voice.md`（本库已建，5鹿7 矩阵文风，提炼自 60 篇验收文案），命中则默认启用 `length_target=matrix`；档案内 ` ```json voice-overrides ` 块是 lint 的机器阈值源（para_cap/dash_max/length_ranges/cta_required，档案即配置）；均无则按 [references/style-rules.md](references/style-rules.md) 通用规则；
@@ -220,6 +223,7 @@ replaces: []
 - 选题立不住时**直说**（ambiguous 决策单），不硬写完浪费双方时间。
 - rewrite 模式**禁止「整体润色」**——先出病灶清单，定点手术，其余一个字不动。
 - 素材里观点超过 4 个且 length_target=short → 主动建议改 long 或拆篇，不硬塞。
+- **素材来源分类铁律（09-11 用户裁定）**：写任何文章前必须按 [references/source-classification.md](references/source-classification.md) 判定素材来源类型。转载内容（type=clipping 或 source 非自有）**禁止以"我"为主体声称原创**（"我做了/我有/我买了"），必须切换到 ⑦ resource-curate 模式（策展者视角："我发现/我挖掘到了"）+ 标注出处 + 增补独立价值。违反 = lint FAIL + 交付时标记风险。
 
 # 与下游/外部 Skill 的配合
 
@@ -229,7 +233,7 @@ replaces: []
 | 成稿前就要标题候选（还在选题阶段） | 上游 28-pkos-topic（pkos.topic.generate，pre-exit 前端）：6 条跨公式候选 / 4 方向选题；本单元标题矩阵只在成稿段收口（互补分工，structure-audit 2.5，2026-09-05） |
 | 选题单带 style_hint（文案风格建议） | 消费本单元 `references/voice-styles.md` 风格模板注册库（voice-styles:1：保姆级教程/亲测复盘/横评选型/热点快评，七字段规范）；**my-voice 个人档案永远优先**——风格模板只补结构骨架，句式/节奏/词汇以 my-voice 为准，voice-overrides lint 阈值单一来源不变（v2.0 用户裁定：文案出口统一本单元，风格可不同） |
 | 成稿要发布审核 | 用户 gzh 审核流程（audit_gzh.py v4，workspace 外部工具） |
-| 成稿发表前质量判定 | 下游 30-pkos-scorecard（pkos.scorecard.judge，2026-09-06 准入）：六维加权评分门，verdict=PASS 才可进 15-pkos-publish；**改评分离——本单元不持有评分标准（SSOT=contracts/scorecard-policy.md），30 不改正文**；REVISION 按 revision_hint 改稿，REJECT 重写 |
+| 成稿发表前质量判定 | 下游 30-pkos-scorecard（pkos.scorecard.judge，2026-09-06 准入）：六维加权评分门，verdict=PASS 才可进 15-pkos-gzhpublish；**改评分离——本单元不持有评分标准（SSOT=contracts/scorecard-policy.md），30 不改正文**；REVISION 按 revision_hint 改稿，REJECT 重写 |
 | 同一素材要网页版 | 另出 RT（exit=html，dual_exit） |
 | 素材观点太多要漫画化/小说化 | 另出 RT（exit=comic / novel） |
 
@@ -238,9 +242,10 @@ replaces: []
 LLM 渠道不可用时：交付**大纲骨架**（分节+字数配额）+ manifest.degraded=true + 缺项说明（缺项写在 manifest 里，**不写进正文**）。**宁要无文的完整骨架，不要临场编造的半成品。**
 
 # 变更记录
+- **1.3.0（09-11 用户裁定）**：新增素材来源分类机制——⑦ resource-curate 资源策展式写法（转载内容专用）；新增 references/source-classification.md（四类型判定 + 口吻转换 + 出处标注 + 独立价值要求 + 二创区分 + 写作方案映射）；核心工序第 2 步增加素材来源分类，第 3 步诊断定路表增加 resource-curate 路由；红线增加素材来源分类铁律。
 - **1.2.0（09-09 用户裁定）**：输入契约新增 `inherit_images`（auto|never|force，默认 auto）——AI 自判原文配图是否提升出稿质量（佐证性内容继承/装饰性弃），判定留痕 decision_note；manifest 新增 `inherited_images` 字段。
 
 - **1.1.0（2026-08-31）**：效益最大化轮。①**个人文风档案落地**：`_PKOS/assets/my-voice.md`（5鹿7 矩阵文风，程序化提炼自 60 篇验收文案：判断句起手零预热/段中位 49 字单句成段 44%/`## 01` 编号+「写在最后」固定节/「你」主轴/破折号主力工具/具体数字锚定/加粗克制/下一篇钩子收尾）；②**档案即配置**：voice-overrides JSON 块（para_cap=130/dash_max=10/matrix 区间 600-1100/cta_required=false）接入 `lint --voice`，length_target 增 `matrix` 模式；60 篇回测校准阈值（L1 误报 77→34 处，剩余为语料真实长段；W6 误报 58→0）；③**头图通道**：吸收 space-gzh-cover 平台事实（2.35:1 分享裁切/中央 42.6% 安全区/三策略 A-B-C）为 references/cover-spec.md + scripts/check_cover.py（PKOS 适配：无 Pillow 降级 + --json 机读报告），出图走 gptimage2use，fixture 回归并入 article_tests。
 - **1.0.0（2026-08-31）**：首版。吸收 creator-buddy 写作三件套方法论（六写法/五约束/16 标题法/my-voice 档案），新增 PKOS exit=article 第五出口槽位；机器质检 lint 覆盖 style-rules 可确定性校验子集（段落长度/小节/AI 腔黑名单/引号/破折号/CTA 唯一性/半角标点/「母题」禁词）。
 
-> **题词纪律（09-08 裁定）**：封面/配图/插图的生图题词一律经 `31-pkos-imageprompt`（pkos.imageprompt.compose）产出，本单元不自写题词、不做题词补强；出图执行走 `27-pkos-gptimage2use`。
+> **题词纪律（09-13 用户裁定，替代 09-08 旧规）**：本单元的**单图题词（封面图/配图/插图）由模型先理解成稿内容再自行提炼**，不强制经 `31-pkos-imageprompt`；若需要**成套图集/系列图**（如同一主题 N 张、连续叙事多图），则走 `31-pkos-imageprompt`（图集套图题词生产中心）。出图执行走 `27-pkos-gptimage2use` 或外部通道。

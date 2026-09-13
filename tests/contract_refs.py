@@ -71,8 +71,9 @@ def check_skill(skill: Path) -> list[str]:
         href = m.group(2)
         if href.startswith(("http://", "https://", "mailto:", "#")):
             continue
-        if href.startswith("pkos-") or href.startswith("../"):
-            target = (skill_dir / href).resolve()
+        if href.startswith("../"):
+            ref_path = href.split("#")[0]  # 剥离锚点：锚点语义由 GitLab/GitHub 生成规则决定，不在本校验器范围
+            target = (skill_dir / ref_path).resolve()
             if not target.exists():
                 errs.append(f"{rel}: 内联链接 {href} 不存在（{target}）")
 

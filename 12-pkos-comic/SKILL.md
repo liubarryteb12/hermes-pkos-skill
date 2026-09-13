@@ -1,4 +1,4 @@
-﻿---
+---
 name: 12-pkos-comic
 display_name: pkos-comic-skill
 description: 公众号漫画出口层 v3.2（v1 原生入册）：消费 RT-* 路由单（exit=comic + conversion_type=公众号漫画 + style_adapter=comic_storyboard），按 4 套画风（healing/flat_tech/comic_strip/retro_comic）之一产出 4 宫 / 6 宫 / 16:9 头图分镜脚本 + 中文对白 + 一键可粘贴英文 Prompt；接收 v3.1 DerivedDraft + 接 EventBus（export.success/fallback/degraded）。**中文进图** chinese_text=true（默认开，可关），中文文字直接写进 prompt 让出图模型渲染，失败可后期 Figma/PPT 兜底。触发语：「这篇做公众号漫画」「出个漫画脚本」「按这套人物做一话」/「把这篇长文改成条漫」。**v2/v3 双重身份**：保留 v0 `12-pkos-comic`（deprecated）兼容入口；新会话用 `pkos.exit.comic.compose`。
@@ -97,7 +97,7 @@ inputs:
 
 > **决议**:本 skill 接收 `style_adapter=comic_storyboard` 作为可选输入,当 router 在 RT-* 路由单中显式声明该字段时,comic skill 按"每段 50-100 字、视觉引导符号、对话独立"的方式处理 polish 后的 DerivedDraft 文本。
 
-> **题词纪律（09-08 裁定）**：封面/配图/插图的生图题词一律经 `31-pkos-imageprompt`（pkos.imageprompt.compose）产出，本单元不自写题词、不做题词补强；出图执行走 `27-pkos-gptimage2use`。
+> **题词纪律（09-13 用户裁定，替代 09-08 旧规）**：本单元的**单图题词（封面图/配图/插图）由模型先理解成稿内容再自行提炼**，不强制经 `31-pkos-imageprompt`；若需要**成套图集/系列图**（如同一主题 N 张、连续叙事多图），则走 `31-pkos-imageprompt`（图集套图题词生产中心）。出图执行走 `27-pkos-gptimage2use` 或外部通道。
 
 ## 接收契约
 
@@ -291,7 +291,7 @@ replaces: []
 
 ## 职责边界（v0 锁死）
 
-做：按路由单把已有内容转成公众号漫画分镜脚本与 prompt 块，并按 contracts/image-route-policy.md 编排出图；发表交 15-pkos-publish 枢纽，输出每格可粘贴的英文 prompt 块 + 中文对白清单 + 拼图指引。
+做：按路由单把已有内容转成公众号漫画分镜脚本与 prompt 块，并按 contracts/image-route-policy.md 编排出图；发表交 15-pkos-gzhpublish 枢纽，输出每格可粘贴的英文 prompt 块 + 中文对白清单 + 拼图指引。
 
 1. **不改写原意**（文案以 polished 素材为准）
 2. **不出网页版**（v0 锁死）
@@ -405,7 +405,7 @@ chinese_text=true 时，prompt 必带三件套：
 
 ## 发表
 
-成品（HTML+图+文案）交 **15-pkos-publish** 枢纽（`pkos.publish.draft`）执行草稿箱同步与回读验证——发表是跨线共享能力，本单元不含发表流程，只调用。
+成品（HTML+图+文案）交 **15-pkos-gzhpublish** 枢纽（`pkos.publish.draft`）执行草稿箱同步与回读验证——发表是跨线共享能力，本单元不含发表流程，只调用。
 
 ## 系列与编号（用户定稿）
 
@@ -417,4 +417,4 @@ chinese_text=true 时，prompt 必带三件套：
 ## 交付物与位置
 
 - 产出只落 `D:/00.AIagent/hermesagent/pkos-outputs/comic/`（产物铁律：不写 skill 目录）。
-- 实战脚本：`pkos-outputs/comic/_tools/gen_6grid_gpt2.py`（gptimage2）、`gen_6grid_gemini.py`（Gemini），换 PANELS 段落即复用；单格补图用 `gen_story_gpt2.py`。发表走 15-pkos-publish 枢纽。
+- 实战脚本：`pkos-outputs/comic/_tools/gen_6grid_gpt2.py`（gptimage2）、`gen_6grid_gemini.py`（Gemini），换 PANELS 段落即复用；单格补图用 `gen_story_gpt2.py`。发表走 15-pkos-gzhpublish 枢纽。

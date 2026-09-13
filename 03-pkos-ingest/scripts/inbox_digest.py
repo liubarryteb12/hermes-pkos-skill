@@ -29,16 +29,24 @@ INBOX = V / "obsidian知识库"
 STAGE = V / "_PKOS" / "entries-staging"
 PROCESSED = V / "_PKOS" / "INBOX" / "_processed"
 
-KW_MAP = {
-    "ai-coding": ["codex", "claude", "agent", "api", "token", "llm", "skill", "workflow",
-                  "多agent", "数字员工", "agi", "gpt", "gemini", "编程", "代码"],
-    "selfhost-net": ["代理", "梯子", "vps", "ssh", "服务器", "proxy", "edge", "地区限制",
-                     "域名", "google workspace", "edu邮箱", "教育邮箱", "地址证明"],
-    "ai-art": ["提示词", "prompt", "写真", "人像", "漫画", "水彩", "插画", "aiart",
-               "分镜", "画风", "彩铅", "绘本", "人脸", "角色参考"],
-    "make-money": ["涨粉", "收益", "变现", "副业", "搞钱", "爆款", "起号", "小红书",
-                   "视频号", "口播", "带货", "卖爆", "月入"],
-    "obsidian-pkm": ["obsidian", "笔记", "知识库", "zettelkasten", "双链"],
+# 完整域 slug → vault 路径映射（覆盖 vault-architecture.md 全部 11 个标准域）
+DOMAIN_MAP = {
+    "ai-usage": V / "02-AI与Codex" / "使用相关",
+    "career-growth": V / "11-职业认知",
+    "humanities": V / "10-人文社科",
+    "gongkao": V / "01-考公备考" / "笔记",
+    "personal": V / "03-个人办事",
+    "assets": V / "05-素材与图表",
+    "book-notes": V / "06-书籍笔记" / "笔记",
+    "rcpm": V / "07-生信分析" / "R临床预测模型",
+    "scrn": V / "07-生信分析" / "单细胞基因调控网络",
+    "invest": V / "08-理财投资",
+    "skills": V / "04-工作流与Skills",
+    "ai-coding": V / "02-AI与Codex" / "使用相关" / "06-技术工具",       # legacy alias
+    "selfhost-net": V / "02-AI与Codex" / "使用相关" / "02-AI视频与数字人",  # legacy alias
+    "ai-art": V / "02-AI与Codex" / "使用相关" / "生图prompt",            # legacy alias
+    "make-money": V / "02-AI与Codex" / "使用相关" / "03-AI副业与变现",   # legacy alias
+    "obsidian-pkm": V / "02-AI与Codex" / "使用相关",                     # legacy alias
 }
 
 
@@ -56,16 +64,24 @@ def parse_fm(text):
 
 
 def guess_domain(text):
-    low = text.lower()
-    # 加权：写真/绘画类强信号 > 泛 AI 词（gpt/agi 常只作为工具名出现在艺术帖）
-    weights = {}
-    for k, kws in KW_MAP.items():
-        w = sum(3 if kw in ("写真", "人像", "aiart", "漫画", "水彩", "插画", "彩铅",
-                            "绘本", "分镜", "画风", "角色参考") else 1
-                for kw in kws if kw in low)
-        weights[k] = w
-    best = max(weights, key=weights.get)
-    return best if weights[best] > 0 else "ai-coding"   # 低置信兜底归 AI 主域
+    """域分类：委托给 classifier.py（model-agnostic 规则引擎）。
+
+    返回 (domain_slug, classification_result)：
+      - domain_slug: 建议域 slug（DOMAIN_MAP 键）
+      - classification_result: classifier 完整结果（含 confidence/needs_human_review）
+    """
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "classifier", Path(__file__).resolve().parent / "classifier.py")
+        clf = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(clf)
+        result = clf.classify_domain(text)
+        return result.get("suggested_domain", "ai-usage"), result
+    except Exception:
+        # 分类器不可用时降级到 ai-usage 主域（保留原行为，不静默失败）
+        return "ai-usage", {"confidence": 0.0, "needs_human_review": True,
+                            "reasoning": "classifier_unavailable"}
 
 
 def make_title(fm, body, fname):
@@ -90,9 +106,9 @@ def slugify(t):
 def main():
     dry = "--dry" in sys.argv
     PROCESSED.mkdir(exist_ok=True)
-    STAGE.mkdir(exist_ok=True)
+    # STAGE 已废弃（历史残留，不再使用）——改为直接写域目录
     files = sorted(f for f in os.listdir(INBOX) if f.endswith(".md"))
-    report = {"ok": 0, "skip": 0, "names": []}
+    report = {"ok": 0, "skip": 0, "names": [], "needs_review": [], "low_confidence": []}
     for f in files:
         p = INBOX / f
         raw = p.read_text(encoding="utf-8", errors="replace")
@@ -104,7 +120,9 @@ def main():
         created = fm.get("created") or fm.get("published") or "2026-09-05"
         created = created[:10]
         source = fm.get("source", "")
-        domain = guess_domain(raw)
+        domain, clf_result = guess_domain(raw)
+        confidence = clf_result.get("confidence", 0.0)
+        needs_review = clf_result.get("needs_human_review", False)
         desc = (fm.get("description") or f"{title}——网络剪藏原文")[:150].replace('"', "'")
         published = fm.get("published", "")
 
@@ -125,15 +143,36 @@ def main():
         ]
         if published:
             fm_lines.append(f"published: {published}")
+        # 分类器置信度留痕（可追溯，便于后续人工复核）
+        fm_lines.append(f"classification-confidence: {confidence}")
+        fm_lines.append(f"classification-review: {str(needs_review).lower()}")
+        if clf_result.get("sub_domain"):
+            fm_lines.append(f"classification-sub-domain: {clf_result['sub_domain']}")
         fm_lines += ["capture-method: reader", "pkos-schema: 1", "---", ""]
         entry = "\n".join(fm_lines) + body.rstrip() + "\n"
 
         if not dry:
-            (STAGE / new_name).write_text(entry, encoding="utf-8")
+            # 修复原子性：先写域目录（通过临时文件+rename），成功后再移源文件
+            dest = DOMAIN_MAP.get(domain, DOMAIN_MAP["ai-usage"])
+            dest.mkdir(parents=True, exist_ok=True)
+            tmp = dest / (new_name + ".tmp")
+            tmp.write_text(entry, encoding="utf-8")
+            tmp.rename(dest / new_name)
+            # 产物写入成功后才移源文件，避免中间状态悬空
             shutil.move(str(p), str(PROCESSED / f))
         report["ok"] += 1
-        report["names"].append({"from": f, "to": new_name, "domain": domain})
-    print(json.dumps({"dry": dry, **report}, ensure_ascii=False))
+        report["names"].append({
+            "from": f, "to": new_name, "domain": domain,
+            "confidence": confidence, "sub_domain": clf_result.get("sub_domain", ""),
+        })
+        # 低置信度 / 跨域边界 → 单列供用户裁决（不擅自决定）
+        if needs_review:
+            report["needs_review"].append({
+                "file": f, "domain": domain, "confidence": confidence,
+                "reasoning": clf_result.get("reasoning", ""),
+                "alternatives": clf_result.get("alternatives", []),
+            })
+    print(json.dumps({"dry": dry, **report}, ensure_ascii=False, indent=1))
     return 0
 
 

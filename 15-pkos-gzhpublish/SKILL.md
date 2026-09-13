@@ -1,5 +1,5 @@
 ---
-name: 15-pkos-publish
+name: 15-pkos-gzhpublish
 description: "PKOS 发表枢纽：草稿箱同步/平台发布唯一出口。消费各 exit 单元成品，执行 upload→回读→验证 四项闭环。"
 version: "1.0.0"
 author: Hermes Agent
@@ -9,7 +9,7 @@ metadata:
     tags: [pkos, publish, weixin, draft]
 ---
 
-# 15-pkos-publish — 发表枢纽（pkos.publish.draft）
+# 15-pkos-gzhpublish — 发表枢纽（pkos.publish.draft）
 
 ## 理论层定位
 
@@ -153,7 +153,7 @@ python -c "from wx_api import get_token, list_drafts; t=get_token(force=True)['t
 ## 典型调用
 
 ```bash
-python 15-pkos-publish/scripts/upload_weixin_draft.py --title "02-01-02 标题" --digest "摘要" --html <成品.html> --images <图1> <图2>
+python 15-pkos-gzhpublish/scripts/upload_weixin_draft.py --title "02-01-02 标题" --digest "摘要" --html <成品.html> --images <图1> <图2>
 ```
 
 ## 历史

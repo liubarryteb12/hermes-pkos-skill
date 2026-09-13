@@ -5,7 +5,7 @@ import json, subprocess, sys, tempfile, time
 from datetime import datetime, timezone
 from pathlib import Path
 
-GATE = Path(__file__).resolve().parent.parent / "22-pkos-operator" / "scripts" / "handoff_gate.py"
+GATE = Path(__file__).resolve().parent.parent / "22-pkos-soulselect" / "scripts" / "handoff_gate.py"
 assert GATE.exists(), f"handoff_gate.py 缺失: {GATE}"
 
 failures = []

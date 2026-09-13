@@ -150,6 +150,7 @@ replaces: ["01-pkos-intake"]
 | docx/doc | ingest [card-file-docx](../03-pkos-ingest/references/card-file-docx.md) |
 | text-gbk | 可识别但 v0 无规则卡——`route_to=null`、`gate=pass`，转人工决定（不静默丢弃）→ v2 解释为 not_found |
 | scanned-pdf / encrypted-pdf / unknown | 不调度，拒收原因写回分拣单并告知用户 → v2 解释为 not_found（正常拒收） |
+| **missing-type（半成��）** | **特殊处理**：扫描 `_PKOS/INBOX/_processed/` 中缺 `type`/`status`/`domain` 字段的条目，按 [03-pkos-ingest §⑥ 半成品补救规范（v2 新增，09-11 沉淀）](../03-pkos-ingest/SKILL.md#⑥-半成品补救规范v2-新增09-11-沉淀) 补全 FM 后入库 |
 
 # 工具（v0 契约，锁死继承）
 
@@ -158,6 +159,7 @@ python scripts/intake_tools.py probe <file>            # 单件识别
 python scripts/intake_tools.py triage <inbox-dir> [--limit-mb 100] [--out FILE]
 python scripts/intake_tools.py dedup-key <file>        # 打印 file:<sha256前12位>
 python scripts/intake_tools.py find-dup <file> --vault <库根目录>
+python scripts/fix_stuck_items.py [--dry] [--min-items 10]  # 补全半成品 FM 并入库
 ```
 
 去重比对复用 `../contracts/validate_entry.py` 的全库 source 扫描（与 ingest 的 dedup/find-dup 同一契约层通道）。

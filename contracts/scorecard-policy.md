@@ -82,7 +82,7 @@
 4. **汇总判定**：先查命门 → 再查单项封顶 → 最后按总分给档（`scorecard_calc.py` 权威实现，LLM 不得自定阈值）。
 5. **输出评分卡** `<route-id>-scorecard.json`（六维分+证据+总分+等级+verdict+改稿提示），落成稿目录。
 6. **落点铁律（2026-09-06 用户裁定）**：成稿产物一律落 `D:/00.AIagent/hermesagent/workspace/pkos-exports/article/<route-id>-article/`；套件 `_PKOS/_Export/` 只作流水线中转，不得存留终稿（套件发 GitHub，防未发表稿泄漏）。scorecard.json 与成稿同目录，属随稿附件，清理策略见 §7。
-7. **流转门禁**：verdict=PASS 才可进 15-pkos-publish；REVISION 退回优化工序（§8）；REJECT 退回 13 重写。
+7. **流转门禁**：verdict=PASS 才可进 15-pkos-gzhpublish；REVISION 退回优化工序（§8）；REJECT 退回 13 重写。
 
 ## 4. 权威参数（代码与契约同步，改这里必须改 scorecard_calc.py 常量区）
 

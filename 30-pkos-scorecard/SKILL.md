@@ -73,7 +73,7 @@ NOT_actions: ["write_article", "polish", "publish", "modify_score_policy", "deci
 1. **机械通道**（`scorecard_calc.py --mechanical <article.md>`）：字数/段落节奏 → 喂 B/C；占位符（【待补】/TODO/占位框）>0 → E 强制 ≤4；错别字密度 → 喂 D。
 2. **LLM 逐项评分**（按契约 §2 锚点+红旗）：一次一项，每分必附 verbatim 引用+位置，无引用作废；写明「为何不是相邻档」（防趋中）。
 3. **聚合判定**（`scorecard_calc.py --judge scorecard.json`，权威）：先命门（B/E 未过线→REJECT）→ 再单项封顶（任一维未过线→最高「及格」+REVISION）→ 最后总分档（≥55 PASS 候选）。
-4. **流转**：PASS → 15-pkos-publish；REVISION → 进优化回环（见下）；REJECT → 退 13 重写。
+4. **流转**：PASS → 15-pkos-gzhpublish；REVISION → 进优化回环（见下）；REJECT → 退 13 重写。
 
 # 优化回环（打分→修改→再打分，2026-09-06 用户裁定）
 
@@ -106,7 +106,7 @@ python scripts/scorecard_calc.py --selftest
 |---|---|
 | 13-pkos-wenzhang | 生产成稿+自己的 lint（C1–C3 承接契约等）；**不持有评分标准**，产出后交本单元判定 |
 | 07-pkos-weak-check | 事实弱审核（真不真），与质量门（好不好）正交互补，同在验证层 |
-| 15-pkos-publish | 只收 verdict=PASS 的成稿；REVISION/REJECT 一律拒收退回 |
+| 15-pkos-gzhpublish | 只收 verdict=PASS 的成稿；REVISION/REJECT 一律拒收退回 |
 | 28-pkos-topic | 选题阶段五维评分（选什么题），与本单元成稿质量评分（写得如何）不同对象不同时机 |
 
 # 验收

@@ -175,8 +175,22 @@ check("qa_check 钩子回归（6 单元 12 用例）", _rq.returncode == 0,
 check("handoff_gate 四命令回归", _rh.returncode == 0,
       (_rh.stdout + _rh.stderr).strip().splitlines()[-1] if (_rh.stdout + _rh.stderr).strip() else "FAIL")
 
+# classifier 规则引擎回归（09-12 智力脱钩：域分类不依赖模型智力）
+_cls = ROOT / "03-pkos-ingest" / "tests" / "test_classifier.py"
+_rc = _sp.run([sys.executable, str(_cls)],
+              capture_output=True, text=True, timeout=120, encoding="utf-8", errors="replace")
+check("classifier 域分类回归（12 用例）", _rc.returncode == 0,
+      (_rc.stdout + _rc.stderr).strip().splitlines()[-1] if (_rc.stdout + _rc.stderr).strip() else "FAIL")
+
+# inbox_digest 端到端回归（原子写 + 分类器集成 + 低置信度单列）
+_dig = ROOT / "03-pkos-ingest" / "tests" / "test_inbox_digest.py"
+_rd = _sp.run([sys.executable, str(_dig)],
+              capture_output=True, text=True, timeout=120, encoding="utf-8", errors="replace")
+check("inbox_digest 端到端回归（5 用例）", _rd.returncode == 0,
+      (_rd.stdout + _rd.stderr).strip().splitlines()[-1] if (_rd.stdout + _rd.stderr).strip() else "FAIL")
+
 print()
-print(f"共 {len(URL_CASES) + 16} 项检查，失败 {len(failures)} 项")
+print(f"共 {len(URL_CASES) + 18} 项检查，失败 {len(failures)} 项")
 if failures:
     print("失败清单: " + ", ".join(failures))
 sys.exit(1 if failures else 0)

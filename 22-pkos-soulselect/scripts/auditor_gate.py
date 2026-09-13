@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""22-pkos-operator:1 机器守卫 — 调用方人格与行为拦截 (v4.2 / v4.8 词表扩五值)
+"""22-pkos-soulselect:1 机器守卫 — 调用方人格与行为拦截 (v4.2 / v4.8 词表扩五值)
 
 契约: contracts/operator-policy.md §4/§5/§6/§7/§8
 - --assemble            §7 动态拼装头（词表校验后输出硬核指令头）
@@ -392,7 +392,7 @@ def _selftest() -> int:
 
 
 def main(argv: list[str]) -> int:
-    ap = argparse.ArgumentParser(description="22-pkos-operator:1 machine guard")
+    ap = argparse.ArgumentParser(description="22-pkos-soulselect:1 machine guard")
     ap.add_argument("--assemble", action="store_true", help="§7 assemble prompt head")
     ap.add_argument("--persona", default=None, help="§2 persona vocab value")
     ap.add_argument("--breaker", default=None, help="§4 breaker state vocab value")

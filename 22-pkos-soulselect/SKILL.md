@@ -1,5 +1,5 @@
-﻿---
-name: 22-pkos-operator
+---
+name: 22-pkos-soulselect
 description: v4.8 调用方人格守卫（Hermes 等外部 agent 的行为拦截器）：把调用方人格固化为机器可校验规格——meta_auditor 元人格底座 + 按 required_persona 切换的调度子人格（archivist/reader_advocate/meta_auditor/evidence_auditor/null 五值词表）+ 断路器（STRICT|AUTO_MERGE，AER/MTTI/提案死亡率量化 + 连续绿灯免检 + 拥塞低危放行）+ 四陷阱预警（overreaching_butler/paranoia/dogmatic/rubber_stamp）。auditor_gate.py 三查：人格越界/断路器抗命/拦截理由教条。触发语：「检查调用方越权」「算断路器状态」「拼装审计员头部」「这轮拦截是不是教条了」。契约：contracts/operator-policy.md · 节点绑定：contracts/pipeline-persona-map.yaml。
 ---
 
@@ -49,12 +49,12 @@ inputs:
 # 机器守卫（auditor_gate.py）
 
 ```bash
-python 22-pkos-operator/scripts/auditor_gate.py --assemble --persona archivist --breaker STRICT
-python 22-pkos-operator/scripts/auditor_gate.py --persona-violation rt.json --actions actions.json   # §5-1 越界
-python 22-pkos-operator/scripts/auditor_gate.py --breaker-state metrics.json                          # §4 断路器
-python 22-pkos-operator/scripts/auditor_gate.py --check-defiance AUTO_MERGE --actions actions.json    # §5-2 抗命
-python 22-pkos-operator/scripts/auditor_gate.py --check-dogma reasons.jsonl                           # §5-3 教条
-python 22-pkos-operator/scripts/auditor_gate.py --selftest
+python 22-pkos-soulselect/scripts/auditor_gate.py --assemble --persona archivist --breaker STRICT
+python 22-pkos-soulselect/scripts/auditor_gate.py --persona-violation rt.json --actions actions.json   # §5-1 越界
+python 22-pkos-soulselect/scripts/auditor_gate.py --breaker-state metrics.json                          # §4 断路器
+python 22-pkos-soulselect/scripts/auditor_gate.py --check-defiance AUTO_MERGE --actions actions.json    # §5-2 抗命
+python 22-pkos-soulselect/scripts/auditor_gate.py --check-dogma reasons.jsonl                           # §5-3 教条
+python 22-pkos-soulselect/scripts/auditor_gate.py --selftest
 ```
 
 - 输出头部格式（§7）：`[SYS_ROLE: META-AUDITOR] | [SUB_ROLE: <persona>] | [BREAKER: <state>] | [WARNING_TRAP: <trap|none>]`
