@@ -1,7 +1,7 @@
 ---
 name: hermes-pkos-skill
 description: "PKOS 知识流水线操作与 v4 升级：分拣/入库/lint/PPT/漫画/小说出口."
-version: "5.5.4"
+version: "5.5.5"
 author: Hermes Agent
 license: MIT
 platforms: [windows]
@@ -198,6 +198,7 @@ python tests/run_tests.py && python tests/contract_refs.py && python tests/route
 - **`sync_to_main._norm` 必须做行尾归一**（09-14 修复）：Windows（`Path.write_text`）写 CRLF、Linux/`echo` 写 LF，同一文件会被 md5 判成「内容漂移」假阳性。比对前统一 `\r\n`/`\r` → `\n`，与 BOM 剥离同理。
 - **`sync_to_main.py` 有自指豁免**（不自己同步自己，为兼容主库的 IP 占位符钉法）→ 主库版会长期落后；改它之后必须手工把发布版写入主库，否则修复不进发布包（09-14 抓到主库版落后 5 项修复）。
 - **DSH 副本的 `SKILL.md`/`.gitignore` 是专属文件，禁止整体覆盖**（09-14 踩坑）：`dsh-pkos-skill/SKILL.md` 用 DSH frontmatter（`name: dsh-pkos-skill` + DSH 专属 description + 双倍行距），`.gitignore` 有自己的规则集。用 `cp` 从 live 整体拷过去会抹掉专属内容——同步 DSH 只能逐项施加合法改动（版本号/坑位/路径指引）。
+- **归档目录 TTL 治理**（09-14 用户裁定「设期限，期内没用就删」）：`scripts/archive_ttl.py` 对 `_trash`/`_backup`/`_rollback` 按「归档年龄 ≥ TTL（30/60/60 天）+ 无活体引用 + 未 `.keep` 钉住」三重判据删除，默认 dry-run，`--apply` 才真删并写 `_gc-deleted-<ts>.json` 台账。cron 任务「归档目录 TTL 清理」（每日 03:00，no_agent）已挂。**atime 不可用作判据**——实测被扫描/索引/杀软批量刷成「今天」，无区分度；判据只能用 mtime 年龄 + 引用扫描。
 
 ## Verification
 

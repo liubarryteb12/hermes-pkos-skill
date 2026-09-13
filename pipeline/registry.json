@@ -1,9 +1,14 @@
 {
   "schema": "pkos-pipeline:2",
   "version": 2,
-  "pkos_semver": "5.5.4",
+  "pkos_semver": "5.5.5",
   "updated_at": "2026-09-12",
   "changelog": [
+    {
+      "version": "5.5.5",
+      "date": "2026-09-14",
+      "summary": "归档目录 TTL 治理：新增 scripts/archive_ttl.py（按「归档年龄 ≥ TTL 30/60/60 天 + 无活体引用 + 未 .keep 钉住」三重判据删除本机 _trash/_backup/_rollback 条目；默认 dry-run，--apply 写 _gc-deleted-<ts>.json 台账）+ cron 任务「归档目录 TTL 清理」（每日 03:00，no_agent，watchdog 静默）。教训：atime 不可用作「是否被使用」判据（被扫描/索引/杀软批量刷新，无区分度）。"
+    },
     {
       "version": "5.5.3",
       "date": "2026-09-13",
