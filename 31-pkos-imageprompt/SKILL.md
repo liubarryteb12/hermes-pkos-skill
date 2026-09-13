@@ -1,6 +1,6 @@
 ---
 name: "pkos.imageprompt.compose"
-version: 1.2.0
+version: "1.3.0"
 description: 图集（套图）提示词生产中心（pkos.imageprompt.compose）：针对一个图集/套图主题，成体系地产出整套图的提示词——锁定统一视觉母题、风格锚、配色光线与系列一致性，明确逐张差异点与叙事顺序，输出可直接逐张出图的套图题词包（含安全层消毒与参数规范）。只做题词与参数组装，不调 API 不出图（出图走 27-pkos-gptimage2use 或外部通道）。触发语：「出套图提示词」「做一套图集题词」「图集提示词」「系列图提示词」「M01-S03 出一套」「出一组同风格图」。
 ---
 
@@ -9,7 +9,7 @@ description: 图集（套图）提示词生产中心（pkos.imageprompt.compose�
 ```yaml
 capability_id: "pkos.imageprompt.compose"
 required_capability: "llm_chat{reasoning:medium}"
-version: "1.2.0"
+version: "1.3.0"
 compatible_pkos_schema: ">=2.0.0"
 stage: utility
 semantic_goal: "图集（套图）提示词生产中心（09-13 用户裁定）：消费一个图集主题或编号体系（M母题-S子题-F风格-U用途-A审美），成体系地产出 N 张图的成套提示词——锁定统一视觉母题/风格锚/配色光线，明确逐张差异点与叙事顺序，强制过 S00 安全层与 C00 参数规范，返回可逐张粘贴的套图题词包；本单元面向「套图/系列图」生产，不是全体系题词唯一产出中心，出口单元的单图封面/配图题词由模型理解内容后自行提炼"
@@ -95,6 +95,49 @@ JSON 数组，每项：
 - `--filter Sxx` / `--filter X02` / `--filter F03`
 - `--weight`（按审美预设加权）
 - `--exclude`（排除某条码）
+
+## 随机抽卡（A 分层随机）
+
+> 按 M/S/X/F/U/A 六段码随机抽题词，用于灵感激发、设计冲刺、批量选题。
+
+### 用法
+```bash
+# 随机抽 1 条（默认）
+python scripts/random_draw.py
+
+# 随机抽 5 条
+python scripts/random_draw.py --count 5
+
+# 限定母题 M01（人物写真）
+python scripts/random_draw.py --filter M01
+
+# 可复现的抽卡（同一 seed 出同一结果）
+python scripts/random_draw.py --seed 42
+```
+
+### 输出格式
+JSON 数组，每项：
+```json
+{
+  "code": "M01-S01-1-F01-U03-A01",
+  "description": "...",
+  "positive": "正向提示词（已过 S00 消毒）",
+  "negative": "负向提示词",
+  "anchor": "风格锚点原文",
+  "source_file": "references/prompt-library/M01-S01-1-生活感.md"
+}
+```
+
+### 设计要点（09-13 用户裁定）
+- **A 分层随机**：从全部已注册条目中均匀随机，不按分布（库内条数不均时仍均匀抽）
+- **抽卡 ≠ 出图**：抽卡只产题词，出图走 27-pkos-gptimage2use 或外部通道
+- **不覆盖创作**：抽卡是灵感辅助，不能替代人工选题
+
+### 预留扩展（未实现）
+- `--filter Sxx` / `--filter X02` / `--filter F03`
+- `--weight`（按审美预设加权）
+- `--exclude`（排除某条码）
+
 # 题词库结构（v1.0.0 基线：16 子题 × 5 风格 × 4 题词 = 320 条）
 
 ```
