@@ -1,128 +1,103 @@
-# PKOS 产出物位置总表（权威）
+# PKOS 产出物位置总表（权威 v2 — 09-14 迁移后）
 
-> 生成：2026-09-13 · 来源：实地扫描各单元 SKILL.md 声明 + 磁盘实际内容 + `scripts/pkos_paths.py` 解析
-> 用途：你要审核产出时，按本表去对应目录找东西。
-
----
-
-## 一、三个根（先记这个）
-
-| 根 | 路径 | 装什么 |
-|---|---|---|
-| **知识库 vault** | `D:\obsidian知识库\obsidian知识库` | 知识条目、索引、分析、审计、路由单、handoff |
-| **主 workspace** | `D:\00.AIagent\hermesagent\pkos-outputs` | 公众号、漫画、Gemini 出图/出视频、圆桌 |
-| **副 workspace** | `D:\00.AIagent\hermesagent\workspace` | 文章出稿、题词库、PPT/HTML/小说、研究报告 |
-
-⚠️ **注意：workspace 有两个，内容不重叠**（历史原因分叉，见文末）。
+> 生成:2026-09-14 · 用途:审核产出时按本表去对应目录找东西。
+> **三条铁律(用户裁定)**:① 操作文件(脚本/配置/状态)→ 套件根 `_ops/` ② 产出产品(文章/图/报告)→ `workspace/` 下对应子目录 ③ `workspace` 路径可配置(本机默认 `D:\00.AIagent\hermesagent\workspace`)
 
 ---
 
-## 二、按产线找东西（你要审核时主要看这里）
+## 一、两个根 + 一个可配置产出根
+
+| 根 | 本机路径 | 职责 | 进 git? |
+|---|---|---|---|
+| **知识库 vault** | `D:\obsidian知识库\obsidian知识库` | 知识条目/索引/分析/审计/路由单/handoff | ❌ |
+| **操作文件根** | 套件内 `_ops/` | 脚本/配置/状态快照/日志/备份(随套件走) | ❌ |
+| **产出总根(output_root)** | `D:\00.AIagent\hermesagent\workspace` | 所有产物:文章/图/报告/PPT/小说/漫画 | ❌ |
+
+路径解析入口: `scripts/pkos_paths.py`(v2,09-14)——所有单元脚本必须经此取路径,禁止硬编码。
+
+---
+
+## 二、按产线找东西(审核时用)
 
 ### 公众号文章
 | 内容 | 位置 |
 |---|---|
-| 文章成稿（按母题分目录） | `pkos-outputs\gzh\01-...` 到 `09-AI办公室\` |
-| 文章索引 | `pkos-outputs\gzh\00-文章索引.md` |
-| 选题规划 | `pkos-outputs\gzh\00-选题规划-母题总表.md` 等 |
-| 封面图 | `pkos-outputs\gemini-images\gzh-covers*\` |
-| 发表工具 | `pkos-outputs\gzh\_tools\`（wx_api.py 等） |
-| **出稿终稿**（13/30 单元产物） | `workspace\pkos-exports\article\<route-id>-article\` |
+| 文章成稿(按母题分目录) | `workspace\gzh\01-...` 到 `09-AI办公室\` |
+| 文章索引 | `workspace\gzh\00-文章索引.md` |
+| 选题规划 | `workspace\gzh\00-选题规划-*.md` |
+| 封面图 | `workspace\gzh-covers-new3\` 或 `workspace\gemini-images\gzh-covers*\` |
+| 发表工具(脚本) | `_ops\gzh\_tools\wx_api.py` 等 |
+| **出稿终稿**(13/30 单元产物) | `workspace\pkos-exports\article\<route-id>-article\` |
 
 ### 漫画
 | 内容 | 位置 |
 |---|---|
-| 漫画产物（分镜+图） | `pkos-outputs\comic\` |
-| 角色卡库 | `pkos-outputs\comic\characters\角色卡库.md` |
-| 出图脚本 | `pkos-outputs\comic\_tools\` |
-| 出图结果 | `pkos-outputs\comic\images\`、`images-gemini\`、`images-gpt2\` |
+| 漫画原图/对话框 | `workspace\comic\` |
+| 角色卡库 | `workspace\comic\characters\` |
+| 生成脚本 | `_ops\comic\_tools\gen_6grid_gpt2.py` 等 |
 
-### 题词库 / 套图（31、32 单元）
+### 套图(32-pkos-suitegen)
 | 内容 | 位置 |
 |---|---|
-| **题词库（发布镜像）** | 套件内 `31-pkos-imageprompt\references\prompt-library\` |
-| **题词库（编辑场）** | `workspace\modelscope-prompts\` |
-| 套图示例图 | `workspace\pkos-imageprompts\examples\` |
-| 套图出图结果 | `workspace\pkos-imageprompts\out\` |
-| 32 套图剧本 | 套件内 `32-pkos-suitegen\references\scripts\` |
-| 32 风格 skill 集 | 套件内 `32-pkos-suitegen\references\styles\` |
+| 参考示例图 | `workspace\pkos-imageprompts\examples\` |
+| 出图产物 | `workspace\pkos-imageprompts\out\` |
+| 题词库(31) | 套件内 `31-pkos-imageprompt\references\prompt-library\` |
+| 风格 skill 种子 | 套件内 `32-pkos-suitegen\references\styles\` |
 
-### Gemini / 出图通道
+### 其他产线
 | 内容 | 位置 |
 |---|---|
-| Gemini 对话记录 | `pkos-outputs\gemini-chat\` |
-| Gemini 出图 | `pkos-outputs\gemini-images\` |
-| Gemini 视频 | `pkos-outputs\gemini-videos\` |
-| 元宝出图 | `pkos-outputs\yuanbao-images\` |
-| ModelScope 出图 | `workspace\ms-images\` |
-
-### PPT / HTML / 小说
-| 内容 | 位置 |
-|---|---|
-| PPT 产物 | `workspace\ppt\<route-id>\` |
-| HTML 产物 | `workspace\html\` |
-| 小说产物 | `workspace\novel\` |
-
-### 评分 / 研究
-| 内容 | 位置 |
-|---|---|
-| 文章评分卡 | `workspace\article-quality-scoring\scorecards\` |
+| PPT/HTML/小说 | `workspace\{ppt,html,novel}\` |
+| 评分卡 | `workspace\article-quality-scoring\scorecards\` |
 | 研究报告 | `workspace\research\` |
-| 综合报告 | `workspace\report\` |
-
-### 圆桌（三方 AI）
-| 内容 | 位置 |
-|---|---|
-| 圆桌全部 | `pkos-outputs\roundtable-np\{briefs,replies,artifacts,verification}\` |
+| Gemini 图/视频/对话 | `workspace\gemini-{images,videos,chat}\` |
+| 元宝图/对话 | `workspace\yuanbao-{images,chat}\` |
+| 圆桌 | `workspace\roundtable-np\` |
+| 旧题词镜像 | `workspace\modelscope-prompts\` |
 
 ---
 
-## 三、知识库内部（vault 的 _PKOS）
+## 三、知识库 vault 内部(_PKOS/)
 
-| 目录 | 装什么 |
-|---|---|
-| `_PKOS\INBOX\` | 收件箱（待分拣） |
-| `_PKOS\entries\` | 入库的知识条目 |
-| `_PKOS\analysis\` | 分析产物 AN-*、润色 POL-*、trend-digest |
-| `_PKOS\routes\` | 路由单 RT-*.yaml |
-| `_PKOS\outputs\` | 出口产物（html/deck/comic-script/image） |
-| `_PKOS\manifests\` | 各单元运行清单 |
-| `_PKOS\reports\` | 审计/体检/lint 报告（445 文件） |
-| `_PKOS\handoffs\` | 会话交接单 |
-| `_PKOS\_Export\` | 出口中转（终稿已移到 workspace） |
-
----
-
-## 四、怎么校验一个产出该在哪
-
-```bash
-# 路径系统实际解析
-cd <套件根>
-python -c "import sys; sys.path.insert(0,'scripts'); import pkos_paths as p; print(p.get_vault(), p.get_workspace(), p.get_inboxes())"
+```
+_PCOS/
+├── INBOX/        收件箱(intake 扫描入口)
+├── entries/      已入库条目(按 slug 命名)
+├── analysis/     结构化理解产出
+├── routes/       路由单(RT-*)
+├── outputs/      出口层临时产物(脚本生成)
+├── manifests/    路由单 manifest
+├── reports/      各类报告
+├── audits/       审计 JSON + 趋势
+├── fanout/       概念扇出
+├── queries/      高价值查询结果
+├── _Export/      HTML 出口工作区
+└── handoffs/     交接文档
 ```
 
-当前实际解析：
-- vault = `D:\obsidian知识库\obsidian知识库`
-- workspace = `D:\00.AIagent\hermesagent\pkos-outputs` ← **注意是这个**
-- inboxes = `<vault>\_PKOS\INBOX`
+---
+
+## 四、迁移日志(09-14)
+
+- **原 `pkos-outputs\`(1046 文件,157MB)拆为两份**:
+  - 246 个操作文件 → `_ops\`(gzh 196 / comic 46 / 其他 4)
+  - 786 个产出 → `workspace\`(按顶层目录对应:gzh/gemini-images/comic/...)
+- **路径系统 v2**: `scripts/pkos_paths.py` 默认 `workspace` 已改为新路径;新增 `get_output_root()` / `get_ops_root()` 访问器
+- **gitignore 加 `_ops/`**:操作文件含运营状态快照,不进公开仓库
+- **代码引用修复**:`15-pkos-gzhpublish/scripts/upload_weixin_draft.py` 改走 `pkos_paths.get_output_root()`
+- **文档同步**:本文档 + SKILL.md 顶部指针 + contracts(如有引用)
 
 ---
 
-## 五、已知问题：workspace 双份分叉
+## 五、新机器/新用户怎么配
 
-| | `pkos-outputs`（路径系统指向） | `workspace`（副） |
-|---|---|---|
-| 谁在用 | 12-comic / 24-gemini / 26-video / 圆桌 / 公众号 gzh | 13-wenzhang / 30-scorecard / 31-imageprompt（SKILL.md 硬编码路径） |
-| 内容 | 公众号 622、漫画 113、Gemini 图 192 等 | 文章出稿 36、题词库 25、PPT/HTML/小说/研究 |
-| 最新活动 | 2026-09-13 | 2026-09-13 |
-
-**根因**：部分单元 SKILL.md 里硬编码了 `workspace\...`，而 `pkos_paths.py` 解析出的是 `pkos-outputs`。两套并存 → 产出分散。
-
-**处置建议**（待你拍板）：
-- A）统一到 `pkos-outputs`：改 13/30/31 的硬编码路径 + 迁移现有文件
-- B）统一到 `workspace`：改 `pkos_paths.py` 默认值 + 迁移
-- C）保持双份，在本表登记"哪类产物去哪边"（零迁移，但永久两套）
-
----
-
-**本表位置**：`<套件根>\OUTPUTS-MAP.md`
+`config.json`(schema `pkos-config:1`,由 `00-pkos-init` bootstrap.py 生成):
+```json
+{
+  "schema": "pkos-config:1",
+  "vault": "D:/obsidian知识库/obsidian知识库",
+  "workspace": "D:/00.AIagent/hermesagent/workspace",
+  "inboxes": ["D:/obsidian知识库/obsidian知识库/_PKOS/INBOX"]
+}
+```
+把 `workspace` 改成你的产出根路径即可,无需改代码。

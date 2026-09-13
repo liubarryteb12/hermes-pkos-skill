@@ -25,7 +25,7 @@ replaces: []
 # 机器脚本（gemini_video.py）
 
 ```bash
-python 26-pkos-gemini-video/scripts/gemini_video.py --prompt "..." --out-dir "D:/00.AIagent/hermesagent/pkos-outputs/gemini-videos" [--timeout 600]
+python 26-pkos-gemini-video/scripts/gemini_video.py --prompt "..." --out-dir "D:/00.AIagent/hermesagent/workspace/gemini-videos" [--timeout 600]
 # 产出: <out-dir>/<ts>-<slug>.mp4 + .manifest.json（schema: 26-pkos-gemini-video:1）
 # 首次实测产物: 20260905-010753-stick_figure_walking_in_rain_.mp4（4.8MB，用户手动下载后归档）
 ```
@@ -63,7 +63,7 @@ python 26-pkos-gemini-video/scripts/gemini_video.py --prompt "..." --out-dir "D:
 4. **质量现实**：首次实测 720p 有轻微掉帧——属模型侧，非脚本问题；高要求用 1080p 重跑。
 5. **下载确认环节（2026-09-05 复盘铁律）**：脚本成功返回 `accepted:true` 时必须向用户报告**完整归档路径**（`--out-dir` 下的 `<ts>-<slug>.mp4` 全路径），格式：
    `视频已归档：<video 完整路径>（<bytes> bytes）+ manifest：<manifest 完整路径>`
-   不得只说"已下载/已生成"。背景：首次跑通时点击下载成功但调用方未向用户明确归档位置，用户不知视频去向而手动下载——归档目录 `pkos-outputs/gemini-videos/` 是唯一真相源，Downloads 只是中转。
+   不得只说"已下载/已生成"。背景：首次跑通时点击下载成功但调用方未向用户明确归档位置，用户不知视频去向而手动下载——归档目录 `workspace/gemini-videos/` 是唯一真相源，Downloads 只是中转。
 6. **发送竞态（2026-09-05 实战）**：模板画廊态下 Send 点击可能丢失，prompt 滞留输入框 → 脚本 3.5 步做发送确认（输入框未清空则重发）。
 7. **下载按钮可视区（2026-09-05 实战）**：按钮 y=-406 在可视区外时 click 无效 → 先 scrollIntoView + 坐标校验；失败回退 `a[download]` 直触 video.src（贡献链接带登录态，实测最可靠，落盘 video.mp4）。
 8. 其余坑（ref 漂移/Chrome 标签堆积/DOWNLOADS 延迟）同 image 单元。

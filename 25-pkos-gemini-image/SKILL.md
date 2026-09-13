@@ -29,7 +29,7 @@ replaces: []
 # 机器脚本（gemini_image.py）
 
 ```bash
-python 25-pkos-gemini-image/scripts/gemini_image.py --prompt "灯塔插画, 扁平矢量风" --out-dir "D:/.../pkos-outputs/gemini-images"
+python 25-pkos-gemini-image/scripts/gemini_image.py --prompt "灯塔插画, 扁平矢量风" --out-dir "D:/00.AIagent/hermesagent/workspace/gemini-images"
 python 25-pkos-gemini-image/scripts/gemini_image.py --prompt-file p.txt --timeout 300 --keep-in-downloads
 ```
 

@@ -390,7 +390,7 @@ chinese_text=true 时，prompt 必带三件套：
 
 ## 角色卡库制度
 
-- 卡库：`pkos-outputs/comic/characters/角色卡库.md`（主角全期必到 + 拟物配角单期≤1）。
+- 卡库：`workspace/comic/characters/角色卡库.md`（主角全期必到 + 拟物配角单期≤1）。
 - 每期审核卡注明「本期出场」；锚定句从卡库**原样复制**，禁临场改写——跨期一致性唯一保障。
 - 主题有实体工具/容器意象→启用对应拟物卡；阻力用具象化障碍物，不设反派角色。
 
@@ -416,5 +416,5 @@ chinese_text=true 时，prompt 必带三件套：
 
 ## 交付物与位置
 
-- 产出只落 `D:/00.AIagent/hermesagent/pkos-outputs/comic/`（产物铁律：不写 skill 目录）。
-- 实战脚本：`pkos-outputs/comic/_tools/gen_6grid_gpt2.py`（gptimage2）、`gen_6grid_gemini.py`（Gemini），换 PANELS 段落即复用；单格补图用 `gen_story_gpt2.py`。发表走 15-pkos-gzhpublish 枢纽。
+- 产出只落 `D:/00.AIagent/hermesagent/workspace/comic/`（产物铁律：不写 skill 目录）。
+- 实战脚本：`workspace/comic/_tools/gen_6grid_gpt2.py`（gptimage2）、`gen_6grid_gemini.py`（Gemini），换 PANELS 段落即复用；单格补图用 `gen_story_gpt2.py`。发表走 15-pkos-gzhpublish 枢纽。

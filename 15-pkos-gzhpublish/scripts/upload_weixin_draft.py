@@ -12,7 +12,14 @@ import time
 from pathlib import Path
 
 OCLI_DIR = Path.home() / "AppData/Local/OpenCLIApp/node_modules/@jackwener/opencli/dist/src/main.js"
-ARCH = Path(r"D:/00.AIagent/hermesagent/pkos-outputs/comic/images")
+_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(_root / "scripts"))
+from pkos_paths import get_output_root  # 09-14:产出路径统一走 pkos_paths
+
+
+def _arch() -> Path:
+    """Comic 参考图存档根。09-14 迁移：从 pkos-outputs/comic/images → workspace/comic/images。"""
+    return get_output_root() / "comic" / "images"
 
 
 def oc(*args, timeout=120):
@@ -125,7 +132,7 @@ def main():
         print("GEN_TIMEOUT")
         return 1
     time.sleep(4)
-    dst = ARCH / name
+    dst = _arch() / name
     info = grab_last(dst)
     if info:
         dst.with_suffix(".manifest.json").write_text(json.dumps({

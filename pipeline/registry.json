@@ -1,7 +1,7 @@
 {
   "schema": "pkos-pipeline:2",
   "version": 2,
-  "pkos_semver": "5.5.2",
+  "pkos_semver": "5.5.4",
   "updated_at": "2026-09-12",
   "changelog": [
     {
