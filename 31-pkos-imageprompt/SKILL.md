@@ -264,6 +264,7 @@ replaces: []
 |---|---|
 | 27-pkos-gptimage2use | 本单元产题词包 → 27 消费 prompt 出图（prompt 原样透传，27 不改写语义）；出图 manifest 的 prompt 字段可回溯本单元 source_file |
 | 28-pkos-topic / 出口层 | 封面/插图槽位需要题词时由出口层按 U00 用途表调用本单元 |
+| 32-pkos-suitegen | 下游:消费本单元六段题词组装成 8-22 张套图(剧本框架+风格skill集);本单元只产题词,不碰套图组装 |
 | 12-pkos-comic | 漫画人物一致性走 comic 自己的定妆图+垫图流程（contracts/image-route-policy.md），本单元只服务单图题词需求 |
 
 # 维护纪律

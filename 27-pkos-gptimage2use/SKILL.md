@@ -232,6 +232,7 @@ python scripts/generate.py --prompt "..." --count 2
 
 | 相邻 | 分工 |
 |---|---|
+| 32-pkos-suitegen | 上游:套图生产分支产出逐张题词清单;本单元吃现成 prompt 出图(用户手动触发),不改写套图语义 |
 | 31-pkos-imageprompt | 题词资产层：31 产题词包 {code, positive, negative, anchor, params}，本单元消费 positive/size/quality 出图（prompt 原样透传不改写语义）；出图需求中的「提示词怎么写」转 31 |
 | 12-pkos-comic | 漫画批量出图走 comic 自己的渲染器（render_panels.py），本单元服务单图需求；边界以 contracts/image-route-policy.md 为准 |
 

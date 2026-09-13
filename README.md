@@ -180,6 +180,7 @@ python 04-pkos-knowledge-service-commit/scripts/trash_gc.py --report
 | `topic.generate`（`28-pkos-topic`） | 产品经理式选题：母题规划+候选标题组 |
 | `scorecard.judge`（`30-pkos-scorecard`） | 成稿六维评分门：机械项脚本算，REJECT 真拦人 |
 | `imageprompt.compose`（`31-pkos-imageprompt`） | ⭐ 图集（套图）提示词生产中心（320 条题词库+套图四步+安全层） |
+| `suitegen.assemble`（`32-pkos-suitegen`） | 套图生产分支：风格skill集（双模式进化）+ 剧本框架（4 模板）+ 8-22 张衔接图集；资产可商用 |
 
 ---
 
