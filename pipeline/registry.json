@@ -956,7 +956,7 @@
         "pkos.gemini.image（新）",
         "pkos.gemini.video（新，骨架）"
       ],
-      "workspace_rule": "用户铁律：产出物绝不放 skill/套件目录；一律落 workspace（pkos-outputs/<类别>/），并在回复中记录完整路径",
+      "workspace_rule": "用户铁律：产出物绝不放 skill/套件目录；一律落 workspace（workspace/<类别>/），并在回复中记录完整路径",
       "self_check": "py_compile 3/3; gemini_image 真实端到端跑通（下载→归档→sha256 一致→视觉验收）; registry JSON 合法"
     },
     {

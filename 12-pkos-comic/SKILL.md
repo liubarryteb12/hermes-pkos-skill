@@ -417,4 +417,4 @@ chinese_text=true 时，prompt 必带三件套：
 ## 交付物与位置
 
 - 产出只落 `D:/00.AIagent/hermesagent/workspace/comic/`（产物铁律：不写 skill 目录）。
-- 实战脚本：`workspace/comic/_tools/gen_6grid_gpt2.py`（gptimage2）、`gen_6grid_gemini.py`（Gemini），换 PANELS 段落即复用；单格补图用 `gen_story_gpt2.py`。发表走 15-pkos-gzhpublish 枢纽。
+- 实战脚本：`_ops/comic/_tools/gen_6grid_gpt2.py`（gptimage2）、`gen_6grid_gemini.py`（Gemini），换 PANELS 段落即复用；单格补图用 `gen_story_gpt2.py`。发表走 15-pkos-gzhpublish 枢纽。

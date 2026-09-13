@@ -158,4 +158,4 @@ python 15-pkos-gzhpublish/scripts/upload_weixin_draft.py --title "02-01-02 标�
 
 ## 历史
 
-- v1.0.0（2026-09-01）：从 12-pkos-comic 收编节迁出成立；实战载体 `comic_upload_send.py` 归位为 `scripts/upload_weixin_draft.py`（原文件保留于 workspace/comic/_tools/ 作历史参照）。
+- v1.0.0（2026-09-01）：从 12-pkos-comic 收编节迁出成立；实战载体 `comic_upload_send.py` 归位为 `scripts/upload_weixin_draft.py`（原文件保留于 _ops/comic/_tools/ 作历史参照）。
