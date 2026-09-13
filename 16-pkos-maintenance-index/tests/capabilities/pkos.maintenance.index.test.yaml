@@ -1,4 +1,4 @@
-﻿# 失败三态回归测试 — pkos.maintenance.index
+# 失败三态回归测试 — pkos.maintenance.index
 # Schema: pkos-test:1
 # 对应 v2 契约 C-4：v0 无索引能力，本轮全新实现
 

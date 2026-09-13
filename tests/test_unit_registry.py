@@ -10,45 +10,12 @@ import json, re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+from unit_dirs import UNIT_DIRS as ALIAS
 reg = json.loads((ROOT / "pipeline" / "registry.json").read_text(encoding="utf-8-sig"))
 
-# capability_id -> 单元目录（序号化命名后 id 与目录尾段不同构，硬编码映射）
-ALIAS = {
-    "pkos.governance.bootstrap": "00-pkos-init",
-    "pkos.intake.scan": "01-pkos-intake",
-    "pkos.distill.book": "02-pkos-distill-book",
-    "pkos.ingest.extract": "03-pkos-ingest",
-    "pkos.knowledge_service.commit": "04-pkos-knowledge-service-commit",
-    "pkos.analysis.structure": "05-pkos-analysis",
-    "pkos.polish.refine": "06-pkos-polish",
-    "pkos.weak_check.verify": "07-pkos-weak-check",
-    "pkos.router.decide": "08-pkos-router",
-    "pkos.intake.query": "09-pkos-intake-query",
-    "pkos.exit.html.render": "10-pkos-html",
-    "pkos.exit.ppt.compose": "11-pkos-ppt-skill",
-    "pkos.exit.comic.compose": "12-pkos-comic",
-    "pkos.exit.wenzhang.compose": "13-pkos-wenzhang-skill",
-    "pkos.exit.gzhxiaoshuo.compose": "14-pkos-gzhxiaoshuo-skill",
-    "pkos.publish.draft": "15-pkos-gzhpublish",
-    "pkos.maintenance.index": "16-pkos-maintenance-index",
-    "pkos.audit.lint": "17-pkos-audit-lint",
-    "pkos.fanout.concept": "18-pkos-fanout-concept",
-    "pkos.maintenance.timeline": "19-pkos-timeline",
-    "pkos.governance.audit": "20-pkos-audit",
-    "pkos.governance.tick": "21-pkos-meta",
-    "pkos.operator.audit": "22-pkos-soulselect",
-    "pkos.skillopt.train": "23-pkos-skillopt",
-    "pkos.gemini.chat": "24-pkos-gemini-chat",
-    "pkos.gemini.image": "25-pkos-gemini-image",
-    "pkos.gemini.video": "26-pkos-gemini-video",
-    "pkos.gptimage2use": "27-pkos-gptimage2use",
-    "pkos.topic.generate": "28-pkos-topic",
-    "pkos.trend.collect": "29-pkos-trend",
-    "pkos.scorecard.judge": "30-pkos-scorecard",
-    "pkos.imageprompt.compose": "31-pkos-imageprompt",
-}
-
-
+# capability_id -> 单元目录：SSOT 在 scripts/unit_dirs.py（顶部 import UNIT_DIRS）。
+# 本地不再维护第二份表——09-13 审查发现两份手抄表曾分叉。
 def contract_view(text: str) -> dict:
     """frontmatter + Capability yaml 契约块合并视图（后者优先）。"""
     d = {}
@@ -75,12 +42,10 @@ for u in reg.get("units", []):
         continue
     checked += 1
     ver = str(u.get("version"))
+    # SSOT 映射，不做尾段 glob 猜测（glob 会把 pkos.operator.audit 误指 20-pkos-audit）
     d = ROOT / ALIAS.get(cid, "")
     if not d.exists():
-        # 兜底：尾段 glob
-        tail = cid.split(".")[-1]
-        cands = sorted(ROOT.glob(f"[0-9][0-9]-pkos-{tail}")) + sorted(ROOT.glob(f"pkos-{tail}"))
-        d = cands[0] if cands else None
+        d = None
     if not d or not d.exists():
         failures.append(f"{cid}: 找不到单元目录（ALIAS 缺映射?）")
         continue

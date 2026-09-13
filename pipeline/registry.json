@@ -7,6 +7,12 @@
     {
       "version": "5.5.1",
       "date": "2026-09-13",
+      "summary": "bug-sweep：新增 scripts/unit_dirs.py 权威映射（capability_id→目录 SSOT）；version_sync 弃 glob 尾段猜测（曾把 pkos.operator.audit 误指 20-pkos-audit、pkos.publish.draft/28-31 解析 None 静默跳过=六单元版本漂移检测失明）；未解析单元改为 UNRESOLVED 硬失败；registry 补 5 条新式条目 id 字段；bootstrap --check 增加 config_exists/note_config 显式字段；9 处 BOM 清除",
+      "type": "bugfix"
+    },
+    {
+      "version": "5.5.1",
+      "date": "2026-09-13",
       "author": "hermes",
       "summary": "命名与定位校准（用户 09-13 裁定）：①15-pkos-publish→15-pkos-gzhpublish ②22-pkos-operator→22-pkos-soulselect（capability_id 冻结不变）③31-pkos-imageprompt 重定义为「图集（套图）提示词生产中心」，撤销 09-08「全体系题词唯一输出中心」定位及 4 出口单元（html/ppt/comic/wenzhang）的 depends_on 强制绑定——单图题词由出口单元模型理解内容后自行提炼，套图才走 31",
       "changes": [
@@ -2473,7 +2479,8 @@
       "status": "registered",
       "consumes": "RT-* 路由单 + 出口单元成品（html/ppt/comic/novel/wenzhang） + 目标平台凭证",
       "produces": "草稿箱 media_id + 发布状态（draft/uploaded/failed） + 回读校验结果",
-      "semantic_goal": "发表枢纽：消费出口层成品，执行 upload→回读→验证四项闭环（完整性/尺寸/media_id有效期/平台回读）"
+      "semantic_goal": "发表枢纽：消费出口层成品，执行 upload→回读→验证四项闭环（完整性/尺寸/media_id有效期/平台回读）",
+      "id": "pkos.publish.draft"
     },
     {
       "capability_id": "pkos.topic.generate",
@@ -2494,7 +2501,8 @@
       "depends_on_capabilities": [
         "pkos.trend.collect",
         "pkos.router.decide"
-      ]
+      ],
+      "id": "pkos.topic.generate"
     },
     {
       "capability_id": "pkos.trend.collect",
@@ -2512,7 +2520,8 @@
       "consumes": "采集窗口（默认近7天）+ 可选领域关键词",
       "produces": "_PKOS/analysis/trend-digest-YYYYMMDD.md + trend-digest-latest.md 指针；有沉淀价值的信号复制进 _PKOS/INBOX/（type=clipping）",
       "semantic_goal": "周期性采集热点信号并产出结构化情报单（信号/来源/热度证据/时效窗口），不做任何选题决策",
-      "depends_on_capabilities": []
+      "depends_on_capabilities": [],
+      "id": "pkos.trend.collect"
     },
     {
       "capability_id": "pkos.scorecard.judge",
@@ -2533,7 +2542,8 @@
       "depends_on_capabilities": [
         "pkos.router.decide",
         "pkos.weak_check.verify"
-      ]
+      ],
+      "id": "pkos.scorecard.judge"
     },
     {
       "capability_id": "pkos.imageprompt.compose",
@@ -2557,7 +2567,8 @@
         "decide_exit"
       ],
       "depends_on_capabilities": [],
-      "semantic_goal": "图集（套图）提示词生产中心（09-13 用户裁定）：消费一个图集主题或编号体系（M母题-S子题-F风格-U用途-A审美），成体系地产出 N 张图的成套提示词——锁定统一视觉母题/风格锚/配色光线，明确每张的差异点与叙事顺序，强制过 S00 安全层与 C00 参数规范，返回可逐张粘贴的套图题词包。本单元面向「套图/系列图」生产，不是全体系题词唯一产出中心；出口单元的单图封面/配图题词由模型理解内容后自行提炼。"
+      "semantic_goal": "图集（套图）提示词生产中心（09-13 用户裁定）：消费一个图集主题或编号体系（M母题-S子题-F风格-U用途-A审美），成体系地产出 N 张图的成套提示词——锁定统一视觉母题/风格锚/配色光线，明确每张的差异点与叙事顺序，强制过 S00 安全层与 C00 参数规范，返回可逐张粘贴的套图题词包。本单元面向「套图/系列图」生产，不是全体系题词唯一产出中心；出口单元的单图封面/配图题词由模型理解内容后自行提炼。",
+      "id": "pkos.imageprompt.compose"
     }
   ],
   "infra_non_units": [

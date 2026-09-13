@@ -16,32 +16,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 REG = ROOT / "pipeline" / "registry.json"
 
-# capability_id -> 单元目录名（改名后带序号；用目录探测兼容）
-def unit_dir(cid: str):
-    tail = cid.split(".")[-1]
-    for cand in sorted(ROOT.glob(f"*-pkos-{tail}")) + sorted(ROOT.glob(f"pkos-{tail}")):
-        if cand.is_dir():
-            return cand
-    # 语义映射兜底（capability_id 与目录名不同构的单元）
-    ALIAS = {
-        "pkos.analysis.structure": "pkos-analysis", "pkos.audit.lint": "pkos-audit-lint",
-        "pkos.exit.comic.compose": "pkos-comic", "pkos.exit.gzhxiaoshuo.compose": "pkos-gzhxiaoshuo-skill",
-        "pkos.exit.html.render": "pkos-html", "pkos.exit.ppt.compose": "pkos-ppt-skill",
-        "pkos.exit.wenzhang.compose": "pkos-wenzhang-skill", "pkos.governance.audit": "pkos-audit",
-        "pkos.governance.bootstrap": "pkos-init", "pkos.governance.tick": "pkos-meta",
-        "pkos.ingest.extract": "pkos-ingest", "pkos.intake.query": "pkos-intake-query",
-        "pkos.intake.scan": "pkos-intake", "pkos.knowledge_service.commit": "pkos-knowledge-service-commit",
-        "pkos.maintenance.index": "pkos-maintenance-index", "pkos.maintenance.timeline": "pkos-timeline",
-        "pkos.operator.audit": "pkos-operator", "pkos.polish.refine": "pkos-polish",
-        "pkos.router.decide": "pkos-router", "pkos.skillopt.train": "pkos-skillopt",
-        "pkos.weak_check.verify": "pkos-weak-check", "pkos.distill.book": "pkos-distill-book",
-        "pkos.fanout.concept": "pkos-fanout-concept",
-    }
-    d = ROOT / ALIAS.get(cid, f"pkos-{tail}")
-    # 也试带序号前缀的
-    for cand in sorted(ROOT.glob(f"[0-9][0-9]-{d.name}")):
-        return cand
-    return d if d.is_dir() else None
+# capability_id -> 单元目录：唯一权威映射在 scripts/unit_dirs.py（SSOT）。
+# 不做 glob 尾段猜测：`*-pkos-<tail>` 会把 pkos.operator.audit 误指 20-pkos-audit。
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from unit_dirs import unit_dir
 
 
 def fm_version(path: Path):
@@ -104,11 +82,14 @@ def main():
 
     # --- 单元级校验（只查不改） ---
     unit_drift = []
+    unresolved = []
     for u in reg.get("units", []):
         cid = u.get("capability_id", "")
         if not cid or u.get("status") == "deprecated": continue
-        d = unit_dir(cid)
-        if not d: continue
+        d = unit_dir(ROOT, cid)
+        if not d:
+            unresolved.append(cid)
+            continue
         sp_u = d / "SKILL.md"
         if not sp_u.exists(): continue
         fv = fm_version(sp_u)
@@ -124,6 +105,10 @@ def main():
         print(f"  [UNIT-DRIFT] {d}（单元版本属单元演进，人工核对后改 registry 或 SKILL.md）")
     if problems and not apply:
         print(f"version_sync: FAIL ({len(problems)} 处套件级漂移)"); return 1
+    if unresolved:
+        for c in unresolved:
+            print(f"  [UNRESOLVED] {c}（capability_id 无映射或目录缺失——补 scripts/unit_dirs.py，不静默跳过）")
+        print(f"version_sync: FAIL ({len(unresolved)} 个单元目录无法解析)"); return 1
     if unit_drift:
         print(f"version_sync: {'FAIL' if not apply else 'WARN'} ({len(unit_drift)} 个单元漂移)")
         return 1 if not apply else 0

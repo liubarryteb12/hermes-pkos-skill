@@ -61,6 +61,8 @@ def main() -> int:
                 problems.append(f"收件箱不存在: {ib}")
         print(json.dumps({
             "ok": not problems, "config_file": str(pkos_paths.CONFIG_PATH),
+            "config_exists": from_config,
+            "note_config": ("当前生效：config.json" if from_config else "当前生效：内置默认路径（未初始化——该路径是将来 write_config 的落点）"),
             "from_config": from_config, "vault": str(vault), "workspace": str(ws),
             "inboxes": [str(x) for x in pkos_paths.get_inboxes()],
             "problems": problems,

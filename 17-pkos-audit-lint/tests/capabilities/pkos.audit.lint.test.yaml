@@ -1,4 +1,4 @@
-﻿# 失败三态回归测试 — pkos.audit.lint
+# 失败三态回归测试 — pkos.audit.lint
 # Schema: pkos-test:1
 # 对应 v2 契约 C-4：v0 audit 基础上加 auto-fix 层
 
