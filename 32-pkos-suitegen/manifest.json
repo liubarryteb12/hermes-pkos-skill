@@ -1,0 +1,9 @@
+{
+  "capability_id": "pkos.suitegen.assemble",
+  "name": "32-pkos-suitegen",
+  "version": "1.0.0",
+  "stage": "utility",
+  "compatible_pkos_schema": ">=2.0.0",
+  "description": "套图生产分支：消费 31 六段题词 + 剧本框架 → 8-22 张衔接图集；管理风格 skill 集（双模式进化）",
+  "created": "2026-09-13"
+}

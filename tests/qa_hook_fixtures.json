@@ -5,7 +5,8 @@
   "09": "## 检索计划\n### Q1: 查 X\n依据: MASTER_INDEX 条目 A\n### Q2: 查 Y\n依据: fanout 图 B\n",
   "18": "## 概念扇出\n### F1 子题\ndomain: ai-coding\n概述: 一句话\n跨域边: ai-coding → obsidian-pkm\n### F2 子题\ndomain: ai-art\n概述: 一句话\n### F3 子题\ndomain: make-money\n概述: 一句话\n",
   "29": "## 信号 2026-09-09\n### 信号一标题够长\n来源: github trending\n日期: 2026-09-09\n### 信号二标题也够长\n来源: v2ex\n### 信号三标题还是长\n来源: X\n",
-  "31": "code: M01-S03-F02-U01-A03\npositive: 一位优雅女性，窗边晨光，胶片质感\nnegative: 低清, 多指, 文字\nanchor: 窗边晨光\nparams: 分辨率 1024x1536, 比例 2:3\n"
+  "31": "code: M01-S03-1-F02-U01-A02\npositive: 一位优雅女性，冰白高级流，冷白环境，high-key 柔光\nnegative: 低清, 多指, 文字, 暖调重饱和\nanchor: 冰白高级流（影棚时装流）\nparams: 分辨率 1024x1536, 比例 2:3",
+  "32": "script: growth-line\nstyle: ice-white-flow\n张数: 12\ncode: M01-S03-1-F02-U01-A02\n场景1: 起点，清晨窗光，中景，她整理衣领，情绪平稳，道具咖啡杯，衔接开场\n场景2: 裂痕，正午顶光，近景，她低头看手机，情绪微澜，道具手机，衔接场景1\n主体: 成年女性\n情绪: 从平静到蜕变\n衔接: 因果递进\npositive: 冰白高级流，冷白环境，时尚女性\nnegative: 低清, 多指, 文字, 暖调重饱和\nparams: 分辨率 1024x1536, 比例 2:3"
  },
  "bad": {
   "05": "概述留空，要点只有一条：\n- 唯一要点\n【待补】\n",
@@ -13,6 +14,7 @@
   "09": "## 检索计划\n随便写了写，没有编号步骤\n",
   "18": "## 概念扇出\n### F1 子题\n（无 domain 无概述）\n### F1 重复编号\n【待补】\n",
   "29": "## 信号\n就一个信号还没有来源\n",
-  "31": "positive: nude woman\nnegative: 低清\n"
+  "31": "positive: nude woman\nnegative: 低清",
+  "32": "script: growth-line\nstyle: ice-white-flow\n张数: 5\ncode: M01-S03-1-F02-U01-A02\npositive: 冰白高级流\nnegative: 低清\n"
  }
 }

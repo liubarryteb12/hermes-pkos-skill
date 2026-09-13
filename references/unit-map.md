@@ -30,7 +30,8 @@
 | 30-pkos-scorecard | `pkos.scorecard.judge` | verify | `scripts/scorecard_calc.py` | 文章质量加权评分门（13 下游/15 上游，对标 07-weak-check 同层正交）：六维 A–F 双通道判定（机械+LLM 锚点），总分四级+verdict，PASS 才可发表；标准 SSOT=scorecard-policy.md |
 | 15-pkos-gzhpublish | `pkos.publish.draft` | publish | `scripts/upload_weixin_draft.py` | 发表枢纽：草稿箱同步唯一出口（upload→回填→add_draft→回读验证）；跨线共享，各 exit 只调用 |
 | 27-pkos-gptimage2use | `pkos.gptimage2use` | utility | `scripts/generate.py` | gptimage2 图像生成通用通道（需 PKOS_IMG_API_KEY） |
-| 31-pkos-imageprompt | `pkos.imageprompt.compose` | utility | `references/prompt-library/`（SKILL.md 流程） | 五段命名提示词工程：题词定位/组装/新写 + S00 安全消毒 + C00 参数（只题材词不出图，出图走 27） |
+| 31-pkos-imageprompt | `pkos.imageprompt.compose` | utility | `references/prompt-library/`（SKILL.md 流程） | 五段命名提示词工程：题词定位/组装/新写 + 
+| 32-pkos-suitegen | `pkos.suitegen.assemble` | utility | `references/styles/`+`references/scripts/`（SKILL.md 流程） | 套图生产分支：风格skill集（双模式进化）+ 剧本框架 + 6键题词组装 + 出图清单 |S00 安全消毒 + C00 参数（只题材词不出图，出图走 27） |
 | 19-pkos-timeline | `pkos.maintenance.timeline` | maintenance | `scripts/build_timeline.py` | vault 时间线构建 |
 | 16-pkos-maintenance-index | `pkos.maintenance.index` | maintenance | `scripts/index.py` | 索引维护 |
 | 20-pkos-audit | `pkos.governance.audit` | governance | `scripts/audit.py` | 治理审计 |

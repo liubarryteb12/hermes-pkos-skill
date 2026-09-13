@@ -42,6 +42,7 @@ UNIT_DIRS = {
     "pkos.trend.collect": "29-pkos-trend",
     "pkos.scorecard.judge": "30-pkos-scorecard",
     "pkos.imageprompt.compose": "31-pkos-imageprompt",
+    "pkos.suitegen.assemble": "32-pkos-suitegen",
 }
 
 

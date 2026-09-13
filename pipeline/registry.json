@@ -5,6 +5,12 @@
   "updated_at": "2026-09-12",
   "changelog": [
     {
+      "version": "5.5.3",
+      "date": "2026-09-13",
+      "summary": "新增 32-pkos-suitegen 套图生产分支：风格skill集（双模式进化）+ 剧本框架（4模板）+ 6键题词组装 + 出图清单；消费 31 题词，独立成体系",
+      "type": "feature"
+    },
+    {
       "version": "5.5.2",
       "date": "2026-09-13",
       "summary": "31-pkos-imageprompt v1.3.0: M-S-X-F-U-A 六段命名框架；random_draw.py 骨架；examples/out 隔离目录",
@@ -2575,6 +2581,33 @@
       "depends_on_capabilities": [],
       "semantic_goal": "图集（套图）提示词生产中心（09-13 用户裁定）：消费一个图集主题或编号体系（M母题-S子题-X系列-F风格-U用途-A审美），成体系地产出 N 张图的成套提示词——锁定统一视觉母题/风格锚/配色光线，明确每张的差异点与叙事顺序，强制过 S00 安全层与 C00 参数规范，返回可逐张粘贴的套图题词包。本单元面向「套图/系列图」生产，不是全体系题词唯一产出中心；出口单元的单图封面/配图题词由模型理解内容后自行提炼。",
       "id": "pkos.imageprompt.compose"
+    },
+    {
+      "capability_id": "pkos.suitegen.assemble",
+      "name": "32-pkos-suitegen",
+      "version": "1.0.0",
+      "stage": "utility",
+      "entry": "（SKILL.md 流程，风格 skill 集在 references/styles/，剧本模板在 references/scripts/）",
+      "summary": "套图生产分支：消费 31-pkos-imageprompt 六段题词 + 知识库分类素材，按剧本框架（成长线/漫游/一日/自由）组装成 8-22 张衔接图集；管理风格 skill 集（双模式进化：日常喂种子/阶段 skillopt 批量）。只产剧本+题词+清单，出图由用户手动触发 27-pkos-gptimage2use。",
+      "schema_compat": ">=2.0.0",
+      "required_capability": "llm_chat{reasoning:medium}",
+      "created": "2026-09-13",
+      "origin": "2026-09-13 用户裁定：套图生产分支——消费 31 题词 + 知识库素材，独立成体系（平行线），风格 skill 集双模式进化（日常喂种子+阶段 skillopt）",
+      "role": "套图生产分支（风格skill集+剧本框架）",
+      "status": "registered",
+      "consumes": "31 六段题词 + 知识库分类素材（手动同步）+ 剧本模板 + 张数/风格需求",
+      "produces": "套图剧本 <套图ID>/script.md + 逐张题词（衔接关系）+ 出图清单；产出资产可商用",
+      "NOT_actions": [
+        "call_image_api",
+        "generate_image",
+        "modify_source",
+        "decide_exit"
+      ],
+      "depends_on_capabilities": [
+        "pkos.imageprompt.compose"
+      ],
+      "semantic_goal": "套图生产分支（09-13 用户裁定准入）：消费 31-pkos-imageprompt 六段题词 + 知识库同步来的分类素材，按套图剧本框架（growth-line/city-walk/one-day/free-form）组装成 8-22 张、有叙事衔接关系的成套图集。管理「风格 skill 集」（进化型资产）：日常喂单条种子提升该风格 DNA（乙）/ 阶段攒批跑 skillopt 批量训练优化（甲），两者都要。产出套图剧本+逐张题词+出图清单；生图由用户手动触发 27-pkos-gptimage2use，本单元绝不自动调出图 API。与公众号/漫画/PPT/HTML 产线平行，不交叉不混入。",
+      "id": "pkos.suitegen.assemble"
     }
   ],
   "infra_non_units": [
