@@ -36,7 +36,7 @@ Personal Knowledge OS（PKOS）套件的 Hermes 原生封装。套件根 = 本�
 - **套图生产分支（32-pkos-suitegen，2026-09-13 用户裁定准入）**：「出套图」「做一套图集」「套图剧本」「按这个风格出套图」「风格进化」「喂个素材提升XX风格」→ 加载 `32-pkos-suitegen/SKILL.md`（消费 31 六段题词 + 知识库素材，风格 skill 集双模式进化，独立成体系）
 - **五段命名提示词工程（31-pkos-imageprompt，2026-09-07 用户裁定准入）**：「出提示词」「写个生图提示词」「题词怎么写」「按编号出题词」「M01-S03 那套」「换个审美风格」→ 加载 `31-pkos-imageprompt/SKILL.md`（母题M-子题S-系列X-风格F-用途U-审美A 五段编号 + P模特/S安全/C参数三层，题词资产库 16 子题 320 条 SSOT 在其 `references/prompt-library/`，强制过 S00 安全消毒）。**分工铁律：31 只题材词不出图，出图走 27-pkos-gptimage2use 或外部通道**。
 - **正文去 AI 味**：出口链的文案（小说/gzh/工作汇报正文）交稿前按 `humanizer-zh` 技能的 24 模式清单改写并自评 ≥45/50；「太简单/AI 味重」是用户明确退货理由，润色不是可选项。
-- **html-anything 模型选择（2026-08-29 实测）**：网关 `47.108.25.114:1519` 上 `glm-5.3-flash` 是推理模型，长输出会被 thinking 吃光 token 返回空 content——**禁用**；`deepseek-v4-flash` 快（小任务 ~30s）但对大生成（完整 HTML 页 ~10k token）会挂起数分钟甚至 524 超时。因此 **CLI 的 LLM 全自动路线只适合短文**；工作汇报/长页面走 **agent 主路线**：由 agent 按 html-anything 的设计系统直接手写单文件 HTML（首例：桌面《PKOS-工作汇报-20260829.html》）。环境变量：`OPENAI_API_KEY` ← `.env` 的 `HERMES_CUSTOM_1_API_KEY`，`OPENAI_BASE_URL=http://47.108.25.114:1519/v1`（git-bash 内联 `$(grep …)` 取 .env 值会静默失败，用 python 读）。
+- **html-anything 模型选择（2026-08-29 实测）**：网关 `<LLM_GATEWAY_HOST>:1519` 上 `glm-5.3-flash` 是推理模型，长输出会被 thinking 吃光 token 返回空 content——**禁用**；`deepseek-v4-flash` 快（小任务 ~30s）但对大生成（完整 HTML 页 ~10k token）会挂起数分钟甚至 524 超时。因此 **CLI 的 LLM 全自动路线只适合短文**；工作汇报/长页面走 **agent 主路线**：由 agent 按 html-anything 的设计系统直接手写单文件 HTML（首例：桌面《PKOS-工作汇报-20260829.html》）。环境变量：`OPENAI_API_KEY` ← `.env` 的 `HERMES_CUSTOM_1_API_KEY`，`OPENAI_BASE_URL=http://<LLM_GATEWAY_HOST>:1519/v1`（git-bash 内联 `$(grep …)` 取 .env 值会静默失败，用 python 读）。
 - 涉及 `D:\obsidian知识库\obsidian知识库` vault 的 PKOS 规范操作（校验、lint、索引、入库）。
 - **调研/研究类请求（入库前置）**：用户要"调研 X""研究透 X"时，先走外部技能链（见下「调研上游层」），报告落 `_PKOS/INBOX/` 后再接回本套件的 intake 链。
 - **Don't use for:** 与 PKOS 无关的普通笔记/Obsidian 操作（用 note-taking 类技能）；对 vault 的直接写操作（PKOS 规定唯一写入口是 `pkos.knowledge_service.commit`，见 Pitfalls）。
@@ -90,14 +90,14 @@ Personal Knowledge OS（PKOS）套件的 Hermes 原生封装。套件根 = 本�
 - Python ≥ 3.11 + PyYAML（`python -c "import yaml"` 验证）。
 - vault：`D:\obsidian知识库\obsidian知识库`（ingest/lint/timeline/index 依赖；缺失仅这些单元降级）。
 - 可选：环境变量 `PKOS_IMG_API_KEY`（图像出口需要：gptimage2use/comic/ppt `--images` 插图通道；ppt v2.0 默认原生渲染不需要）。endpoint 在 `11-pkos-ppt-skill/shared/image-api/config.json`。Hermes 下无需 HUNYUAN_*（那是旧 DSH LLM 通道的凭据）。
-- 套件根（下文 ROOT）：`C:/Users/18765/AppData/Local/hermes/skills/note-taking/hermes-pkos-skill`。
+- 套件根（下文 ROOT）：`<PKOS_SKILL_ROOT>`。
 
 ## How to Run
 
 所有命令经 `terminal` 工具执行，先 `cd` 到 ROOT（脚本全部相对自定位，cwd 无关紧要但统一更稳）：
 
 ```bash
-cd "C:/Users/18765/AppData/Local/hermes/skills/note-taking/hermes-pkos-skill"
+cd "<PKOS_SKILL_ROOT>"
 ```
 
 
@@ -190,9 +190,12 @@ python tests/run_tests.py && python tests/contract_refs.py && python tests/route
 - **快照与归档不是活代码**：`_PKOS/_snapshots/`、`_PKOS/_archive/`、`docs/` 是历史快照，不要编译、不要运行、不要按其中的路径修复活代码（它们含旧路径属预期）。
 - **Python 3.11 限制**：活代码已全部兼容 3.11（`11-pkos-ppt-skill/scripts/render_deck.py` 的 f-string 反斜杠问题已在迁移时修复）；若从主库回同步后该文件编译再失败，是同款老问题，按同样方式修（把正则提出 f-string）。
 - **router v4 fail-loud**：`pkos.router.decide`（`08-pkos-router/scripts/strategy_gate.py`）自 v4.0 起无策略载荷直调会显式报错——这是设计行为，需要先按 dispatch catalog 组装路由单。
-- **图像出口要钥匙和网络**：`PKOS_IMG_API_KEY` + endpoint `47.108.25.114:1519` 可达；密钥只从环境变量/`.env` 读，绝不在回复或日志里打印其值。
+- **图像出口要钥匙和网络**：`PKOS_IMG_API_KEY` + endpoint `<LLM_GATEWAY_HOST>:1519` 可达；密钥只从环境变量/`.env` 读，绝不在回复或日志里打印其值。
 - **registry.json 的 changelog 提到旧路径**（`deepseekharness`、`.dsh` 等）是历史记录，不是需要修复的活配置。
 - **不要把 `templates/` 复制进套件根**：`templates/unit-template` 的 `name: pkos-<你的单元名>` 会被技能发现机制拒绝并刷警告（本迁移已排除）。
+- **产出与操作文件分工（09-14 用户裁定）**：产出产品落 `workspace/<类别>/`（路径由 `scripts/pkos_paths.py` 的 `get_output_root()` 解析，可配置）；操作文件（脚本/状态快照/日志/备份）落套件根 `_ops/`。`_ops/` 与 `cn_debug/` 已进 `.gitignore` 与 `sync_to_main.EXCLUDE_PARTS`——本机资产不发布。
+- **改路径类改动必须同步三处**：live（Hermes 加载）→ 主库（`sync_to_main --apply`）→ DSH 副本（`dsh-pkos-skill`）。只改主库 = live 仍是旧路径（09-14 复审抓到的真漂移：12/15/25/26 SKILL.md 改了 repo 没改 live）。另需全盘扫兄弟技能（gemini-*/gzh-matrix-pipeline/monetization-ops/show-me）与 cron 薄包装脚本——它们各自硬编码过产出路径。
+- **`sync_to_main._norm` 必须做行尾归一**（09-14 修复）：Windows（`Path.write_text`）写 CRLF、Linux/`echo` 写 LF，同一文件会被 md5 判成「内容漂移」假阳性。比对前统一 `\r\n`/`\r` → `\n`，与 BOM 剥离同理。
 
 ## Verification
 
