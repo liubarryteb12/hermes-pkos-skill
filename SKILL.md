@@ -196,6 +196,8 @@ python tests/run_tests.py && python tests/contract_refs.py && python tests/route
 - **产出与操作文件分工（09-14 用户裁定）**：产出产品落 `workspace/<类别>/`（路径由 `scripts/pkos_paths.py` 的 `get_output_root()` 解析，可配置）；操作文件（脚本/状态快照/日志/备份）落套件根 `_ops/`。`_ops/` 与 `cn_debug/` 已进 `.gitignore` 与 `sync_to_main.EXCLUDE_PARTS`——本机资产不发布。
 - **改路径类改动必须同步三处**：live（Hermes 加载）→ 主库（`sync_to_main --apply`）→ DSH 副本（`dsh-pkos-skill`）。只改主库 = live 仍是旧路径（09-14 复审抓到的真漂移：12/15/25/26 SKILL.md 改了 repo 没改 live）。另需全盘扫兄弟技能（gemini-*/gzh-matrix-pipeline/monetization-ops/show-me）与 cron 薄包装脚本——它们各自硬编码过产出路径。
 - **`sync_to_main._norm` 必须做行尾归一**（09-14 修复）：Windows（`Path.write_text`）写 CRLF、Linux/`echo` 写 LF，同一文件会被 md5 判成「内容漂移」假阳性。比对前统一 `\r\n`/`\r` → `\n`，与 BOM 剥离同理。
+- **`sync_to_main.py` 有自指豁免**（不自己同步自己，为兼容主库的 IP 占位符钉法）→ 主库版会长期落后；改它之后必须手工把发布版写入主库，否则修复不进发布包（09-14 抓到主库版落后 5 项修复）。
+- **DSH 副本的 `SKILL.md`/`.gitignore` 是专属文件，禁止整体覆盖**（09-14 踩坑）：`dsh-pkos-skill/SKILL.md` 用 DSH frontmatter（`name: dsh-pkos-skill` + DSH 专属 description + 双倍行距），`.gitignore` 有自己的规则集。用 `cp` 从 live 整体拷过去会抹掉专属内容——同步 DSH 只能逐项施加合法改动（版本号/坑位/路径指引）。
 
 ## Verification
 
