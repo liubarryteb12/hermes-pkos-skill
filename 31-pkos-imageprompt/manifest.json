@@ -1,8 +1,8 @@
 {
   "name": "pkos.imageprompt.compose",
-  "version": "1.3.0",
+  "version": "1.5.0",
   "owner": "PKOS Maintainers",
-  "updated_at": "2026-09-13",
+  "updated_at": "2026-09-14",
   "review_due": "2026-12-08",
   "status": "active",
   "maturity_tier": "production",

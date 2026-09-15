@@ -157,6 +157,7 @@ def process_file(p, dry=False):
             target = dest / staged.name
             target.write_text(staged.read_text(encoding="utf-8"), encoding="utf-8")
             staged.unlink()
+            p.unlink()  # remove source from _processed after successful move
 
     return domain, None
 

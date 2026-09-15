@@ -363,6 +363,23 @@ def main(argv: list[str] | None = None) -> int:
         print(f"vault 不可达: {vault}", file=sys.stderr)
         return 2
     out_dir = vault / args.out if not Path(args.out).is_absolute() else Path(args.out)
+    # 防线：--out 误传文件路径（如 _PKOS/MASTER_INDEX.json）会把产物 mkdir 成同名目录，
+    # 与 MASTER_INDEX.json 文件冲突反复复发（09-05 / 09-06 / 09-12 / 09-14 共 5 次）。fail-loud 并回退。
+    # 第一道：扩展名即拒绝——--out 永远是目录，带扩展名说明调用方把产物路径当输出目录传了。
+    # （仅判 is_file()/is_dir() 不够：路径此刻不存在时 mkdir 会静默建出同名目录。）
+    if Path(args.out).suffix:
+        print(f"WARN: --out 带扩展名 {args.out}（--out 只接受目录），回退到 _PKOS/", file=sys.stderr)
+        out_dir = vault / "_PKOS"
+    # 第二道：已存在且是文件 → 回退
+    if out_dir.is_file():
+        print(f"WARN: --out 指向已存在文件 {out_dir}，回退到 _PKOS/", file=sys.stderr)
+        out_dir = vault / "_PKOS"
+    # 第三道：残留的同名目录 → 回退到父目录
+    if out_dir.is_dir() and out_dir.name == "MASTER_INDEX.json":
+        parent = out_dir.parent
+        print(f"WARN: --out 指向残留目录 {out_dir}，回退到 {parent}/", file=sys.stderr)
+        out_dir = parent
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     try:
         idx = build_index(vault, out_dir, args.incremental, args.since)

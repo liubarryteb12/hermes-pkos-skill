@@ -1,0 +1,34 @@
+{
+  "model": "agnes-2.5-flash",
+  "base_url": "http://<LLM_GATEWAY_HOST>:1519/v1",
+  "planner_model": "agnes-2.5-flash",
+  "executor_model": "sensenova-6.8-flash-lite",
+  "min_delta": 0.0,
+  "blacklist_gate": true,
+  "epochs": [
+    {
+      "epoch": 1,
+      "train": 30,
+      "failures": 10,
+      "plan": "AIM: Add a mandatory output schema constraint requiring agents to output the literal word `available` immediately before naming the exit unit when a combination is legal; do not alter the matrix data or routing rules.\n\nTASKLIST:\n1. In the `## 判定规则` section, add a \"Output Schema\" subsection specifying that for all legal combinations, the agent's final answer MUST begin with the exact string `available ` followed by the exit name (e.g., `available html`, `available ppt`, `available comic`). This directly addresses the `MISSING: ['available']` failures where agents correctly identified the exit but failed to emit the required status token.\n\nHOOK:\n- Preserve existing matrix table and all valid/invalid combination definitions.\n- Do not change MAX_RETRY logic or style_theme rules.\n- Ensure the new instruction is imperative (\"MUST\") and specific (exact string format), avoiding vague terms like \"consider adding\" or \"recommended\".\n- Do not delete any existing sections.\n\nLOOP:\nApply Edit 1 (add Output Schema subsection) within 1 edit.\n\nCHECKPOINT:\nVerify that for the failed cases where `MISSING: ['available']` was flagged (e.g., `exit=html, conversion_type=wiki百科条目`), the revised skill forces the output to be `available html` instead of just `html`, satisfying the gold cue requirement.",
+      "candidate_val": 0.75,
+      "best_val": 0.859,
+      "accepted": false
+    },
+    {
+      "epoch": 2,
+      "train": 30,
+      "failures": 10,
+      "plan": "AIM: 消除 v4.0 策略消费者部分的重复文本，避免上下文过长导致关键矩阵/规则被稀释或遗忘，从而恢复对 `unavailable` 信号的明确触发。\n\nTASKLIST:\n1. 删除 `# v4.0 策略消费者（Strategy Consumer）—— Policy ≠ Router` 标题下的第一个重复块（包含判定规则、style_theme、style_adapter 三个子节，以及其后的 Markdown 表格和说明）。仅保留该标题下的架构解耦引用块（blockquote），因为这是对 Router 职责的定义，与路由逻辑本身不同。\n\nHOOK:\n- 必须保留顶部的 `# Router 矩阵判定（种子节选）` 完整内容（矩阵、判定规则、style_theme、style_adapter），这是实际执行判定的核心知识源。\n- 必须保留 v4.0 架构解耦的引用块（`> **v4.0 架构解耦...`），以维持上下文中的版本/架构信息完整性。\n- 禁止修改表格内容、判定规则文字、style_theme/style_adapter 约束逻辑。\n- 禁止删除任何 failed case。\n- 禁止添加新的示例或解释。\n\nLOOP:\n1. EDIT_BUDGET: 1\n\nCHECKPOINT:\n- 检查修正后的 skill 是否仍包含完整的 5x7 矩阵和 11 个合法组合的判定规则。\n- 验证在相同的 failed cases 输入下（如 `exit=html, conversion_type=wiki百科条目`），模型能否基于保留的顶部核心判定规则正确输出 `html` 并隐含 `available` 状态；对于非法组合（如 `exit=comic, conversion_type=wiki百科条目`，虽未在 cases 中但逻辑一致），应能触发 `unavailable`。\n- 确认 v4.0 部分不再重复陈述具体的合法性判断逻辑，减少 token 干扰。",
+      "candidate_val": 0.859,
+      "best_val": 0.859,
+      "accepted": true
+    }
+  ],
+  "gate": {
+    "seed_val": 0.859,
+    "best_val": 0.859,
+    "improved": false,
+    "early_stopped": false
+  }
+}

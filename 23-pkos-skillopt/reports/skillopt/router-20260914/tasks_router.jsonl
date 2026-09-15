@@ -1,0 +1,76 @@
+{"input": "路由决策单检查：exit=html, conversion_type=wiki百科条目。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["html", "available"]}
+{"input": "路由决策单检查：exit=html, conversion_type=实战操作指南。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["html", "available"]}
+{"input": "路由决策单检查：exit=html, conversion_type=避坑风险清单。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["html", "available"]}
+{"input": "路由决策单检查：exit=html, conversion_type=学习路径。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["html", "available"]}
+{"input": "路由决策单检查：exit=html, conversion_type=公众号漫画。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=html, conversion_type=小说。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=html, conversion_type=公众号文章。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=ppt, conversion_type=wiki百科条目。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["ppt", "available"]}
+{"input": "路由决策单检查：exit=ppt, conversion_type=实战操作指南。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["ppt", "available"]}
+{"input": "路由决策单检查：exit=ppt, conversion_type=避坑风险清单。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["ppt", "available"]}
+{"input": "路由决策单检查：exit=ppt, conversion_type=学习路径。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["ppt", "available"]}
+{"input": "路由决策单检查：exit=ppt, conversion_type=公众号漫画。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=ppt, conversion_type=小说。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=ppt, conversion_type=公众号文章。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=comic, conversion_type=wiki百科条目。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=comic, conversion_type=实战操作指南。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=comic, conversion_type=避坑风险清单。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=comic, conversion_type=学习路径。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=comic, conversion_type=公众号漫画。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["comic", "available"]}
+{"input": "路由决策单检查：exit=comic, conversion_type=小说。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=comic, conversion_type=公众号文章。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=novel, conversion_type=wiki百科条目。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=novel, conversion_type=实战操作指南。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=novel, conversion_type=避坑风险清单。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=novel, conversion_type=学习路径。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=novel, conversion_type=公众号漫画。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=novel, conversion_type=小说。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["novel", "available"]}
+{"input": "路由决策单检查：exit=novel, conversion_type=公众号文章。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=article, conversion_type=wiki百科条目。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=article, conversion_type=实战操作指南。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=article, conversion_type=避坑风险清单。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=article, conversion_type=学习路径。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=article, conversion_type=公众号漫画。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=article, conversion_type=小说。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "路由决策单检查：exit=article, conversion_type=公众号文章。这个组合合法吗？如果合法请说明路由到哪个出口单元（答出 exit 名称），不合法请明确说 unavailable。", "expect_contains": ["article", "available"]}
+{"input": "样式适配检查：exit=html, style_adapter=html_article。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "样式适配检查：exit=html, style_adapter=video_script。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=html, style_adapter=comic_storyboard。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=html, style_adapter=novel_chapter。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=html, style_adapter=gzh_article。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=html, style_adapter=null。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "样式适配检查：exit=ppt, style_adapter=html_article。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=ppt, style_adapter=video_script。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "样式适配检查：exit=ppt, style_adapter=comic_storyboard。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=ppt, style_adapter=novel_chapter。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=ppt, style_adapter=gzh_article。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=ppt, style_adapter=null。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "样式适配检查：exit=comic, style_adapter=html_article。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=comic, style_adapter=video_script。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=comic, style_adapter=comic_storyboard。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "样式适配检查：exit=comic, style_adapter=novel_chapter。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=comic, style_adapter=gzh_article。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=comic, style_adapter=null。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "样式适配检查：exit=novel, style_adapter=html_article。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=novel, style_adapter=video_script。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=novel, style_adapter=comic_storyboard。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=novel, style_adapter=novel_chapter。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "样式适配检查：exit=novel, style_adapter=gzh_article。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=novel, style_adapter=null。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "样式适配检查：exit=article, style_adapter=html_article。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=article, style_adapter=video_script。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=article, style_adapter=comic_storyboard。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=article, style_adapter=novel_chapter。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "样式适配检查：exit=article, style_adapter=gzh_article。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "样式适配检查：exit=article, style_adapter=null。合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "style_theme=缺省。按 v3.3 收敛规则这个值合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "style_theme=\"null\"。按 v3.3 收敛规则这个值合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "style_theme=空字符串。按 v3.3 收敛规则这个值合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["legal"]}
+{"input": "style_theme=\"paper-ink\"。按 v3.3 收敛规则这个值合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "style_theme=\"0\"。按 v3.3 收敛规则这个值合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "style_theme=\"html_article\"。按 v3.3 收敛规则这个值合法吗？合法答 legal，非法答 unavailable。", "expect_contains": ["unavailable"]}
+{"input": "出口 html 对应的 capability_id 是什么？只答 capability 字符串。", "expect_contains": ["pkos.exit.html.render"]}
+{"input": "出口 ppt 对应的 capability_id 是什么？只答 capability 字符串。", "expect_contains": ["pkos.exit.ppt.compose"]}
+{"input": "出口 comic 对应的 capability_id 是什么？只答 capability 字符串。", "expect_contains": ["pkos.exit.comic.compose"]}
+{"input": "出口 novel 对应的 capability_id 是什么？只答 capability 字符串。", "expect_contains": ["pkos.exit.gzhxiaoshuo.compose"]}
+{"input": "出口 article 对应的 capability_id 是什么？只答 capability 字符串。", "expect_contains": ["pkos.exit.wenzhang.compose"]}

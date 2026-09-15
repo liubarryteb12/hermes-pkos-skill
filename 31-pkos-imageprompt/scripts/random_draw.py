@@ -15,7 +15,7 @@ PL = ROOT / "references" / "prompt-library"
 
 
 def parse_entry(line):
-    m = re.match(r'(\d+\.\s*)`(M[0-9]+-S[0-9]+-\d+-F[0-9]+-U[0-9]+-A[0-9]+)`\s+(.*)', line)
+    m = re.match(r'(\d+\.\s*)`(M[0-9]+-S[0-9]+-\d+-F[0-9]+-U[0-9]+-A[0-9]+[^`]*)`\s+(.*)', line)
     if not m:
         return None
     return {"code": m.group(2), "description": m.group(3).strip()}

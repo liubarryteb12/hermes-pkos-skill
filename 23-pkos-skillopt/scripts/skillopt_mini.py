@@ -52,7 +52,7 @@ from pathlib import Path
 DEFAULT_BASE_URL = "http://<LLM_GATEWAY_HOST>:1519/v1"
 # 0.2.1（09-05 用户裁定）：target 也用 agnes-2.5-flash——三角色默认共用 4 号 key 通道；
 # 评分是任务子串判分（确定性规则），非 LLM 自评，planner/target 同模型不引入「又改又评」偏差。
-DEFAULT_MODEL = "agnes-2.5-flash"  # 09-05 网关实测：HERMES_CUSTOM_4_API_KEY（公益组）下可用
+DEFAULT_MODEL = "agnes-2.5-flash"  # 09-14 网关实测：HERMES_CUSTOM_4_API_KEY 下唯一可用
 DEFAULT_MODEL_KEY_ENV = "HERMES_CUSTOM_4_API_KEY"
 # 0.2.0 改评分离（吸收 darwin-skill）：planner 出改进意见+方案，executor 照方案改写，
 # executor 与做题者解耦。如需 qwen3.8-flash 做 target：--model qwen3.8-flash
@@ -60,6 +60,7 @@ DEFAULT_MODEL_KEY_ENV = "HERMES_CUSTOM_4_API_KEY"
 DEFAULT_PLANNER_MODEL = "agnes-2.5-flash"
 DEFAULT_EXECUTOR_MODEL = "sensenova-6.8-flash-lite"
 DEFAULT_ROLE_KEY_ENV = "HERMES_CUSTOM_4_API_KEY"
+DEFAULT_EXECUTOR_KEY_ENV = "HERMES_CUSTOM_9_API_KEY"  # 09-14 实测：sensenova 通道已从 4 号迁至 9 号 key 分组
 
 # gate_0：高风险行动黑名单（darwin 第 9 维吸收版）。候选技能文本命中即一票否决，
 # 先于 validation gate。技能里显式教破坏性操作 = 静默污染出口链，永不接受。
@@ -251,7 +252,7 @@ def main() -> int:
     p.add_argument("--planner-model", default=DEFAULT_PLANNER_MODEL, help="改评分离：诊断出方案的模型")
     p.add_argument("--executor-model", default=DEFAULT_EXECUTOR_MODEL, help="改评分离：照方案改写的模型")
     p.add_argument("--planner-key-env", default=DEFAULT_ROLE_KEY_ENV)
-    p.add_argument("--executor-key-env", default=DEFAULT_ROLE_KEY_ENV)
+    p.add_argument("--executor-key-env", default=DEFAULT_EXECUTOR_KEY_ENV)
     p.add_argument("--min-delta", type=float, default=0.0,
                    help="早停阈值：候选 val 涨幅低于此值视为虚涨，拒收并停手（darwin 吸收版；0=仅禁退步）")
     p.add_argument("--no-blacklist-gate", action="store_true",
