@@ -414,7 +414,7 @@
    "version": 5.4,
    "date": "2026-09-07",
    "author": "hermes (round-39: 31-pkos-imageprompt 提示词工程单元准入)",
-   "summary": "新单元 31-pkos-imageprompt（pkos.imageprompt.compose，stage=utility）准入：五段命名提示词工程（M母题-S子题-F风格-U用途-A审美 + P模特/S安全/C参数），题词资产库 16 子题 320 条 SSOT 在单元 references/prompt-library/（与工作区双活同步）；只题材词不出图，与 27-pkos-gptimage2use 分工写死。2026-09-07 用户裁定沉淀本次会话的 ModelScope 题词体系工作流"
+   "summary": "新单元 31-pkos-imageprompt（pkos.imageprompt.compose，stage=utility）准入：五段命名提示词工程（M母题-S子题-F风格-U用途-A审美 + P模特/S安全/C参数），题词资产库 16 子题 320 条 SSOT 在单元 references/prompt-library/（与工作区双活同步）；只题材词不出图，与 27-pkos-imageapiuse 分工写死。2026-09-07 用户裁定沉淀本次会话的 ModelScope 题词体系工作流"
   }
  ],
  "gate_live": {
@@ -571,7 +571,7 @@
    "files": 3
   },
   {
-   "dir": "27-pkos-gptimage2use",
+   "dir": "27-pkos-imageapiuse",
    "files": 9
   },
   {

@@ -1,0 +1,25 @@
+{
+  "model": "agnes-2.5-flash",
+  "base_url": "http://<LLM_GATEWAY_HOST>:1519/v1",
+  "planner_model": "agnes-2.5-flash",
+  "executor_model": "sensenova-6.8-flash-lite",
+  "min_delta": 0.0,
+  "blacklist_gate": true,
+  "epochs": [
+    {
+      "epoch": 1,
+      "train": 9,
+      "failures": 0,
+      "plan": "\n\n## AIM\nFix weak_check skill's missing guardrails for error handling and ambiguous contracts; do NOT change scoring logic or thresholds.\n\n## TASKLIST\n\n1. **Add ERROR_HANDLING section** — Document what happens when DerivedDraft/FactCore is missing fields or malformed (schema validation first, then fail with specific `dim_failed` values like `entity_missing`/`number_invalid`/`fact_added`). Rationale: QC-46/QC-47/QC-48 require clear failure modes but none are specified.\n\n2. **Clarify CLI retry-count default** — Change `--retry-count 1` to `--retry-count 0` (or omit with default=0) in example. Rationale: `1` implies we're already at first failure, but skill should start fresh.\n\n3. **Add SCHEMA_VALIDATION step** — Insert before scoring: validate both documents match `pkos_schema >=3.1.0` structure; fail early with `dim_failed: \"invalid_schema\"` if not. Rationale: Prevents crashes on malformed input (hidden failure case in v4.2.1 \"批C 铺开\" expansion).\n\n4. **Fix EXIT_CODE ambiguity** — Rewrite \"1 = fail 但还未到 MAX_RETRY\" to \"1 = failed but retry_count < MAX_RETRY; Router MUST retry with new DerivedDraft\". Rationale: \"should retry\" is advisory, contract requires mandatory retry.\n\n5. **Populate FAILED_CASES** — Add 3 concrete examples from historical epochs: entity_mismatch (Jaccard < 0.8), number_drift (L1 > 0.15), fact_added (DerivedDraft has unsupported fields). Rationale: CHECKPOINT currently references non-existent failures.\n\n## HOOK\n- Preserve all existing scoring dimensions and threshold (0.9)\n- Keep NOT_actions list unchanged\n- Do not introduce external dependencies\n- All new sections must reference existing v3.1 contract links\n\n## LOOP\nExecutor applies at most 1 edit per revision. Verify each by running `python verify.py --help` and checking `telemetry.jsonl` for new event types.\n\n## CHECKPOINT\nRevised skill must cover these failed-case cues:\n- `entity_missing`: Jaccard < 0.5 triggers early fail (not 0.5 weight)\n- `number_invalid`: L1 norm > 0.3 fails before scoring\n- `fact_added`: DerivedDraft contains FactCore-unsupported fields → dim_failed=fact_added\n- `schema_invalid`: Missing required fields (target_skill, derived_from_fact_core) → fail early",
+      "candidate_val": 0.2,
+      "best_val": 1.0,
+      "accepted": false
+    }
+  ],
+  "gate": {
+    "seed_val": 1.0,
+    "best_val": 1.0,
+    "improved": false,
+    "early_stopped": false
+  }
+}

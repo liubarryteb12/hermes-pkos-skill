@@ -1,0 +1,25 @@
+{
+  "model": "agnes-2.5-flash",
+  "base_url": "http://<LLM_GATEWAY_HOST>:1519/v1",
+  "planner_model": "agnes-2.5-flash",
+  "executor_model": "sensenova-6.8-flash-lite",
+  "min_delta": 0.0,
+  "blacklist_gate": true,
+  "epochs": [
+    {
+      "epoch": 1,
+      "train": 9,
+      "failures": 0,
+      "plan": "AIM: Eliminate the ambiguity between \"no relevant entries\" and \"index missing/empty,\" which is the primary root cause of failure in `not_found` scenarios. Add a mandatory prerequisite gate to the Execution Prompts.\n\nTASKLIST:\n1. **Add Mandatory Prerequisite Gate**: Insert a strict \"Pre-flight Check\" section before Step 1 in the \"执行提示\" (Execution Prompts). This mandates reading the index structure first to distinguish `not_found` (valid empty result) from `unavailable` (malformed/missing index file). Rationale: The current flow immediately jumps to querying, risking silent failures or misclassification when `MASTER_INDEX.json` is absent or corrupted.\n\nHOOK:\n- Preserve all existing YAML schemas and `NOT_actions`.\n- Do not modify the `failures` contract block (keep existing logic), but enforce it via the new prompt gate.\n- No vague language (e.g., avoid \"consider checking\"). Use imperative, mandatory language (\"must verify,\" \"if absent, terminate\").\n- Do not delete the existing Step 1 (Read MASTER_INDEX); replace it with the two-step sequence: Verify Structure → Query.\n\nLOOP:\n- Apply exactly 1 edit: Insert the pre-flight verification step into the `执行提示` section.\n\nCHECKPOINT:\n- Verify that for a case where `MASTER_INDEX.json` is missing, the agent now triggers the `unavailable` flow (or `not_found` with specific \"build index\" recommendation) instead of crashing or hallucinating results.\n- Verify that for a case where `MASTER_INDEX.json` exists but contains no matches, the agent correctly follows the `not_found` path with `max_relevant: 0`.",
+      "candidate_val": 0.9,
+      "best_val": 1.0,
+      "accepted": false
+    }
+  ],
+  "gate": {
+    "seed_val": 1.0,
+    "best_val": 1.0,
+    "improved": false,
+    "early_stopped": false
+  }
+}

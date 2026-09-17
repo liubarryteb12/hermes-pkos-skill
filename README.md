@@ -181,7 +181,7 @@ python 04-pkos-knowledge-service-commit/scripts/trash_gc.py --report
 | `operator.audit`（`22-pkos-soulselect`） | 调用方人格守卫（Meta-Auditor） |
 | `skillopt.train`（`23-pkos-skillopt`） | 用真实任务集训练/优化技能本身 |
 | `gemini.chat / image / video` | 外脑：对话、生图、生视频 |
-| `gptimage2use`（`27-pkos-gptimage2use`） | 原子出图通道（只吃现成题词，不产题词） |
+| `gptimage2use`（`27-pkos-imageapiuse`） | 原子出图通道（只吃现成题词，不产题词） |
 
 ### 运营与题词（v5.4 新车间）
 | 单元 | 干什么 |

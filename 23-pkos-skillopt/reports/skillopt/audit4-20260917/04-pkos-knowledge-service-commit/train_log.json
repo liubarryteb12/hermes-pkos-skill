@@ -1,0 +1,25 @@
+{
+  "model": "agnes-2.5-flash",
+  "base_url": "http://<LLM_GATEWAY_HOST>:1519/v1",
+  "planner_model": "agnes-2.5-flash",
+  "executor_model": "sensenova-6.8-flash-lite",
+  "min_delta": 0.0,
+  "blacklist_gate": true,
+  "epochs": [
+    {
+      "epoch": 1,
+      "train": 8,
+      "failures": 0,
+      "plan": "\n\n# Improvement Plan\n\n**AIM:** Add an unambiguous AGENT_EXECUTION directive to 工序 so the agent knows exactly how to enforce the v2 centralized-commit rule when processing a status transition request — prevent agents from bypassing the skill and writing status fields directly. **DO NOT TOUCH** the contract schemas, failure states, or verification predicates.\n\n**TASKLIST:**\n\n1. **Insert AGENT_EXECUTION block into 工序** after step 7, providing a deterministic decision tree: (a) if the caller is another skill attempting to advance status directly → reject with `failures.ambiguous` citing `gate_1_no_retrograde`; (b) if the caller is routing through invoke → proceed with full validation; (c) if evidence references a non-existent artifact → resolve immediately with `failures.not_found` without reaching atomic write. This closes the only path where an agent could correctly follow the skill yet still produce an invalid direct write.\n\n**HOOK:** Preserve all existing contract schemas, failure definitions, state machine, and NOT_actions list verbatim. No destructive operations. Language must be imperative and determinate — no `建议/可以考虑/视情况而定`.\n\n**LOOP:** Apply 1 edit (the AGENT_EXECUTION insertion). Re-evaluate after single pass.\n\n**CHECKPOINT:** Verify that the revised skill now covers the cue: *an analysis or polish skill attempts to write `status=analyzed`/`polished` directly to front matter without invoking `pkos.knowledge_service.commit`*. The updated 工序 must produce a rejection or forward-digest action for this cue.",
+      "candidate_val": 1.0,
+      "best_val": 0.75,
+      "accepted": true
+    }
+  ],
+  "gate": {
+    "seed_val": 0.75,
+    "best_val": 1.0,
+    "improved": true,
+    "early_stopped": false
+  }
+}

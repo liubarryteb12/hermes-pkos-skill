@@ -1,0 +1,14 @@
+{"input": "弱审核的四个评分维度及各自权重？", "expect_contains": ["实体匹配", "数字匹配", "事实未删", "事实未增", "0.5", "0.1"]}
+{"input": "通过阈值是多少？", "expect_contains": ["0.9"]}
+{"input": "MAX_RETRY 等于几次？", "expect_contains": ["2"]}
+{"input": "2 次 fail 之后触发什么（事件名+决策单+回退名）？", "expect_contains": ["weak_check.degraded", "ambiguous", "Raw Fallback"]}
+{"input": "weak_check.pass 事件的必填字段？", "expect_contains": ["derived_from", "target_skill", "score"]}
+{"input": "weak_check.fail 比 pass 事件多哪个必填字段？", "expect_contains": ["dim_failed"]}
+{"input": "telemetry 单写者文件路径？", "expect_contains": ["_PKOS/execution/telemetry.jsonl"]}
+{"input": "verify.py 退出码 1 是什么含义？Router 该怎么做？", "expect_contains": ["MAX_RETRY", "重试"]}
+{"input": "verify.py 退出码 0 什么含义？", "expect_contains": ["pass", "降级成功"]}
+{"input": "本单元 capability_id？", "expect_contains": ["pkos.weak_check.verify"]}
+{"input": "ambiguous 决策单写到哪个目录？", "expect_contains": ["_PKOS/_quarantine/ambiguous"]}
+{"input": "弱审失败会阻塞 Exit 吗？降级后直出什么？", "expect_contains": ["不阻塞", "FactCore"]}
+{"input": "实体匹配维度用什么算法？", "expect_contains": ["Jaccard"]}
+{"input": "本单元 NOT_actions 全部列出。", "expect_contains": ["modify_fact_core", "decide_exit", "generate_content", "run_llm"]}

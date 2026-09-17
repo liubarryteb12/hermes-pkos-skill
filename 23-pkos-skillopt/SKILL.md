@@ -82,7 +82,8 @@ outputs:
 - 503 model_not_found → 该 key 分组下无此模型通道。**勿混用通道**（09-14 实测矩阵）：agnes 只在 4 号 key；sensenova 只在 9 号 key；8 号 key 有 deepseek-v4.1-flash/kimi-k3/glm-5.2/hy3。用 --model-key-env/--planner-key-env/--executor-key-env 对齐。
 - 空答案/解析失败 → 换非 thinking 模型（glm-5.3-flash 禁用：长输出被思考吃光 token 返回空）。
 - 全 val 任务判 0 → 检查 expect_contains 是否过苛（子串判分对措辞敏感）。
-- 门永远 REJECT → 技能已无缺陷或任务集太简单；换更难的任务集，而不是绕过门。若同一轮内 planner 方案与 executor 改写差异大且频繁被门拒 → 疑方案-执行失配，检查 planner 五要素方案（train_log 的 plan 字段）是否被 executor 完整执行。
+- **出题三铁律（09-17 audit4 实战固化）**：①expect 串必须逐字存在于 seed（frontmatter 已剥，别考 frontmatter 里的内容）；②警惕同义改写假失分——模型答 `AN-*/POL-*/RT-*` 而 expect 是 `AN/POL/RT/exit`，语义对但子串不中，复盘时先读答案再定责；③**小 val 集（≤5 题）+ executor 删减正文 = 过拟合假提升**——audit4 的 04 单元 seed 0.75→best 1.0 靠删 114 行真实内容（工序/前置条件），val 涨分但语义损失，合并前必须人工 diff 评审。
+- 门永远 REJECT → 技能已无缺陷或任务集太简单；换更难的任务集，而不是绕过门。若同一轮内 planner 方案与 executor 改写差异大且频繁被门拒 → 疑方案-执行失配，检查 planner 五要素方案（train_log 的 plan 字段）是否被完整执行。
 
 # 上游完整性
 

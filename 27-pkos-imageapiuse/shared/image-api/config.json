@@ -1,0 +1,43 @@
+{
+  "_comment": "SenseNova U1.5 Lite 图像生成 provider（免费公测期，watermark=false 需显式传）",
+  "active_provider": "sensenova",
+  "providers": {
+    "sensenova": {
+      "kind": "openai-compatible",
+      "endpoint": "https://token.sensenova.cn/v1",
+      "auth_env": "PKOS_IMG_API_KEY",
+      "model": "sensenova-u1.5-lite",
+      "defaults": {
+        "size": "square",
+        "quality": "auto",
+        "output_format": "png",
+        "background": "auto"
+      },
+      "quirks": {
+        "endpoint_suffix": "/images/generations",
+        "extra_body": {
+          "response_format": "b64_json",
+          "watermark": false,
+          "prompt_extend": true
+        },
+        "size_alias": {
+          "square": "2048x2048",
+          "portrait_9_16": "1536x2720",
+          "landscape_16_9": "2720x1536",
+          "portrait_2_3": "1664x2496",
+          "landscape_3_2": "2496x1664",
+          "square_4k": "4096x4096",
+          "auto": "auto"
+        },
+        "retry_on_429": true,
+        "response_path": "data[0].b64_json"
+      }
+    }
+  },
+  "failure_matrix": {
+    "401": "fail-no-retry",
+    "429": "retry-backoff",
+    "5xx": "retry-once",
+    "timeout": "fail-to-fallback"
+  }
+}

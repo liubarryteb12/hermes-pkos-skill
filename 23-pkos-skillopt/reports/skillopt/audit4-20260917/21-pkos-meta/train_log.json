@@ -1,0 +1,25 @@
+{
+  "model": "agnes-2.5-flash",
+  "base_url": "http://<LLM_GATEWAY_HOST>:1519/v1",
+  "planner_model": "agnes-2.5-flash",
+  "executor_model": "sensenova-6.8-flash-lite",
+  "min_delta": 0.0,
+  "blacklist_gate": true,
+  "epochs": [
+    {
+      "epoch": 1,
+      "train": 6,
+      "failures": 0,
+      "plan": "\n\nAIM: Tighten the skill definition to close ambiguities and improve enforceability without changing core behavior or replacing any existing capability.\n\nTASKLIST:\n1. Add `default_args` field specifying the dry-run assumption for `scripts/tick.py --apply` so agents do not accidentally perform physical cleanup; rationale: `NOT_actions` alone does not bind script invocation mode, leaving agents free to choose `--apply` unchecked.\n\nHOOK: Preserve all existing fields and references; do not add new LLM-dependent capabilities; do not modify `NOT_actions`; keep version and `compatible_pkos_schema` unchanged; do not remove or rename any scripts.\n\nLOOP: Apply exactly 1 edit (addition of `default_args`), then stop.\n\nCHECKPOINT: Verify the revised skill includes `default_args` with explicit `--apply` guard for `tick.py`; confirm no other fields were altered; ensure the skill still rejects `write_vault` and `delete_notes` via `NOT_actions`.",
+      "candidate_val": 1.0,
+      "best_val": 1.0,
+      "accepted": true
+    }
+  ],
+  "gate": {
+    "seed_val": 1.0,
+    "best_val": 1.0,
+    "improved": false,
+    "early_stopped": false
+  }
+}

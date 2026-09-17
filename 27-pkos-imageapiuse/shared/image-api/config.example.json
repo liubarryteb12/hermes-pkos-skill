@@ -1,0 +1,100 @@
+{
+  "_comment": "SenseNova U1.5 Lite 图像生成 provider（免费公测期，watermark=false 需显式传）",
+  "_note": "不同 provider 的 output_dir 用于区分出图文件夹，避免混淆；使用时将此文件复制为 config.json",
+  "active_provider": "sensenova",
+  "providers": {
+    "sensenova": {
+      "kind": "openai-compatible",
+      "endpoint": "https://token.sensenova.cn/v1",
+      "auth_env": "PKOS_IMG_API_KEY",
+      "model": "sensenova-u1.5-lite",
+      "output_dir": "workspace/sensenova-images",
+      "defaults": {
+        "size": "square",
+        "quality": "auto",
+        "output_format": "png",
+        "background": "auto"
+      },
+      "quirks": {
+        "endpoint_suffix": "/images/generations",
+        "extra_body": {
+          "response_format": "b64_json",
+          "watermark": false,
+          "prompt_extend": true
+        },
+        "size_alias": {
+          "square": "2048x2048",
+          "portrait_9_16": "1536x2720",
+          "landscape_16_9": "2720x1536",
+          "portrait_2_3": "1664x2496",
+          "landscape_3_2": "2496x1664",
+          "square_4k": "4096x4096",
+          "auto": "auto"
+        },
+        "retry_on_429": true,
+        "response_path": "data[0].b64_json"
+      }
+    },
+    "gptimage2": {
+      "kind": "openai-compatible",
+      "endpoint": "http://<LLM_GATEWAY_HOST>:1519/v1",
+      "auth_env": "PKOS_IMG_API_KEY",
+      "model": "gpt-image-2",
+      "output_dir": "workspace/gptimage2-images",
+      "defaults": {
+        "size": "1024x1024",
+        "quality": "auto",
+        "output_format": "png",
+        "background": "auto"
+      },
+      "quirks": {
+        "transparent_bg_param": "background",
+        "size_alias": {
+          "square": "1024x1024",
+          "portrait": "1024x1792",
+          "wide": "1792x1024"
+        },
+        "retry_on_429": true,
+        "response_path": "data[0].b64_json"
+      }
+    },
+    "gemini": {
+      "kind": "openai-compatible",
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta",
+      "auth_env": "GEMINI_API_KEY",
+      "model": "gemini-2.0-flash-exp",
+      "output_dir": "workspace/gemini-images",
+      "defaults": {
+        "size": "1024x1024",
+        "quality": "standard",
+        "output_format": "png"
+      },
+      "quirks": {
+        "retry_on_429": true,
+        "response_path": "candidates[0].content.parts[0].inlineData.data"
+      }
+    },
+    "yuanbao": {
+      "kind": "openai-compatible",
+      "endpoint": "https://api.huoshan.com/v1",
+      "auth_env": "YUANBAO_API_KEY",
+      "model": "hy2.0-pro",
+      "output_dir": "workspace/yuanbao-images",
+      "defaults": {
+        "size": "1024x1024",
+        "quality": "auto",
+        "output_format": "png"
+      },
+      "quirks": {
+        "retry_on_429": true,
+        "response_path": "data[0].b64_json"
+      }
+    }
+  },
+  "failure_matrix": {
+    "401": "fail-no-retry",
+    "429": "retry-backoff",
+    "5xx": "retry-once",
+    "timeout": "fail-to-fallback"
+  }
+}

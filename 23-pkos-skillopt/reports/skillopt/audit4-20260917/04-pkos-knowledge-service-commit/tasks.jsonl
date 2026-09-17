@@ -1,0 +1,12 @@
+{"input": "Knowledge Object 的 status 六值状态机，请按顺序列出全部六个状态。", "expect_contains": ["triaged", "analyzed", "polished", "routed", "exported", "published"]}
+{"input": "本单元执行的是哪条公理的裁定？只答公理编号。", "expect_contains": ["D-6"]}
+{"input": "commit 的 options.from_state 允许哪些取值（含特殊值）？", "expect_contains": ["triaged", "analyzed", "polished", "routed", "exported", "null"]}
+{"input": "options.force 的默认值是什么？", "expect_contains": ["false"]}
+{"input": "commit 失败回滚靠产物里的什么字段？", "expect_contains": ["rollback_token"]}
+{"input": "front matter 回写的一致性要求是什么（一词）？", "expect_contains": ["atomic"]}
+{"input": "v2 契约下其他 skill 想推进 status 必须怎么做？", "expect_contains": ["invoke"]}
+{"input": "本单元 NOT_actions 全部列出。", "expect_contains": ["click", "type", "scroll", "modify_body", "skip_audit", "bypass_integrity"]}
+{"input": "commit 主产物的 schema 名是什么？", "expect_contains": ["pkos-knowledge-state-transition:1"]}
+{"input": "状态机一致性（顺序不能错）涉及哪两条公理？", "expect_contains": ["D-2", "D-3"]}
+{"input": "Source of Truth 锁定（commit 后不可逆）是哪条公理？", "expect_contains": ["D-5"]}
+{"input": "commit_evidence 要填什么内容（依据哪类产物触发）？", "expect_contains": ["AN/POL/RT/exit"]}

@@ -1,0 +1,14 @@
+{"input": "本单元 capability_id？", "expect_contains": ["pkos.intake.query"]}
+{"input": "query 是 v2.1 c 线 4 单元中唯一消费什么图的下游？", "expect_contains": ["fanout"]}
+{"input": "options.include_fanout 默认值？", "expect_contains": ["true"]}
+{"input": "options.max_relevant 默认值？", "expect_contains": ["10"]}
+{"input": "provider 默认值（v0 锁死）？", "expect_contains": ["hy3"]}
+{"input": "输出产物落盘的目录模式？", "expect_contains": ["_PKOS/queries/"]}
+{"input": "输出主产物 schema 名？", "expect_contains": ["pkos-query-response:1"]}
+{"input": "失败三态是哪三种？", "expect_contains": ["not_found", "ambiguous", "unavailable"]}
+{"input": "MASTER_INDEX.json 不存在属于哪种失败态？", "expect_contains": ["not_found"]}
+{"input": "查询词多义（需用户裁）属于哪种失败态？", "expect_contains": ["ambiguous"]}
+{"input": "ambiguous 态的 caller_action 有哪些？", "expect_contains": ["add_constraint", "ask_user"]}
+{"input": "机械自检跑哪个脚本（FAIL 即拒绝落盘重写）？", "expect_contains": ["qa_check.py"]}
+{"input": "not_found 态的 caller_action？", "expect_contains": ["continue", "report"]}
+{"input": "v0 intake.scan 与 v2.1 intake.query 的本质区别？", "expect_contains": ["INBOX", "相关条目"]}

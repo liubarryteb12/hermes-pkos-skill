@@ -1,0 +1,9 @@
+{"input": "本单元 capability_id（对外契约名）？", "expect_contains": ["pkos.governance.tick"]}
+{"input": "stage 是什么？", "expect_contains": ["governance"]}
+{"input": "required_capability 是什么？说明为什么。", "expect_contains": ["none"]}
+{"input": "NOT_actions 全部列出。", "expect_contains": ["write_vault", "delete_notes"]}
+{"input": "本单元三个脚本文件名？", "expect_contains": ["tick.py", "telemetry_dashboard.py", "meta_gate.py"]}
+{"input": "tick.py 执行物理清理需要什么参数？", "expect_contains": ["--apply"]}
+{"input": "telemetry_dashboard.py 读哪个文件？", "expect_contains": ["_PKOS/execution/telemetry.jsonl"]}
+{"input": "心跳巡检默认什么模式？", "expect_contains": ["dry-run"]}
+{"input": "消费 degradation_gate 产出的什么建议单？", "expect_contains": ["G3"]}
